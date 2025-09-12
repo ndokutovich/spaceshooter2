@@ -1,0 +1,302 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    background: #000;
+    font-family: 'Arial', sans-serif;
+    touch-action: none;
+    user-select: none;
+}
+
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameCanvas {
+    background: linear-gradient(180deg, #000428 0%, #004e92 100%);
+    display: block;
+    image-rendering: crisp-edges;
+}
+
+.screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    color: white;
+    z-index: 10;
+}
+
+.screen.active {
+    display: flex;
+}
+
+.logo {
+    font-size: 48px;
+    font-weight: bold;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+    50% { text-shadow: 0 0 40px rgba(255, 255, 255, 0.8); }
+}
+
+.menu-button {
+    margin: 10px;
+    padding: 15px 40px;
+    font-size: 20px;
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.menu-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+}
+
+.menu-button:active {
+    transform: scale(0.95);
+}
+
+#hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    color: white;
+    font-size: 18px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.hud-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.health-bar, .shield-bar {
+    width: 200px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid white;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 5px 0;
+}
+
+.health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff0000, #ff6600);
+    transition: width 0.3s;
+}
+
+.shield-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0099ff, #00ffff);
+    transition: width 0.3s;
+}
+
+#pauseBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    border-radius: 10px;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 6;
+    pointer-events: all;
+}
+
+#upgradeScreen {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.upgrade-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.upgrade-card {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.upgrade-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(100, 100, 255, 0.3);
+}
+
+.upgrade-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #00ffff;
+}
+
+.upgrade-info {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.upgrade-button {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(45deg, #00ff00 0%, #00aa00 100%);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.upgrade-button:disabled {
+    background: linear-gradient(45deg, #666 0%, #444 100%);
+    cursor: not-allowed;
+}
+
+.currency-display {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 20px;
+    color: #ffd700;
+}
+
+#gameOver {
+    background: radial-gradient(circle, #1a1a2e 0%, #000 100%);
+}
+
+.game-over-stats {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px;
+    min-width: 300px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    font-size: 20px;
+}
+
+@media (max-width: 768px) {
+    .logo {
+        font-size: 32px;
+    }
+    
+    .menu-button {
+        padding: 12px 30px;
+        font-size: 16px;
+    }
+    
+    .upgrade-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Star background animation */
+@keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+.star {
+    position: absolute;
+    background: white;
+    animation: twinkle 3s infinite;
+}
+
+/* Additional animations and effects */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.upgrade-card:hover {
+    animation: pulse 0.5s infinite;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.screen.active {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    #hud {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    .health-bar, .shield-bar {
+        width: 150px;
+        height: 15px;
+    }
+    
+    #pauseBtn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+}
+
+/* Prevent scrolling and bounce on iOS */
+html, body {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}

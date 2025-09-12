@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Space Shooter</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Logo Screens -->
+        <div id="platformLogo" class="screen active">
+            <div class="logo">PLATFORM STUDIOS</div>
+        </div>
+        
+        <div id="vendorLogo" class="screen">
+            <div class="logo">COSMIC GAMES</div>
+        </div>
+        
+        <div id="gameLogo" class="screen">
+            <div class="logo" style="font-size: 64px;">SPACE SHOOTER</div>
+            <p style="margin-top: 20px; font-size: 20px; opacity: 0.7;">Touch to Continue</p>
+        </div>
+        
+        <!-- Main Menu -->
+        <div id="mainMenu" class="screen">
+            <div class="logo" style="margin-bottom: 40px;">SPACE SHOOTER</div>
+            <button class="menu-button" onclick="game.startGame()">PLAY</button>
+            <button class="menu-button" onclick="game.showOptions()">OPTIONS</button>
+            <button class="menu-button" onclick="game.showRecords()">RECORDS</button>
+            <button class="menu-button" onclick="game.showCredits()">CREDITS</button>
+        </div>
+        
+        <!-- Options Screen -->
+        <div id="optionsScreen" class="screen">
+            <h2 style="margin-bottom: 30px;">OPTIONS</h2>
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px;">
+                <div style="margin: 20px 0;">
+                    <label>Control Mode:</label>
+                    <select id="controlMode" style="margin-left: 10px; padding: 5px;">
+                        <option value="touch">Touch & Drag</option>
+                        <option value="joystick">Virtual Joystick</option>
+                        <option value="relative">Relative Touch</option>
+                    </select>
+                </div>
+                <div style="margin: 20px 0;">
+                    <label>Auto Fire:</label>
+                    <input type="checkbox" id="autoFire" checked style="margin-left: 10px; transform: scale(1.5);">
+                </div>
+                <div style="margin: 20px 0;">
+                    <label>Sound Effects:</label>
+                    <input type="range" id="sfxVolume" min="0" max="100" value="70" style="margin-left: 10px;">
+                </div>
+                <div style="margin: 20px 0;">
+                    <label>Music:</label>
+                    <input type="range" id="musicVolume" min="0" max="100" value="50" style="margin-left: 10px;">
+                </div>
+            </div>
+            <button class="menu-button" onclick="game.saveOptions()" style="margin-top: 30px;">SAVE</button>
+            <button class="menu-button" onclick="game.backToMenu()">BACK</button>
+        </div>
+        
+        <!-- Records Screen -->
+        <div id="recordsScreen" class="screen">
+            <h2 style="margin-bottom: 30px;">HIGH SCORES</h2>
+            <div id="highScoresList" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; min-width: 400px;">
+                <!-- High scores will be populated here -->
+            </div>
+            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;">BACK</button>
+        </div>
+        
+        <!-- Credits Screen -->
+        <div id="creditsScreen" class="screen">
+            <h2 style="margin-bottom: 30px;">CREDITS</h2>
+            <div style="text-align: center; line-height: 2;">
+                <p>Game Design & Development</p>
+                <p style="color: #00ffff;">Space Shooter Team</p>
+                <br>
+                <p>Programming</p>
+                <p style="color: #00ffff;">Lead Developer</p>
+                <br>
+                <p>Art & Design</p>
+                <p style="color: #00ffff;">Visual Artists</p>
+                <br>
+                <p>Sound & Music</p>
+                <p style="color: #00ffff;">Audio Team</p>
+            </div>
+            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;">BACK</button>
+        </div>
+        
+        <!-- Upgrade Screen (Space Hub) -->
+        <div id="upgradeScreen" class="screen">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #00ffff;">SPACE HUB - UPGRADES</h2>
+            <div class="currency-display">
+                Credits: <span id="creditsDisplay">0</span>
+            </div>
+            <div class="upgrade-grid" id="upgradeGrid">
+                <!-- Upgrades will be populated here -->
+            </div>
+            <button class="menu-button" onclick="game.continueToNextLevel()" style="margin-top: 30px;">CONTINUE TO LEVEL <span id="nextLevelNum">2</span></button>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="gameOver" class="screen">
+            <h2 style="font-size: 48px; margin-bottom: 30px; color: #ff6666;">GAME OVER</h2>
+            <div class="game-over-stats">
+                <div class="stat-row">
+                    <span>Score:</span>
+                    <span id="finalScore">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Level Reached:</span>
+                    <span id="levelReached">1</span>
+                </div>
+                <div class="stat-row">
+                    <span>Enemies Destroyed:</span>
+                    <span id="enemiesDestroyed">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Credits Earned:</span>
+                    <span id="creditsEarned">0</span>
+                </div>
+            </div>
+            <button class="menu-button" onclick="game.retryLevel()">RETRY</button>
+            <button class="menu-button" onclick="game.backToMenu()">MAIN MENU</button>
+        </div>
+        
+        <!-- Victory Screen -->
+        <div id="victoryScreen" class="screen">
+            <h2 style="font-size: 48px; margin-bottom: 30px; color: #66ff66;">VICTORY!</h2>
+            <p style="font-size: 24px; margin: 20px;">You have saved the galaxy!</p>
+            <div class="game-over-stats">
+                <div class="stat-row">
+                    <span>Final Score:</span>
+                    <span id="victoryScore">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Total Credits:</span>
+                    <span id="victoryCredits">0</span>
+                </div>
+                <div class="stat-row">
+                    <span>Completion Time:</span>
+                    <span id="completionTime">00:00</span>
+                </div>
+            </div>
+            <button class="menu-button" onclick="game.backToMenu()">MAIN MENU</button>
+        </div>
+        
+        <!-- HUD -->
+        <div id="hud" style="display: none;">
+            <div class="hud-top">
+                <div>
+                    <div>Health</div>
+                    <div class="health-bar">
+                        <div class="health-fill" id="healthBar" style="width: 100%;"></div>
+                    </div>
+                    <div>Shield</div>
+                    <div class="shield-bar">
+                        <div class="shield-fill" id="shieldBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div>Score: <span id="score">0</span></div>
+                    <div>Credits: <span id="credits">0</span></div>
+                    <div>Level: <span id="level">1</span></div>
+                    <div>Ammo: <span id="ammo">∞</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pause Button -->
+        <button id="pauseBtn" style="display: none;" onclick="game.togglePause()">⏸</button>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
