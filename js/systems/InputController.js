@@ -103,11 +103,11 @@ class InputController {
         if (this.cheatBuffer.endsWith(']]')) {
             this.cheatsActivated.allWeapons = true;
             this.cheatBuffer = '';
-            console.log('CHEAT: All weapons unlocked!');
+            console.log(languageSystem.t('CHEAT: All weapons unlocked!'));
         } else if (this.cheatBuffer.endsWith('[[')) {
             this.cheatsActivated.replenish = true;
             this.cheatBuffer = '';
-            console.log('CHEAT: Replenished!');
+            console.log(languageSystem.t('CHEAT: Replenished!'));
         }
 
         // Keep buffer size reasonable

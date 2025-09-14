@@ -11,7 +11,9 @@
       "Bash(done)",
       "Bash(for file in js/data/StoryEvents.js js/entities/*.js js/systems/*.js js/ui/*.js)",
       "Read(//w/_proj/_own/_ideator/cyberops-game/**)",
-      "Read(//w/_proj/_own/_ideator/**)"
+      "Read(//w/_proj/_own/_ideator/**)",
+      "Bash(dir:*)",
+      "Read(//w/**)"
     ],
     "deny": [],
     "ask": []

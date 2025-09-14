@@ -347,7 +347,7 @@ class CollisionSystem {
                     game.damageNumberSystem.createTextNotification(
                         asteroid.x,
                         asteroid.y,
-                        'COLLISION!',
+                        languageSystem.t('COLLISION!'),
                         '#ff0000'
                     );
                 }
@@ -394,7 +394,7 @@ class CollisionSystem {
                             game.damageNumberSystem.createTextNotification(
                                 game.player.x,
                                 game.player.y - game.player.height/2,
-                                `+${Math.floor(shieldAmount)} Shield`,
+                                `+${Math.floor(shieldAmount)} ${languageSystem.t('Shield')}`,
                                 '#00ddff'
                             );
                         }

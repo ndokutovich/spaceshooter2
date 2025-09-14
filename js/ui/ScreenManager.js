@@ -29,7 +29,7 @@ class ScreenManager {
                     if (saveData) {
                         try {
                             const save = JSON.parse(saveData);
-                            continueBtn.innerHTML = `CONTINUE<br><span style="font-size: 14px; opacity: 0.7;">Level ${save.level} • Score: ${save.score}</span>`;
+                            continueBtn.innerHTML = `${languageSystem.t('CONTINUE')}<br><span style="font-size: 14px; opacity: 0.7;">${languageSystem.t('Level')} ${save.level} • ${languageSystem.t('Score:').slice(0, -1)}: ${save.score}</span>`;
                             continueBtn.style.display = 'block';
                         } catch (e) {
                             continueBtn.style.display = 'none';
@@ -127,17 +127,17 @@ class ScreenManager {
             card.className = 'upgrade-card';
 
             card.innerHTML = `
-                <div class="upgrade-title">${upgrade.icon} ${upgrade.name}</div>
+                <div class="upgrade-title">${upgrade.icon} ${languageSystem.t(upgrade.name)}</div>
                 <div class="upgrade-info">
-                    <span>Level ${upgrade.level}/${upgrade.maxLevel}</span>
+                    <span>${languageSystem.t('Level')} ${upgrade.level}/${upgrade.maxLevel}</span>
                 </div>
-                <div style="color: #aaa; font-size: 14px; margin: 10px 0;">${upgrade.description}</div>
+                <div style="color: #aaa; font-size: 14px; margin: 10px 0;">${languageSystem.t(upgrade.description)}</div>
                 <div class="upgrade-info">
-                    <span>Cost: ${upgrade.cost} credits</span>
+                    <span>${languageSystem.t('Cost:')} ${upgrade.cost} ${languageSystem.t('credits')}</span>
                 </div>
                 <button class="upgrade-button" ${upgrade.level >= upgrade.maxLevel || credits < upgrade.cost ? 'disabled' : ''}
                         data-upgrade-type="${upgrade.type}">
-                    ${upgrade.level >= upgrade.maxLevel ? 'MAX' : 'UPGRADE'}
+                    ${upgrade.level >= upgrade.maxLevel ? languageSystem.t('MAX') : languageSystem.t('UPGRADE')}
                 </button>
             `;
 
@@ -156,7 +156,7 @@ class ScreenManager {
         list.innerHTML = '';
 
         if (scores.length === 0) {
-            list.innerHTML = '<p style="text-align: center; color: #999;">No high scores yet!</p>';
+            list.innerHTML = `<p style="text-align: center; color: #999;">${languageSystem.t('No high scores yet!')}</p>`;
         } else {
             scores.forEach((score, index) => {
                 const entry = document.createElement('div');
@@ -164,7 +164,7 @@ class ScreenManager {
                 entry.style.cssText = 'display: flex; justify-content: space-between; margin: 10px 0; font-size: 20px;';
                 entry.innerHTML = `
                     <span>${index + 1}.</span>
-                    <span style="flex: 1; text-align: center; color: #00ffff;">PLAYER</span>
+                    <span style="flex: 1; text-align: center; color: #00ffff;">${languageSystem.t('PLAYER')}</span>
                     <span style="color: #ffff00;">${score.toLocaleString()}</span>
                 `;
                 list.appendChild(entry);
@@ -355,7 +355,7 @@ class ScreenManager {
                     color: ${isUnlocked ? weapon.color : '#666666'};
                     font-weight: ${isCurrent ? 'bold' : 'normal'};
                 `;
-                nameSpan.textContent = weapon.name;
+                nameSpan.textContent = languageSystem.t(weapon.name);
 
                 if (isCurrent) {
                     const currentBadge = document.createElement('span');
@@ -367,7 +367,7 @@ class ScreenManager {
                         font-size: 10px;
                         font-weight: bold;
                     `;
-                    currentBadge.textContent = 'EQUIPPED';
+                    currentBadge.textContent = languageSystem.t('EQUIPPED');
                     leftSide.appendChild(keySpan);
                     leftSide.appendChild(nameSpan);
                     leftSide.appendChild(currentBadge);
@@ -380,7 +380,7 @@ class ScreenManager {
                 ammoSpan.style.cssText = 'font-size: 14px;';
 
                 if (!isUnlocked) {
-                    ammoSpan.textContent = '🔒 LOCKED';
+                    ammoSpan.textContent = '🔒 ' + languageSystem.t('LOCKED');
                     ammoSpan.style.color = '#666666';
                 } else if (weapon.ammo === Infinity) {
                     ammoSpan.textContent = '∞';

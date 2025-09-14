@@ -135,7 +135,8 @@ class FamilyWelfare {
      */
     getRandomFamilyMessage() {
         const messages = this.familyMessages[this.morale];
-        return messages[Math.floor(Math.random() * messages.length)];
+        const message = messages[Math.floor(Math.random() * messages.length)];
+        return languageSystem.t(message);
     }
 
     /**
@@ -157,11 +158,11 @@ class FamilyWelfare {
      */
     getStatModifiers() {
         const modifiers = {
-            starving: { damage: 0.9, speed: 0.9, description: "Worried about family (-10% stats)" },
-            worried: { damage: 0.95, speed: 0.95, description: "Concerned (-5% stats)" },
-            hopeful: { damage: 1.0, speed: 1.0, description: "Determined" },
-            grateful: { damage: 1.05, speed: 1.05, description: "Motivated (+5% stats)" },
-            proud: { damage: 1.1, speed: 1.1, description: "Inspired (+10% stats)" }
+            starving: { damage: 0.9, speed: 0.9, description: languageSystem.t("Worried about family (-10% stats)") },
+            worried: { damage: 0.95, speed: 0.95, description: languageSystem.t("Concerned (-5% stats)") },
+            hopeful: { damage: 1.0, speed: 1.0, description: languageSystem.t("Determined") },
+            grateful: { damage: 1.05, speed: 1.05, description: languageSystem.t("Motivated (+5% stats)") },
+            proud: { damage: 1.1, speed: 1.1, description: languageSystem.t("Inspired (+10% stats)") }
         };
         return modifiers[this.morale] || modifiers.hopeful;
     }
@@ -192,10 +193,10 @@ class FamilyWelfare {
     }
 
     getHungerStatus() {
-        if (this.hunger >= 80) return 'Well Fed';
-        if (this.hunger >= 50) return 'Fed';
-        if (this.hunger >= 30) return 'Hungry';
-        return 'Starving';
+        if (this.hunger >= 80) return languageSystem.t('Well Fed');
+        if (this.hunger >= 50) return languageSystem.t('Fed');
+        if (this.hunger >= 30) return languageSystem.t('Hungry');
+        return languageSystem.t('Starving');
     }
 
     /**

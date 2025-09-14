@@ -372,7 +372,8 @@ class SpaceShooterGame {
             this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
             this.ctx.font = 'bold 20px Arial';
             this.ctx.textAlign = 'center';
-            this.ctx.fillText(`⚠️ ${this.hunters.length} HUNTER${this.hunters.length > 1 ? 'S' : ''} ACTIVE ⚠️`, this.canvas.width / 2, 50);
+            const hunterText = this.hunters.length > 1 ? languageSystem.t('HUNTERS') : languageSystem.t('HUNTER');
+            this.ctx.fillText(`⚠️ ${this.hunters.length} ${hunterText} ${languageSystem.t('ACTIVE')} ⚠️`, this.canvas.width / 2, 50);
             this.ctx.restore();
         }
         this.hunters.forEach(hunter => hunter.draw(this.ctx));
@@ -450,7 +451,7 @@ class SpaceShooterGame {
                 const canSpawnBoss = this.huntersSpawned ? this.huntersDefeated : false;
 
                 if (!this.huntersSpawned) {
-                    console.log("ERROR: Reached boss threshold but hunters never spawned!");
+                    console.log(languageSystem.t("ERROR: Reached boss threshold but hunters never spawned!"));
                     // Force spawn hunters now if somehow we missed them
                     this.spawnHunters();
                     return;
@@ -557,7 +558,7 @@ class SpaceShooterGame {
             border: 2px solid #ffff00;
             animation: pulse 0.5s 3;
         `;
-        notification.textContent = "⚠️ ELITE HUNTERS INCOMING!";
+        notification.textContent = languageSystem.t("⚠️ ELITE HUNTERS INCOMING!");
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 3000);
     }
@@ -658,8 +659,8 @@ class SpaceShooterGame {
         // Check if all hunters are defeated after removing this one
         if (this.hunters.length === 0 && this.huntersSpawned) {
             this.huntersDefeated = true;
-            console.log("All hunters defeated! Boss can now spawn.");
-            this.dialogSystem.showQuickMessage("Hunters eliminated! Boss approaching...");
+            console.log(languageSystem.t("All hunters defeated! Boss can now spawn."));
+            this.dialogSystem.showQuickMessage(languageSystem.t('HUNTERS APPROACHING!'));
         }
     }
 
@@ -705,10 +706,10 @@ class SpaceShooterGame {
 
     showResourceNotification(type, credits) {
         const messages = {
-            gold: `💰 Gold ore! +${credits} credits!`,
-            crystal: `💎 Energy crystal! +${credits} credits!`,
-            platinum: `✨ PLATINUM! +${credits} credits!`,
-            hunter: `🎯 Hunter bounty! +${credits} credits!`
+            gold: `💰 ${languageSystem.t('Gold ore!')} +${credits} ${languageSystem.t('credits!')}`,
+            crystal: `💎 ${languageSystem.t('Energy crystal!')} +${credits} ${languageSystem.t('credits!')}`,
+            platinum: `✨ ${languageSystem.t('Platinum ore!')} +${credits} ${languageSystem.t('credits!')}`,
+            hunter: `🎯 ${languageSystem.t('Hunter bounty!')} +${credits} ${languageSystem.t('credits!')}`
         };
 
         const notification = document.createElement('div');
@@ -834,10 +835,10 @@ class SpaceShooterGame {
             box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
         `;
         notification.innerHTML = `
-            <div style="font-size: 32px; margin-bottom: 10px;">NEW WEAPON UNLOCKED!</div>
-            <div style="font-size: 28px; color: #00ff00; margin: 10px 0;">${weapon.name}</div>
-            <div style="font-size: 16px; opacity: 0.8;">${weapon.description}</div>
-            <div style="font-size: 14px; margin-top: 10px;">Press ${weapon.key} to equip</div>
+            <div style="font-size: 32px; margin-bottom: 10px;">${languageSystem.t('NEW WEAPON UNLOCKED!')}</div>
+            <div style="font-size: 28px; color: #00ff00; margin: 10px 0;">${languageSystem.t(weapon.name)}</div>
+            <div style="font-size: 16px; opacity: 0.8;">${languageSystem.t(weapon.description)}</div>
+            <div style="font-size: 14px; margin-top: 10px;">${languageSystem.t('Press')} ${weapon.key} ${languageSystem.t('to equip')}</div>
         `;
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 4000);
@@ -877,6 +878,9 @@ class SpaceShooterGame {
     }
 
     showUpgradeScreen() {
+        // Initialize family UI with proper values
+        this.updateFamilyUI();
+
         // Only do these actions when first entering the screen (not on refresh)
         if (!this.isRefreshingUpgradeScreen) {
             // Calculate passive income
@@ -887,7 +891,7 @@ class SpaceShooterGame {
                     this.credits += passiveIncome;
                     // Show passive income notification
                     setTimeout(() => {
-                        this.dialogSystem.showQuickMessage(`Investment Portfolio earned you ${passiveIncome} credits! (+${Math.floor(passiveIncomeRate * 100)}% interest)`);
+                        this.dialogSystem.showQuickMessage(`${languageSystem.t('Investment Portfolio earned you')} ${passiveIncome} ${languageSystem.t('credits')}! (+${Math.floor(passiveIncomeRate * 100)}% ${languageSystem.t('interest')})`);
                     }, 500);
                 }
             }
@@ -898,7 +902,7 @@ class SpaceShooterGame {
             // Show starving message after a delay to not conflict with other UI
             if (isStarving) {
                 setTimeout(() => {
-                    this.dialogSystem.showQuickMessage("Your family is starving! Send money home soon!");
+                    this.dialogSystem.showQuickMessage(languageSystem.t('Your family is starving! Send money home soon!'));
                 }, 1500); // Delayed more to not overlap with passive income
             }
 
@@ -924,11 +928,11 @@ class SpaceShooterGame {
     updateFamilyUI() {
         const status = this.familyWelfare.getStatus();
         const moraleLevels = {
-            'starving': { text: 'Desperate 😰', color: '#ff3333' },
-            'worried': { text: 'Worried 😟', color: '#ff9933' },
-            'hopeful': { text: 'Hopeful 🙂', color: '#ffff66' },
-            'grateful': { text: 'Grateful 😊', color: '#66ff66' },
-            'proud': { text: 'Proud 😍', color: '#66ffff' }
+            'starving': { text: languageSystem.t('Desperate') + ' 😰', color: '#ff3333' },
+            'worried': { text: languageSystem.t('Worried') + ' 😟', color: '#ff9933' },
+            'hopeful': { text: languageSystem.t('Hopeful') + ' 🙂', color: '#ffff66' },
+            'grateful': { text: languageSystem.t('Grateful') + ' 😊', color: '#66ff66' },
+            'proud': { text: languageSystem.t('Proud') + ' 😍', color: '#66ffff' }
         };
 
         const moraleInfo = moraleLevels[status.morale] || moraleLevels.hopeful;
@@ -947,12 +951,12 @@ class SpaceShooterGame {
 
         const debtEl = document.getElementById('familyDebt');
         if (debtEl) {
-            debtEl.textContent = status.medicalDebt + ' credits';
+            debtEl.textContent = status.medicalDebt + ' ' + languageSystem.t('credits');
         }
 
         const sentEl = document.getElementById('familySent');
         if (sentEl) {
-            sentEl.textContent = status.creditsSentHome + ' credits';
+            sentEl.textContent = status.creditsSentHome + ' ' + languageSystem.t('credits');
         }
 
         const messageEl = document.getElementById('familyMessage');
@@ -972,7 +976,7 @@ class SpaceShooterGame {
                 style="padding: 10px; margin: 5px; ${disabled ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
                 ${disabled ? 'disabled' : ''}
                 onclick="game.confirmSendMoney(${value})">
-                ${amount === 'All' ? `All (${this.credits} credits)` : `${amount} credits`}
+                ${amount === 'All' ? `${languageSystem.t('All')} (${this.credits} ${languageSystem.t('credits')})` : `${amount} ${languageSystem.t('credits')}`}
             </button>`;
         }).join('');
 
@@ -990,10 +994,10 @@ class SpaceShooterGame {
             text-align: center;
         `;
         dialog.innerHTML = `
-            <h3 style="color: #00ffff; margin-bottom: 20px;">Send Money to Family</h3>
-            <p style="color: #fff; margin-bottom: 20px;">You have ${this.credits} credits</p>
+            <h3 style="color: #00ffff; margin-bottom: 20px;">${languageSystem.t('Send Money to Family')}</h3>
+            <p style="color: #fff; margin-bottom: 20px;">${languageSystem.t('You have')} ${this.credits} ${languageSystem.t('credits')}</p>
             <div>${buttonsHTML}</div>
-            <button class="menu-button" style="margin-top: 20px; background: #ff6666;" onclick="game.cancelSendMoney()">Cancel</button>
+            <button class="menu-button" style="margin-top: 20px; background: #ff6666;" onclick="game.cancelSendMoney()">${languageSystem.t('Cancel')}</button>
         `;
         dialog.id = 'sendMoneyDialog';
         document.body.appendChild(dialog);
@@ -1052,7 +1056,7 @@ class SpaceShooterGame {
             border: 2px solid #00aaff;
             box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
         `;
-        notification.innerHTML = '🔫 All weapons refilled! 🔫';
+        notification.innerHTML = '🔫 ' + languageSystem.t('All weapons refilled!') + ' 🔫';
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 2000);
     }
@@ -1148,8 +1152,10 @@ class SpaceShooterGame {
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
         this.ctx.font = '12px Arial';
         this.ctx.textAlign = 'left';
-        const hunterStatus = this.huntersSpawned ? (this.huntersDefeated ? 'DEFEATED' : `ACTIVE: ${this.hunters.length}`) : 'NOT SPAWNED';
-        this.ctx.fillText(`Kills: ${this.enemiesKilled}/${levelConfig.enemiesToBoss} | Hunters at: ${hunterThreshold} | Status: ${hunterStatus}`, 10, this.canvas.height - 10);
+        const hunterStatus = this.huntersSpawned ?
+            (this.huntersDefeated ? languageSystem.t('DEFEATED') : `${languageSystem.t('ACTIVE')}: ${this.hunters.length}`) :
+            languageSystem.t('NOT SPAWNED');
+        this.ctx.fillText(`${languageSystem.t('Kills:')} ${this.enemiesKilled}/${levelConfig.enemiesToBoss} | ${languageSystem.t('Hunters at:')} ${hunterThreshold} | ${languageSystem.t('Status:')} ${hunterStatus}`, 10, this.canvas.height - 10);
         this.ctx.restore();
 
         // Update family status in HUD
@@ -1390,7 +1396,7 @@ class SpaceShooterGame {
         if (upgradeScreen && upgradeScreen.classList.contains('active')) {
             const saveMsg = document.createElement('div');
             saveMsg.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 255, 0, 0.9); color: white; padding: 20px; border-radius: 10px; font-size: 24px; z-index: 1000;';
-            saveMsg.textContent = 'Progress Saved!';
+            saveMsg.textContent = languageSystem.t('Progress Saved!');
             document.body.appendChild(saveMsg);
             setTimeout(() => saveMsg.remove(), 2000);
         }

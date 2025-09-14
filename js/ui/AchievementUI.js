@@ -65,9 +65,9 @@ class AchievementUI {
         `;
 
         if (tier.suffix) {
-            tierText.textContent = `Tier ${tierIndex + 1}: ${tier.suffix}`;
+            tierText.textContent = `${languageSystem.t('Tier')} ${tierIndex + 1}: ${tier.suffix}`;
         } else {
-            tierText.textContent = `Tier ${tierIndex + 1} of ${achievement.tiers.length}`;
+            tierText.textContent = `${languageSystem.t('Tier')} ${tierIndex + 1} ${languageSystem.t('of')} ${achievement.tiers.length}`;
         }
 
         titleContainer.appendChild(title);
@@ -92,7 +92,7 @@ class AchievementUI {
             color: #999999;
             margin-bottom: 10px;
         `;
-        requirement.textContent = `Requirement: ${tier.required} ${achievement.trackStat.replace(/([A-Z])/g, ' $1').toLowerCase()}`;
+        requirement.textContent = `${languageSystem.t('Requirement:')} ${tier.required} ${achievement.trackStat.replace(/([A-Z])/g, ' $1').toLowerCase()}`;
 
         // Rewards
         const rewardsContainer = document.createElement('div');
@@ -109,7 +109,7 @@ class AchievementUI {
             color: #ffff00;
             margin-bottom: 5px;
         `;
-        rewardsTitle.textContent = 'REWARDS:';
+        rewardsTitle.textContent = languageSystem.t('REWARDS:');
 
         const rewardsList = document.createElement('div');
         rewardsList.style.cssText = 'font-size: 12px;';
@@ -150,7 +150,7 @@ class AchievementUI {
                 color: #ffd700;
                 font-weight: bold;
             `;
-            complete.textContent = '⭐ ACHIEVEMENT COMPLETE! ⭐';
+            complete.textContent = '⭐ ' + languageSystem.t('ACHIEVEMENT COMPLETE!') + ' ⭐';
             notification.appendChild(complete);
         }
 
@@ -208,7 +208,7 @@ class AchievementUI {
             margin: 0;
             text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
         `;
-        title.textContent = 'ACHIEVEMENTS';
+        title.textContent = languageSystem.t('ACHIEVEMENTS');
 
         // Score display
         const scoreInfo = this.achievementSystem.getAchievementScore();
@@ -218,7 +218,7 @@ class AchievementUI {
             font-size: 20px;
             margin-top: 10px;
         `;
-        scoreDisplay.textContent = `Score: ${scoreInfo.score} | Unlocked: ${scoreInfo.unlocked}/${scoreInfo.total} (${scoreInfo.percentage.toFixed(1)}%)`;
+        scoreDisplay.textContent = `${languageSystem.t('Score:')} ${scoreInfo.score} | ${languageSystem.t('Unlocked:')} ${scoreInfo.unlocked}/${scoreInfo.total} (${scoreInfo.percentage.toFixed(1)}%)`;
 
         header.appendChild(title);
         header.appendChild(scoreDisplay);
@@ -282,7 +282,7 @@ class AchievementUI {
             cursor: pointer;
             z-index: 10000;
         `;
-        closeButton.textContent = 'CLOSE';
+        closeButton.textContent = languageSystem.t('CLOSE');
         closeButton.onclick = () => this.hideAchievementScreen();
 
         screen.appendChild(header);
@@ -335,7 +335,7 @@ class AchievementUI {
             color: ${achievement.unlocked ? '#ffff00' : '#666666'};
             font-size: 12px;
         `;
-        tier.textContent = `Tier ${achievement.currentTier}/${achievement.maxTier}`;
+        tier.textContent = `${languageSystem.t('Tier')} ${achievement.currentTier}/${achievement.maxTier}`;
 
         titleSection.appendChild(name);
         titleSection.appendChild(tier);

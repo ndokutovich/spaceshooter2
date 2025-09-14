@@ -457,9 +457,9 @@ class AchievementSystem {
 
         return {
             id: achievementId,
-            name: achievement.name,
-            description: achievement.description,
-            category: achievement.category,
+            name: languageSystem.t(achievement.name),
+            description: languageSystem.t(achievement.description),
+            category: languageSystem.t(achievement.category),
             icon: achievement.tiers[0].icon,
             currentValue: progress.currentValue,
             nextRequired: nextTier ? nextTier.required : null,
@@ -475,13 +475,18 @@ class AchievementSystem {
     getAchievementsByCategory() {
         const grouped = {};
 
+        // Initialize with translated category names
         for (const category of Object.values(this.categories)) {
-            grouped[category] = [];
+            grouped[languageSystem.t(category)] = [];
         }
 
         for (const id in this.achievements) {
             const display = this.getAchievementDisplay(id);
             if (!display.hidden) {
+                // Ensure the category exists in grouped (for safety)
+                if (!grouped[display.category]) {
+                    grouped[display.category] = [];
+                }
                 grouped[display.category].push(display);
             }
         }
