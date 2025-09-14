@@ -110,10 +110,34 @@ export class InputController {
         // Handle manual shooting
         if (this.isKeyPressed(' ') && !autoFire) {
             const now = Date.now();
-            if (now - player.lastShot > 1000 / player.fireRate) {
+            const weapon = player.weaponSystem.getCurrentWeapon();
+            const fireRate = weapon.fireRate * (player.baseFireRate / 2);
+            if (now - player.lastShot > 1000 / fireRate && player.weaponSystem.hasAmmo()) {
                 player.shoot(projectiles);
                 player.lastShot = now;
             }
+        }
+
+        // Handle weapon switching (1-9, 0 keys)
+        for (let i = 1; i <= 9; i++) {
+            if (this.isKeyPressed(i.toString())) {
+                player.weaponSystem.switchWeaponByKey(i.toString());
+                this.keys[i.toString()] = false; // Prevent repeated switching
+            }
+        }
+        if (this.isKeyPressed('0')) {
+            player.weaponSystem.switchWeaponByKey('0');
+            this.keys['0'] = false;
+        }
+
+        // Mouse wheel weapon switching (Q and E as alternatives)
+        if (this.isKeyPressed('q')) {
+            player.weaponSystem.previousWeapon();
+            this.keys['q'] = false;
+        }
+        if (this.isKeyPressed('e')) {
+            player.weaponSystem.nextWeapon();
+            this.keys['e'] = false;
         }
     }
 

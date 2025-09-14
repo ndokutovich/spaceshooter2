@@ -10,6 +10,7 @@ import { InputController } from './systems/InputController.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';
 import { CollisionSystem } from './systems/CollisionSystem.js';
 import { LevelConfig } from './systems/LevelConfig.js';
+import { WeaponSystem } from './systems/WeaponSystem.js';
 import { ScreenManager } from './ui/ScreenManager.js';
 
 export class SpaceShooterGame {
@@ -56,6 +57,7 @@ export class SpaceShooterGame {
         this.upgradeSystem = new UpgradeSystem();
         this.collisionSystem = new CollisionSystem();
         this.levelConfig = new LevelConfig();
+        this.weaponSystem = new WeaponSystem();
         this.screenManager = new ScreenManager();
 
         // High scores
@@ -138,7 +140,7 @@ export class SpaceShooterGame {
     }
 
     createPlayer() {
-        this.player = new Player(this.canvas, this.upgradeSystem.upgrades);
+        this.player = new Player(this.canvas, this.upgradeSystem.upgrades, this.weaponSystem);
     }
 
     gameLoop() {
@@ -392,12 +394,46 @@ export class SpaceShooterGame {
             rewards.powerUp.type
         ));
 
+        // Unlock new weapon based on level
+        const newWeapon = this.weaponSystem.unlockWeapon(this.level);
+        if (newWeapon) {
+            // Show weapon unlock notification
+            this.showWeaponUnlock(newWeapon);
+        }
+
         this.boss = null;
         this.bossActive = false;
         this.bossDefeated = true; // Prevent new boss spawning during victory delay
 
         // Level complete
         setTimeout(() => this.levelComplete(), 2000);
+    }
+
+    showWeaponUnlock(weapon) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #004400, #00ff00);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            font-size: 24px;
+            z-index: 1000;
+            text-align: center;
+            border: 3px solid #00ff00;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+        `;
+        notification.innerHTML = `
+            <div style="font-size: 32px; margin-bottom: 10px;">NEW WEAPON UNLOCKED!</div>
+            <div style="font-size: 28px; color: #00ff00; margin: 10px 0;">${weapon.name}</div>
+            <div style="font-size: 16px; opacity: 0.8;">${weapon.description}</div>
+            <div style="font-size: 14px; margin-top: 10px;">Press ${weapon.key} to equip</div>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 4000);
     }
 
     levelComplete() {
@@ -551,6 +587,7 @@ export class SpaceShooterGame {
             score: this.score,
             credits: this.credits,
             upgrades: this.upgradeSystem.upgrades,
+            weapons: this.weaponSystem.saveState(),
             timestamp: Date.now(),
             version: '1.0'
         };
@@ -590,6 +627,11 @@ export class SpaceShooterGame {
                         this.upgradeSystem.upgrades[key].level = saveData.upgrades[key].level || 0;
                     }
                 });
+            }
+
+            // Restore weapon state
+            if (saveData.weapons) {
+                this.weaponSystem.loadState(saveData.weapons);
             }
 
             return true;

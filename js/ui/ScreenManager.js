@@ -214,8 +214,34 @@ export class ScreenManager {
         const levelEl = document.getElementById('level');
         if (levelEl) levelEl.textContent = level;
 
-        const ammoEl = document.getElementById('ammo');
-        if (ammoEl) ammoEl.textContent = '∞';
+        // Update weapon and ammo display
+        if (player.weaponSystem) {
+            const weapon = player.weaponSystem.getCurrentWeapon();
+
+            const weaponEl = document.getElementById('weaponName');
+            if (weaponEl) {
+                weaponEl.textContent = weapon.name;
+                weaponEl.style.color = weapon.color;
+            }
+
+            const ammoEl = document.getElementById('ammo');
+            if (ammoEl) {
+                if (weapon.ammo === Infinity) {
+                    ammoEl.textContent = '∞';
+                    ammoEl.style.color = '#00ff00';
+                } else {
+                    ammoEl.textContent = `${weapon.ammo}/${weapon.maxAmmo}`;
+                    // Color code ammo based on amount
+                    if (weapon.ammo === 0) {
+                        ammoEl.style.color = '#ff0000';
+                    } else if (weapon.ammo < weapon.maxAmmo * 0.25) {
+                        ammoEl.style.color = '#ffaa00';
+                    } else {
+                        ammoEl.style.color = '#00ff00';
+                    }
+                }
+            }
+        }
     }
 
     showHUD() {
