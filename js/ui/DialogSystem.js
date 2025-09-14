@@ -1,7 +1,7 @@
 /**
  * DialogSystem - Handles story conversations and narrative moments
  */
-export class DialogSystem {
+class DialogSystem {
     constructor() {
         this.isShowing = false;
         this.currentDialog = null;

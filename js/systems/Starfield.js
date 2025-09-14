@@ -1,4 +1,4 @@
-export class Starfield {
+class Starfield {
     constructor(canvas) {
         this.canvas = canvas;
         this.stars = [];

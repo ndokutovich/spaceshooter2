@@ -1,7 +1,4 @@
-import { Projectile } from './Projectile.js';
-import { formulaService } from '../systems/FormulaService.js';
-
-export class Enemy {
+class Enemy {
     constructor(canvas, level) {
         this.canvas = canvas;
         this.level = level;

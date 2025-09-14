@@ -1,27 +1,4 @@
-import { Player } from './entities/Player.js';
-import { Enemy } from './entities/Enemy.js';
-import { Boss } from './entities/Boss.js';
-import { Hunter } from './entities/Hunter.js';
-import { Asteroid } from './entities/Asteroid.js';
-import { PowerUp } from './entities/PowerUp.js';
-import { Projectile } from './entities/Projectile.js';
-import { ParticleSystem } from './systems/ParticleSystem.js';
-import { DamageNumberSystem } from './systems/DamageNumberSystem.js';
-import { Starfield } from './systems/Starfield.js';
-import { InputController } from './systems/InputController.js';
-import { UpgradeSystem } from './systems/UpgradeSystem.js';
-import { CollisionSystem } from './systems/CollisionSystem.js';
-import { LevelConfig } from './systems/LevelConfig.js';
-import { WeaponSystem } from './systems/WeaponSystem.js';
-import { ScreenManager } from './ui/ScreenManager.js';
-import { formulaService } from './systems/FormulaService.js';
-import { DialogSystem } from './ui/DialogSystem.js';
-import { FamilyWelfare } from './systems/FamilyWelfare.js';
-import { AchievementSystem } from './systems/AchievementSystem.js';
-import { AchievementUI } from './ui/AchievementUI.js';
-import { StoryEvents, getLevelEvent } from './data/StoryEvents.js';
-
-export class SpaceShooterGame {
+class SpaceShooterGame {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
@@ -74,6 +51,11 @@ export class SpaceShooterGame {
         this.familyWelfare = new FamilyWelfare();
         this.achievementSystem = new AchievementSystem();
         this.achievementUI = new AchievementUI(this.achievementSystem);
+
+        // FPS counter
+        this.fps = 60;
+        this.frameCount = 0;
+        this.lastFpsUpdate = performance.now();
 
         // High scores
         this.highScores = this.loadHighScores();
@@ -227,6 +209,30 @@ export class SpaceShooterGame {
             return;
         }
 
+        // Calculate FPS
+        this.frameCount++;
+        const now = performance.now();
+        const deltaTime = now - this.lastFpsUpdate;
+        if (deltaTime >= 1000) {
+            this.fps = Math.round((this.frameCount * 1000) / deltaTime);
+            this.frameCount = 0;
+            this.lastFpsUpdate = now;
+
+            // Update FPS display
+            const fpsElement = document.getElementById('fps');
+            if (fpsElement) {
+                fpsElement.textContent = this.fps;
+                // Color code based on performance
+                if (this.fps >= 55) {
+                    fpsElement.style.color = '#00ff00'; // Green for good
+                } else if (this.fps >= 30) {
+                    fpsElement.style.color = '#ffff00'; // Yellow for ok
+                } else {
+                    fpsElement.style.color = '#ff0000'; // Red for poor
+                }
+            }
+        }
+
         // Clear canvas
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -280,11 +286,11 @@ export class SpaceShooterGame {
         this.achievementUI.processUnlockQueue();
 
         // Update survival time every second
-        const now = Date.now();
-        if (now - this.sessionStats.lastSurvivalUpdate > 1000) {
-            const survivalSeconds = Math.floor((now - this.sessionStats.gameStartTime) / 1000);
+        const currentTime = Date.now();
+        if (currentTime - this.sessionStats.lastSurvivalUpdate > 1000) {
+            const survivalSeconds = Math.floor((currentTime - this.sessionStats.gameStartTime) / 1000);
             this.achievementSystem.updateStat('totalSurvivalTime', survivalSeconds, false);
-            this.sessionStats.lastSurvivalUpdate = now;
+            this.sessionStats.lastSurvivalUpdate = currentTime;
         }
 
         // Check for pause

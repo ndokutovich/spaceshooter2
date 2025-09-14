@@ -1,4 +1,4 @@
-export class InputController {
+class InputController {
     constructor(canvas) {
         this.canvas = canvas;
         this.touchStartX = 0;

@@ -1,6 +1,4 @@
-import { formulaService } from './FormulaService.js';
-
-export class UpgradeSystem {
+class UpgradeSystem {
     constructor() {
         this.upgrades = {
             maxHealth: { level: 0, maxLevel: 10 },

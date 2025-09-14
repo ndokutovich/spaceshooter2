@@ -1,7 +1,7 @@
 /**
  * StoryEvents - All narrative content and dialog
  */
-export const StoryEvents = {
+const StoryEvents = {
     // Opening narration
     intro: [
         {
@@ -233,7 +233,7 @@ export const StoryEvents = {
 /**
  * Helper function to get formatted boss dialog
  */
-export function getBossDialog(level, type = 'intro') {
+function getBossDialog(level, type = 'intro') {
     const boss = StoryEvents.bosses[level];
     if (!boss) return null;
 
@@ -247,7 +247,7 @@ export function getBossDialog(level, type = 'intro') {
 /**
  * Helper function to get level event
  */
-export function getLevelEvent(level, type = 'start') {
+function getLevelEvent(level, type = 'start') {
     const levelData = StoryEvents.levelEvents[level];
     if (!levelData || !levelData[type]) return null;
 

@@ -1,16 +1,4 @@
-import { Projectile } from './Projectile.js';
-import {
-    ExplosiveProjectile,
-    ChainLightningProjectile,
-    PiercingProjectile,
-    FlameProjectile,
-    BFGProjectile,
-    QuantumProjectile
-} from './SpecialProjectiles.js';
-import { formulaService } from '../systems/FormulaService.js';
-import { StoryEvents } from '../data/StoryEvents.js';
-
-export class Boss {
+class Boss {
     constructor(canvas, level, levelConfig = null) {
         this.canvas = canvas;
         this.level = level;

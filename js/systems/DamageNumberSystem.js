@@ -1,4 +1,4 @@
-export class DamageNumberSystem {
+class DamageNumberSystem {
     constructor() {
         this.numbers = [];
     }

@@ -3,7 +3,7 @@
  * Tracks player progress and unlocks achievements with rewards
  */
 
-export class AchievementSystem {
+class AchievementSystem {
     constructor() {
         // Achievement categories for organization
         this.categories = {

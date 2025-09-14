@@ -1,9 +1,7 @@
-import { Projectile } from './Projectile.js';
-
 /**
  * Explosive Projectile - Used by Rocket Launcher bosses
  */
-export class ExplosiveProjectile extends Projectile {
+class ExplosiveProjectile extends Projectile {
     constructor(x, y, vx, vy, damage, isPlayer, color, width, height) {
         super(x, y, vx, vy, damage, isPlayer, color, width, height);
         this.explosionRadius = 50;
@@ -39,7 +37,7 @@ export class ExplosiveProjectile extends Projectile {
 /**
  * Chain Lightning Projectile - Used by Lightning Gun bosses
  */
-export class ChainLightningProjectile extends Projectile {
+class ChainLightningProjectile extends Projectile {
     constructor(x, y, vx, vy, damage, isPlayer, color, width, height) {
         super(x, y, vx, vy, damage, isPlayer, color, width, height);
         this.chainRange = 100;
@@ -75,7 +73,7 @@ export class ChainLightningProjectile extends Projectile {
 /**
  * Piercing Projectile - Used by Gauss Cannon bosses
  */
-export class PiercingProjectile extends Projectile {
+class PiercingProjectile extends Projectile {
     constructor(x, y, vx, vy, damage, isPlayer, color, width, height) {
         super(x, y, vx, vy, damage, isPlayer, color, width, height);
         this.pierced = [];
@@ -117,7 +115,7 @@ export class PiercingProjectile extends Projectile {
 /**
  * Flame Projectile - Used by Flamethrower bosses
  */
-export class FlameProjectile extends Projectile {
+class FlameProjectile extends Projectile {
     constructor(x, y, vx, vy, damage, isPlayer, color, width, height) {
         super(x, y, vx, vy, damage, isPlayer, color, width, height);
         this.lifetime = 30;
@@ -171,7 +169,7 @@ export class FlameProjectile extends Projectile {
 /**
  * BFG Projectile - Used by BFG 9000 bosses
  */
-export class BFGProjectile extends Projectile {
+class BFGProjectile extends Projectile {
     constructor(x, y, vx, vy, damage, isPlayer, color, width, height) {
         super(x, y, vx, vy, damage, isPlayer, color, width, height);
         this.explosionRadius = 150;
@@ -236,7 +234,7 @@ export class BFGProjectile extends Projectile {
 /**
  * Quantum Projectile - Used by Quantum Disruptor bosses
  */
-export class QuantumProjectile extends Projectile {
+class QuantumProjectile extends Projectile {
     constructor(x, y, vx, vy, damage, isPlayer, color, width, height) {
         super(x, y, vx, vy, damage, isPlayer, color, width, height);
         this.timeSlowRadius = 100;

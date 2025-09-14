@@ -299,6 +299,7 @@
                     <div>Level: <span id="level">1</span></div>
                     <div>Weapon: <span id="weaponName" style="color: #00ffff;">Pulse Laser</span></div>
                     <div>Ammo: <span id="ammo">∞</span></div>
+                    <div style="color: #00ff00;">FPS: <span id="fps">60</span></div>
                     <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
                         <div>Family: <span id="hudFamilyMorale" style="font-weight: bold;">🙂</span></div>
                         <div style="font-size: 12px; color: #aaa;">Debt: <span id="hudFamilyDebt">5000</span></div>
@@ -311,7 +312,41 @@
         <button id="pauseBtn" style="display: none;" onclick="game.togglePause()">⏸</button>
     </div>
     
-    <!-- Load the modular game code -->
-    <script type="module" src="js/Game.js"></script>
+    <!-- Load game scripts in dependency order -->
+    <!-- Core utilities and services first -->
+    <script src="js/systems/FormulaService.js"></script>
+
+    <!-- Data -->
+    <script src="js/data/StoryEvents.js"></script>
+
+    <!-- Entities -->
+    <script src="js/entities/Projectile.js"></script>
+    <script src="js/entities/SpecialProjectiles.js"></script>
+    <script src="js/entities/Enemy.js"></script>
+    <script src="js/entities/Hunter.js"></script>
+    <script src="js/entities/Boss.js"></script>
+    <script src="js/entities/Asteroid.js"></script>
+    <script src="js/entities/PowerUp.js"></script>
+    <script src="js/entities/Player.js"></script>
+
+    <!-- Systems -->
+    <script src="js/systems/ParticleSystem.js"></script>
+    <script src="js/systems/DamageNumberSystem.js"></script>
+    <script src="js/systems/Starfield.js"></script>
+    <script src="js/systems/InputController.js"></script>
+    <script src="js/systems/UpgradeSystem.js"></script>
+    <script src="js/systems/CollisionSystem.js"></script>
+    <script src="js/systems/LevelConfig.js"></script>
+    <script src="js/systems/WeaponSystem.js"></script>
+    <script src="js/systems/FamilyWelfare.js"></script>
+    <script src="js/systems/AchievementSystem.js"></script>
+
+    <!-- UI -->
+    <script src="js/ui/ScreenManager.js"></script>
+    <script src="js/ui/DialogSystem.js"></script>
+    <script src="js/ui/AchievementUI.js"></script>
+
+    <!-- Main Game -->
+    <script src="js/Game.js"></script>
 </body>
 </html>

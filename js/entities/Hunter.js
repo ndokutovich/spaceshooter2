@@ -1,11 +1,8 @@
-import { Projectile } from './Projectile.js';
-import { formulaService } from '../systems/FormulaService.js';
-
 /**
  * Hunter - Elite enemies that actively pursue the player
  * Appear before bosses as mini-bosses
  */
-export class Hunter {
+class Hunter {
     constructor(canvas, level, type = null) {
         this.canvas = canvas;
         this.level = level;

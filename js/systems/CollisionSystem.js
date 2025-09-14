@@ -1,13 +1,4 @@
-import {
-    ExplosiveProjectile,
-    ChainLightningProjectile,
-    PiercingProjectile,
-    FlameProjectile,
-    BFGProjectile,
-    QuantumProjectile
-} from '../entities/SpecialProjectiles.js';
-
-export class CollisionSystem {
+class CollisionSystem {
     constructor() {
         this.consecutiveHits = 0;
         this.lastHitTime = 0;

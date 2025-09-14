@@ -1,4 +1,4 @@
-export class ScreenManager {
+class ScreenManager {
     constructor() {
         this.currentScreen = 'platformLogo';
         this.screens = [

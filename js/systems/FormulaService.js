@@ -2,7 +2,7 @@
  * FormulaService - Centralized mathematical formulas for game consistency
  * Following SOLID principles - Single Responsibility for all game calculations
  */
-export class FormulaService {
+class FormulaService {
     constructor() {
         // Base values - all formulas derive from these
         this.BASE_VALUES = {
@@ -529,5 +529,5 @@ export class FormulaService {
     }
 }
 
-// Singleton instance
-export const formulaService = new FormulaService();
+// Global singleton instance
+const formulaService = new FormulaService();

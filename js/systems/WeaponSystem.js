@@ -1,4 +1,4 @@
-export class WeaponSystem {
+class WeaponSystem {
     constructor() {
         this.currentWeaponIndex = 0;
         this.unlockedWeapons = [true, false, false, false, false, false, false, false, false, false]; // Only pulse laser unlocked at start

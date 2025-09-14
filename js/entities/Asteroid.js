@@ -1,6 +1,4 @@
-import { formulaService } from '../systems/FormulaService.js';
-
-export class Asteroid {
+class Asteroid {
     constructor(canvas, forceType = null) {
         this.canvas = canvas;
         const sizes = ['small', 'medium', 'large'];

@@ -1,8 +1,4 @@
-import { Projectile } from './Projectile.js';
-import { WeaponSystem } from '../systems/WeaponSystem.js';
-import { formulaService } from '../systems/FormulaService.js';
-
-export class Player {
+class Player {
     constructor(canvas, upgrades, weaponSystem = null) {
         this.canvas = canvas;
         this.x = canvas.width / 2;

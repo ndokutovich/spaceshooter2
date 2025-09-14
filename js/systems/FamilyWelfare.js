@@ -1,7 +1,7 @@
 /**
  * FamilyWelfare - Manages family status, morale, and narrative progression
  */
-export class FamilyWelfare {
+class FamilyWelfare {
     constructor() {
         // Family statistics
         this.familySize = 7;

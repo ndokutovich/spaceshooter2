@@ -1,6 +1,4 @@
-import { formulaService } from './FormulaService.js';
-
-export class LevelConfig {
+class LevelConfig {
     constructor() {
         // Base configuration constants
         this.BASE_ENEMY_SPAWN_COUNT = 3; // Base enemies spawned per wave

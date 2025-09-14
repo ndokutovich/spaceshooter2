@@ -1,4 +1,4 @@
-export class ParticleSystem {
+class ParticleSystem {
     constructor() {
         this.particles = [];
     }

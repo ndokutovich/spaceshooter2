@@ -1,4 +1,4 @@
-export class Projectile {
+class Projectile {
     constructor(x, y, vx, vy, damage, isPlayer, color, width, height) {
         this.x = x;
         this.y = y;

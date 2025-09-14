@@ -1,4 +1,4 @@
-export class AchievementUI {
+class AchievementUI {
     constructor(achievementSystem) {
         this.achievementSystem = achievementSystem;
         this.notificationQueue = [];
