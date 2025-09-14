@@ -37,6 +37,10 @@ export class Player {
 
         // Morale modifiers (will be set by Game)
         this.moraleModifiers = { damage: 1.0, speed: 1.0, description: "" };
+
+        // Achievement modifiers (will be set by Game)
+        this.achievementDamageMultiplier = 1.0;
+        this.creditMultiplier = 1.0;
     }
 
     update(touchData, controlMode, autoFire, projectiles) {
@@ -93,9 +97,9 @@ export class Player {
         const offset = formulaService.getPlayerProjectileOffset();
         const weaponProjectiles = this.weaponSystem.createProjectiles(this.x, this.y - offset);
 
-        // Apply damage upgrade modifier AND morale modifier
+        // Apply damage upgrade modifier, morale modifier, AND achievement modifier
         weaponProjectiles.forEach(proj => {
-            proj.damage = Math.floor(proj.damage * formulaService.calculateWeaponDamageMultiplier(this.baseDamage) * this.moraleModifiers.damage);
+            proj.damage = Math.floor(proj.damage * formulaService.calculateWeaponDamageMultiplier(this.baseDamage) * this.moraleModifiers.damage * this.achievementDamageMultiplier);
             projectiles.push(new Projectile(
                 proj.x,
                 proj.y,

@@ -17,6 +17,8 @@ import { ScreenManager } from './ui/ScreenManager.js';
 import { formulaService } from './systems/FormulaService.js';
 import { DialogSystem } from './ui/DialogSystem.js';
 import { FamilyWelfare } from './systems/FamilyWelfare.js';
+import { AchievementSystem } from './systems/AchievementSystem.js';
+import { AchievementUI } from './ui/AchievementUI.js';
 import { StoryEvents, getLevelEvent } from './data/StoryEvents.js';
 
 export class SpaceShooterGame {
@@ -70,6 +72,8 @@ export class SpaceShooterGame {
         this.screenManager = new ScreenManager();
         this.dialogSystem = new DialogSystem();
         this.familyWelfare = new FamilyWelfare();
+        this.achievementSystem = new AchievementSystem();
+        this.achievementUI = new AchievementUI(this.achievementSystem);
 
         // High scores
         this.highScores = this.loadHighScores();
@@ -158,6 +162,13 @@ export class SpaceShooterGame {
 
         // Create player
         this.createPlayer();
+
+        // Reset achievement session stats for this level
+        this.sessionStats = {
+            levelStartTime: Date.now(),
+            gameStartTime: this.sessionStats?.gameStartTime || Date.now(),
+            lastSurvivalUpdate: Date.now()
+        };
 
         // Set up game state but pause immediately
         this.isPlaying = true;
@@ -264,6 +275,17 @@ export class SpaceShooterGame {
 
         // Update HUD
         this.updateHUD();
+
+        // Process achievement notifications
+        this.achievementUI.processUnlockQueue();
+
+        // Update survival time every second
+        const now = Date.now();
+        if (now - this.sessionStats.lastSurvivalUpdate > 1000) {
+            const survivalSeconds = Math.floor((now - this.sessionStats.gameStartTime) / 1000);
+            this.achievementSystem.updateStat('totalSurvivalTime', survivalSeconds, false);
+            this.sessionStats.lastSurvivalUpdate = now;
+        }
 
         // Check for pause
         if (this.inputController.isPausePressed()) {
@@ -563,8 +585,13 @@ export class SpaceShooterGame {
         // Rewards with level multipliers and gold rush
         const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         this.score += Math.floor(enemy.value * levelConfig.scoreMultiplier);
-        this.credits += Math.floor(enemy.value / 2 * levelConfig.creditMultiplier * goldRushMultiplier);
+        const creditsEarned = Math.floor(enemy.value / 2 * levelConfig.creditMultiplier * goldRushMultiplier);
+        this.credits += creditsEarned;
         this.enemiesKilled++;
+
+        // Track achievements
+        this.achievementSystem.updateStat('enemiesKilled', 1);
+        this.achievementSystem.updateStat('totalCreditsEarned', creditsEarned);
 
         // Chance to drop power-up based on level config
         if (this.levelConfig.shouldDropPowerUp(this.level)) {
@@ -595,6 +622,10 @@ export class SpaceShooterGame {
 
         // Show reward notification
         this.showResourceNotification('hunter', creditsEarned);
+
+        // Track achievements
+        this.achievementSystem.updateStat('huntersKilled', 1);
+        this.achievementSystem.updateStat('totalCreditsEarned', creditsEarned);
 
         // High chance to drop power-up
         if (Math.random() < 0.5) {
@@ -635,7 +666,14 @@ export class SpaceShooterGame {
         // Show special notification for valuable asteroids
         if (asteroid.type === 'gold' || asteroid.type === 'crystal' || asteroid.type === 'platinum') {
             this.showResourceNotification(asteroid.type, creditsEarned);
+            // Track rare asteroids
+            this.achievementSystem.updateStat('rareAsteroidsFound', 1);
         }
+
+        // Track achievements
+        this.achievementSystem.updateStat('asteroidsDestroyed', 1);
+        this.achievementSystem.updateStat('creditsFromAsteroids', creditsEarned);
+        this.achievementSystem.updateStat('totalCreditsEarned', creditsEarned);
 
         // Small chance to drop power-up
         if (Math.random() < 0.05) {
@@ -686,8 +724,13 @@ export class SpaceShooterGame {
         // Get rewards with gold rush
         const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         const rewards = this.boss.getDefeatRewards();
-        this.credits += Math.floor(rewards.credits * goldRushMultiplier);
+        const creditsEarned = Math.floor(rewards.credits * goldRushMultiplier);
+        this.credits += creditsEarned;
         this.score += rewards.score;
+
+        // Track achievements
+        this.achievementSystem.updateStat('bossesKilled', 1);
+        this.achievementSystem.updateStat('totalCreditsEarned', creditsEarned);
 
         // Spawn power-up
         this.powerUps.push(new PowerUp(
@@ -786,6 +829,19 @@ export class SpaceShooterGame {
 
     levelComplete() {
         this.isPlaying = false;
+
+        // Check if level was completed without taking damage (perfect wave)
+        if (this.player && this.player.health === this.player.maxHealth &&
+            this.player.shield === this.player.maxShield) {
+            // Track perfect wave for achievements
+            this.achievementSystem.updateStat('perfectWaves', 1);
+        }
+
+        // Track level completion for achievements
+        const levelTime = (Date.now() - this.sessionStats.levelStartTime) / 1000;
+        const familyHappy = this.familyWelfare.getStatus().morale >= 50;
+        this.achievementSystem.trackLevelComplete(this.level, levelTime, familyHappy);
+        this.achievementSystem.updateStat('highestLevel', this.level + 1, false);
 
         // Increment level AFTER checking for victory
         if (this.level >= 10) {
@@ -981,6 +1037,9 @@ export class SpaceShooterGame {
         const cost = this.upgradeSystem.purchase(type, this.credits);
         if (cost > 0) {
             this.credits -= cost;
+
+            // Track achievements
+            this.achievementSystem.updateStat('upgradesPurchased', 1);
 
             // Update weapon system if ammo crate was upgraded
             if (type === 'ammoCrate') {
@@ -1230,6 +1289,10 @@ export class SpaceShooterGame {
 
     showCredits() {
         this.screenManager.showScreen('creditsScreen');
+    }
+
+    showAchievements() {
+        this.achievementUI.showAchievementScreen();
     }
 
     backToMenu() {

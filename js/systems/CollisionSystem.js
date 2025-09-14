@@ -8,6 +8,12 @@ import {
 } from '../entities/SpecialProjectiles.js';
 
 export class CollisionSystem {
+    constructor() {
+        this.consecutiveHits = 0;
+        this.lastHitTime = 0;
+        this.hitStreakTimeout = 2000; // 2 seconds to maintain streak
+    }
+
     checkRectCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
         return x1 < x2 + w2 &&
                x1 + w1 > x2 &&
@@ -86,6 +92,20 @@ export class CollisionSystem {
                         enemy.width,
                         enemy.height
                     )) {
+                        // Track hit streaks
+                        const now = Date.now();
+                        if (now - this.lastHitTime < this.hitStreakTimeout) {
+                            this.consecutiveHits++;
+                        } else {
+                            this.consecutiveHits = 1;
+                        }
+                        this.lastHitTime = now;
+
+                        // Track achievements for hit streaks
+                        if (game.achievementSystem) {
+                            game.achievementSystem.updateStat('maxHitStreak', this.consecutiveHits);
+                        }
+
                         enemy.health -= projectile.damage;
                         projectilesToRemove.push(pIndex);
 
@@ -123,11 +143,30 @@ export class CollisionSystem {
                             projectilesToRemove.push(pIndex);
                             game.particleSystem.createParticle(projectile.x, projectile.y, hunter.color);
 
+                            // Track hit streaks
+                            const now = Date.now();
+                            if (now - this.lastHitTime < this.hitStreakTimeout) {
+                                this.consecutiveHits++;
+                            } else {
+                                this.consecutiveHits = 1;
+                            }
+                            this.lastHitTime = now;
+
                             // Create damage number for hunter
                             if (game.damageNumberSystem) {
                                 const isCritical = Math.random() < 0.1; // 10% crit chance
                                 const damage = isCritical ? projectile.damage * 2 : projectile.damage;
                                 hunter.health -= (isCritical ? projectile.damage : 0); // Apply extra crit damage
+
+                                // Track critical hits for achievements
+                                if (isCritical && game.achievementSystem) {
+                                    game.achievementSystem.updateStat('criticalHitsLanded', 1);
+                                }
+
+                                // Track hit streak achievements
+                                if (game.achievementSystem) {
+                                    game.achievementSystem.updateStat('maxHitStreak', this.consecutiveHits);
+                                }
 
                                 game.damageNumberSystem.createDamageNumber(
                                     hunter.x,
@@ -161,11 +200,30 @@ export class CollisionSystem {
                         projectilesToRemove.push(pIndex);
                         game.particleSystem.createParticle(projectile.x, projectile.y, '#ffff00');
 
+                        // Track hit streaks
+                        const now = Date.now();
+                        if (now - this.lastHitTime < this.hitStreakTimeout) {
+                            this.consecutiveHits++;
+                        } else {
+                            this.consecutiveHits = 1;
+                        }
+                        this.lastHitTime = now;
+
                         // Create damage number for boss
                         if (game.damageNumberSystem) {
                             const isCritical = Math.random() < 0.05; // 5% crit chance on boss
                             const damage = isCritical ? projectile.damage * 2 : projectile.damage;
                             game.boss.health -= (isCritical ? projectile.damage : 0);
+
+                            // Track critical hits for achievements
+                            if (isCritical && game.achievementSystem) {
+                                game.achievementSystem.updateStat('criticalHitsLanded', 1);
+                            }
+
+                            // Track hit streak achievements
+                            if (game.achievementSystem) {
+                                game.achievementSystem.updateStat('maxHitStreak', this.consecutiveHits);
+                            }
 
                             game.damageNumberSystem.createDamageNumber(
                                 projectile.x,
@@ -251,7 +309,15 @@ export class CollisionSystem {
                 game.player.height
             )) {
                 const isDead = game.player.takeDamage(enemy.damage * 2);
+
+                // Reset hit streak on taking damage
+                this.consecutiveHits = 0;
+
                 if (isDead) {
+                    // Track death for achievements
+                    if (game.achievementSystem) {
+                        game.achievementSystem.updateStat('deaths', 1);
+                    }
                     game.gameOver();
                 }
                 enemiesToDestroy.push(index);
@@ -272,6 +338,9 @@ export class CollisionSystem {
                 game.player.height
             )) {
                 const isDead = game.player.takeDamage(30);
+
+                // Reset hit streak on taking damage
+                this.consecutiveHits = 0;
 
                 // Show damage number for asteroid collision
                 if (game.damageNumberSystem) {
