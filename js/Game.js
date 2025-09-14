@@ -867,37 +867,40 @@ class SpaceShooterGame {
     }
 
     showUpgradeScreen() {
-        // Calculate passive income
-        const passiveIncomeRate = this.upgradeSystem.getPlayerStats().passiveIncomeRate || 0;
-        if (passiveIncomeRate > 0) {
-            const passiveIncome = Math.floor(this.credits * passiveIncomeRate);
-            if (passiveIncome > 0) {
-                this.credits += passiveIncome;
-                // Show passive income notification
-                setTimeout(() => {
-                    this.dialogSystem.showQuickMessage(`Investment Portfolio earned you ${passiveIncome} credits! (+${Math.floor(passiveIncomeRate * 100)}% interest)`);
-                }, 500);
+        // Only do these actions when first entering the screen (not on refresh)
+        if (!this.isRefreshingUpgradeScreen) {
+            // Calculate passive income
+            const passiveIncomeRate = this.upgradeSystem.getPlayerStats().passiveIncomeRate || 0;
+            if (passiveIncomeRate > 0) {
+                const passiveIncome = Math.floor(this.credits * passiveIncomeRate);
+                if (passiveIncome > 0) {
+                    this.credits += passiveIncome;
+                    // Show passive income notification
+                    setTimeout(() => {
+                        this.dialogSystem.showQuickMessage(`Investment Portfolio earned you ${passiveIncome} credits! (+${Math.floor(passiveIncomeRate * 100)}% interest)`);
+                    }, 500);
+                }
             }
+
+            // Update family hunger when entering hub
+            const isStarving = this.familyWelfare.updateHunger(this.level);
+
+            // Show starving message after a delay to not conflict with other UI
+            if (isStarving) {
+                setTimeout(() => {
+                    this.dialogSystem.showQuickMessage("Your family is starving! Send money home soon!");
+                }, 1500); // Delayed more to not overlap with passive income
+            }
+
+            // Refill all weapon ammo when entering Space Hub
+            this.weaponSystem.refillAllAmmo();
+
+            // Show ammo refill notification
+            this.showAmmoRefillNotification();
         }
 
-        // Update family hunger when entering hub
-        const isStarving = this.familyWelfare.updateHunger(this.level);
-
-        // Update family UI
+        // Always update family UI
         this.updateFamilyUI();
-
-        // Show starving message after a delay to not conflict with other UI
-        if (isStarving) {
-            setTimeout(() => {
-                this.dialogSystem.showQuickMessage("Your family is starving! Send money home soon!");
-            }, 1500); // Delayed more to not overlap with passive income
-        }
-
-        // Refill all weapon ammo when entering Space Hub
-        this.weaponSystem.refillAllAmmo();
-
-        // Show ammo refill notification
-        this.showAmmoRefillNotification();
 
         const upgrades = this.upgradeSystem.getAllUpgrades();
         this.screenManager.showUpgradeScreen(
@@ -1008,6 +1011,11 @@ class SpaceShooterGame {
 
         // Close dialog
         this.cancelSendMoney();
+
+        // Refresh upgrade screen to update button states
+        this.isRefreshingUpgradeScreen = true;
+        this.showUpgradeScreen();
+        this.isRefreshingUpgradeScreen = false;
     }
 
     cancelSendMoney() {
@@ -1053,7 +1061,10 @@ class SpaceShooterGame {
                 this.weaponSystem.updateAmmoMultiplier(stats.ammoMultiplier);
             }
 
+            // Refresh display with flag to prevent re-triggering initial actions
+            this.isRefreshingUpgradeScreen = true;
             this.showUpgradeScreen(); // Refresh display
+            this.isRefreshingUpgradeScreen = false;
         }
     }
 
