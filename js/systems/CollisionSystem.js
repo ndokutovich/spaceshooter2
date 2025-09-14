@@ -263,9 +263,9 @@ class CollisionSystem {
                                 // If asteroid destroyed, show bonus text for valuable ones
                                 if (asteroid.health <= 0 &&
                                     (asteroid.type === 'gold' || asteroid.type === 'crystal' || asteroid.type === 'platinum')) {
-                                    const bonusText = asteroid.type === 'platinum' ? 'PLATINUM!' :
-                                                     asteroid.type === 'crystal' ? 'CRYSTAL!' :
-                                                     asteroid.type === 'gold' ? 'GOLD!' : '';
+                                    const bonusText = asteroid.type === 'platinum' ? languageSystem.t('PLATINUM!') :
+                                                     asteroid.type === 'crystal' ? languageSystem.t('CRYSTAL!') :
+                                                     asteroid.type === 'gold' ? languageSystem.t('GOLD!') : '';
 
                                     if (bonusText) {
                                         game.damageNumberSystem.createTextNotification(
