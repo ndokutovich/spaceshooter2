@@ -95,6 +95,7 @@ body {
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
+    margin-right: 70px; /* Make room for pause button */
 }
 
 .health-bar, .shield-bar {
@@ -280,16 +281,22 @@ body {
         font-size: 14px;
         padding: 10px;
     }
-    
+
+    .hud-top {
+        margin-right: 50px; /* Less margin on mobile */
+    }
+
     .health-bar, .shield-bar {
         width: 150px;
         height: 15px;
     }
-    
+
     #pauseBtn {
         width: 40px;
         height: 40px;
         font-size: 20px;
+        top: 10px;
+        right: 10px;
     }
 }
 

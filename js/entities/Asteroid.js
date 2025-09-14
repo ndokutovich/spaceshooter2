@@ -1,18 +1,23 @@
+import { formulaService } from '../systems/FormulaService.js';
+
 export class Asteroid {
     constructor(canvas) {
         this.canvas = canvas;
         const sizes = ['small', 'medium', 'large'];
         this.size = sizes[Math.floor(Math.random() * sizes.length)];
 
+        // Use FormulaService for stats
+        const stats = formulaService.getAsteroidStats(this.size);
+        this.radius = stats.radius;
+        this.health = stats.health;
+        this.maxHealth = stats.health;
+        this.value = stats.credits;
+
         this.x = Math.random() * (canvas.width - 60) + 30;
         this.y = -60;
-        this.radius = this.size === 'small' ? 15 : this.size === 'medium' ? 25 : 40;
-        this.health = this.size === 'small' ? 10 : this.size === 'medium' ? 25 : 50;
-        this.maxHealth = this.health;
-        this.speed = Math.random() * 2 + 1;
+        this.speed = formulaService.calculateAsteroidSpeed();
         this.rotation = 0;
         this.rotationSpeed = Math.random() * 0.1 - 0.05;
-        this.value = this.size === 'small' ? 10 : this.size === 'medium' ? 25 : 50;
 
         // Generate random asteroid shape
         this.shapePoints = this.generateShape();

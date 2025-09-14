@@ -1,4 +1,5 @@
 import { Projectile } from './Projectile.js';
+import { formulaService } from '../systems/FormulaService.js';
 
 export class Boss {
     constructor(canvas, level, levelConfig = null) {
@@ -26,9 +27,9 @@ export class Boss {
             this.health = config.bossHealth;
             this.maxHealth = this.health;
         } else {
-            // Fallback for compatibility
+            // Fallback using FormulaService
             this.name = `Boss Level ${level}`;
-            this.health = 500 + (level - 1) * 100;
+            this.health = formulaService.calculateBossHealth(level);
             this.maxHealth = this.health;
         }
 
@@ -37,10 +38,14 @@ export class Boss {
         this.width = 120;
         this.height = 80;
         this.color = bossColors[Math.min(level - 1, bossColors.length - 1)];
-        this.speed = 1;
         this.phase = 1;
         this.attackTimer = 0;
         this.pattern = 'entering';
+
+        // Calculate all boss stats using FormulaService
+        this.speed = formulaService.calculateBossSpeed(level);
+        this.damage = formulaService.calculateBossDamage(level);
+        this.creditReward = formulaService.calculateCreditReward('boss', level);
     }
 
     update(player, projectiles) {
@@ -80,7 +85,7 @@ export class Boss {
                     this.y + this.height / 2,
                     i * 2,
                     5,
-                    20,
+                    formulaService.calculateBossAttackDamage(this.damage, 'spread'),
                     false,
                     '#ff00ff',
                     6,
@@ -95,7 +100,7 @@ export class Boss {
                 this.y + this.height / 2,
                 Math.cos(angle) * 8,
                 Math.sin(angle) * 8,
-                30,
+                formulaService.calculateBossAttackDamage(this.damage, 'aimed'),
                 false,
                 '#ff0000',
                 8,
@@ -110,7 +115,7 @@ export class Boss {
                     this.y,
                     Math.cos(angle) * 4,
                     Math.sin(angle) * 4,
-                    15,
+                    formulaService.calculateBossAttackDamage(this.damage, 'circle'),
                     false,
                     '#ffff00',
                     5,
@@ -263,8 +268,8 @@ export class Boss {
 
     getDefeatRewards() {
         return {
-            credits: 500 * this.level,
-            score: 1000 * this.level,
+            credits: this.creditReward,
+            score: formulaService.calculateScoreReward('boss', this.level),
             powerUp: {
                 x: this.x,
                 y: this.y,

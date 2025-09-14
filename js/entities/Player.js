@@ -1,5 +1,6 @@
 import { Projectile } from './Projectile.js';
 import { WeaponSystem } from '../systems/WeaponSystem.js';
+import { formulaService } from '../systems/FormulaService.js';
 
 export class Player {
     constructor(canvas, upgrades, weaponSystem = null) {
@@ -8,13 +9,24 @@ export class Player {
         this.y = canvas.height - 100;
         this.width = 40;
         this.height = 40;
-        this.speed = 5 + (upgrades.speed.level * 0.5);
-        this.health = 100 + (upgrades.maxHealth.level * 40);
-        this.maxHealth = 100 + (upgrades.maxHealth.level * 40);
-        this.shield = 50 + (upgrades.shield.level * 15);
-        this.maxShield = 50 + (upgrades.shield.level * 15);
-        this.baseDamage = 10 + (upgrades.damage.level * 5); // Base damage multiplier
-        this.baseFireRate = 2 + (upgrades.fireRate.level * 0.5); // Base fire rate multiplier
+        // Use FormulaService for all stats
+        // Convert upgrade objects to just their levels
+        const upgradeLevels = {
+            maxHealth: upgrades.maxHealth?.level || 0,
+            shield: upgrades.shield?.level || 0,
+            damage: upgrades.damage?.level || 0,
+            fireRate: upgrades.fireRate?.level || 0,
+            speed: upgrades.speed?.level || 0,
+            ammoCrate: upgrades.ammoCrate?.level || 0
+        };
+        const stats = formulaService.calculateAllPlayerStats(upgradeLevels);
+        this.speed = stats.speed;
+        this.health = stats.maxHealth;
+        this.maxHealth = stats.maxHealth;
+        this.shield = stats.maxShield;
+        this.maxShield = stats.maxShield;
+        this.baseDamage = stats.damage;
+        this.baseFireRate = stats.fireRate;
         this.lastShot = 0;
         this.shieldRegenTimer = 0;
         this.invulnerable = false;
@@ -31,14 +43,16 @@ export class Player {
                 this.x = touchData.touchX;
                 this.y = touchData.touchY;
             } else if (controlMode === 'relative') {
-                this.x += (touchData.touchX - touchData.touchStartX) * 0.1;
-                this.y += (touchData.touchY - touchData.touchStartY) * 0.1;
+                const sensitivity = formulaService.getTouchSensitivity();
+                this.x += (touchData.touchX - touchData.touchStartX) * sensitivity;
+                this.y += (touchData.touchY - touchData.touchStartY) * sensitivity;
             }
         }
 
         // Keep player in bounds
-        this.x = Math.max(20, Math.min(this.canvas.width - 20, this.x));
-        this.y = Math.max(20, Math.min(this.canvas.height - 20, this.y));
+        const margin = formulaService.getPlayerBoundaryMargin();
+        this.x = Math.max(margin, Math.min(this.canvas.width - margin, this.x));
+        this.y = Math.max(margin, Math.min(this.canvas.height - margin, this.y));
 
         // Auto fire
         if (autoFire) {
@@ -54,8 +68,8 @@ export class Player {
         // Shield regeneration
         if (this.shield < this.maxShield) {
             this.shieldRegenTimer++;
-            if (this.shieldRegenTimer > 180) { // 3 seconds at 60fps
-                this.shield = Math.min(this.maxShield, this.shield + 1);
+            if (this.shieldRegenTimer > formulaService.getShieldRegenDelay()) {
+                this.shield = Math.min(this.maxShield, this.shield + formulaService.getShieldRegenRate());
             }
         } else {
             this.shieldRegenTimer = 0;
@@ -72,11 +86,12 @@ export class Player {
 
     shoot(projectiles) {
         const weapon = this.weaponSystem.getCurrentWeapon();
-        const weaponProjectiles = this.weaponSystem.createProjectiles(this.x, this.y - 20);
+        const offset = formulaService.getPlayerProjectileOffset();
+        const weaponProjectiles = this.weaponSystem.createProjectiles(this.x, this.y - offset);
 
         // Apply damage upgrade modifier
         weaponProjectiles.forEach(proj => {
-            proj.damage = Math.floor(proj.damage * (this.baseDamage / 10));
+            proj.damage = Math.floor(proj.damage * formulaService.calculateWeaponDamageMultiplier(this.baseDamage));
             projectiles.push(new Projectile(
                 proj.x,
                 proj.y,
@@ -145,7 +160,7 @@ export class Player {
         if (this.health > 0) {
             // Make player invulnerable for a short time
             this.invulnerable = true;
-            this.invulnerableTimer = 60; // 1 second at 60fps
+            this.invulnerableTimer = formulaService.getPlayerInvulnerabilityTime();
         }
 
         return this.health <= 0; // Returns true if player died

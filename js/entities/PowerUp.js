@@ -1,3 +1,5 @@
+import { formulaService } from '../systems/FormulaService.js';
+
 export class PowerUp {
     constructor(x, y, type) {
         this.x = x;
@@ -5,7 +7,7 @@ export class PowerUp {
         this.type = type; // 'health' or 'shield'
         this.width = 20;
         this.height = 20;
-        this.speed = 2;
+        this.speed = formulaService.getPowerUpSpeed();
     }
 
     update(canvas) {
@@ -38,12 +40,14 @@ export class PowerUp {
     }
 
     applyEffect(player) {
+        const restoreAmount = formulaService.getPowerUpRestoreAmount(this.type);
+
         if (this.type === 'health') {
-            player.health = Math.min(player.maxHealth, player.health + 25);
+            player.health = Math.min(player.maxHealth, player.health + restoreAmount);
         } else if (this.type === 'shield') {
-            player.shield = Math.min(player.maxShield, player.shield + 50);
+            player.shield = Math.min(player.maxShield, player.shield + restoreAmount);
         }
 
-        return 50; // Score value
+        return formulaService.getPowerUpScoreValue();
     }
 }

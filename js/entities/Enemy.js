@@ -1,8 +1,10 @@
 import { Projectile } from './Projectile.js';
+import { formulaService } from '../systems/FormulaService.js';
 
 export class Enemy {
     constructor(canvas, level) {
         this.canvas = canvas;
+        this.level = level;
         const types = ['scout', 'fighter', 'heavy'];
         this.type = types[Math.min(Math.floor(Math.random() * level), types.length - 1)];
 
@@ -10,13 +12,19 @@ export class Enemy {
         this.y = -50;
         this.width = 30;
         this.height = 30;
-        this.health = this.type === 'scout' ? 10 : this.type === 'fighter' ? 20 : 40;
-        this.maxHealth = this.health;
-        this.speed = this.type === 'scout' ? 3 : this.type === 'fighter' ? 2 : 1;
-        this.damage = this.type === 'scout' ? 10 : this.type === 'fighter' ? 15 : 25;
-        this.fireRate = this.type === 'scout' ? 0.5 : this.type === 'fighter' ? 1 : 0.3;
+
+        // Use FormulaService for stats calculation
+        const stats = formulaService.calculateEnemyStats(this.type, level);
+        this.health = stats.health;
+        this.maxHealth = stats.health;
+        this.speed = stats.speed;
+        this.damage = stats.damage;
+        this.fireRate = stats.fireRate;
+
         this.lastShot = Date.now();
-        this.value = this.type === 'scout' ? 10 : this.type === 'fighter' ? 25 : 50;
+
+        // Use FormulaService for credit calculation
+        this.value = formulaService.calculateCreditReward(this.type, level);
         this.color = this.type === 'scout' ? '#ff9900' : this.type === 'fighter' ? '#ff0000' : '#ff00ff';
         this.pattern = Math.random() < 0.5 ? 'straight' : 'zigzag';
         this.zigzagTimer = 0;

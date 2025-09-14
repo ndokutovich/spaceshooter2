@@ -12,6 +12,7 @@ import { CollisionSystem } from './systems/CollisionSystem.js';
 import { LevelConfig } from './systems/LevelConfig.js';
 import { WeaponSystem } from './systems/WeaponSystem.js';
 import { ScreenManager } from './ui/ScreenManager.js';
+import { formulaService } from './systems/FormulaService.js';
 
 export class SpaceShooterGame {
     constructor() {
@@ -366,7 +367,7 @@ export class SpaceShooterGame {
 
         // Rewards
         this.score += asteroid.value;
-        this.credits += Math.floor(asteroid.value / 3);
+        this.credits += formulaService.calculateAsteroidCredits(asteroid.value);
 
         // Small chance to drop power-up
         if (Math.random() < 0.05) {
@@ -557,11 +558,61 @@ export class SpaceShooterGame {
     }
 
     togglePause() {
-        this.isPaused = !this.isPaused;
+        if (!this.isPaused) {
+            // Pause the game and show pause menu
+            this.isPaused = true;
+
+            // Gather game stats
+            const gameStats = {
+                level: this.level,
+                score: this.score,
+                credits: this.credits,
+                enemiesKilled: this.enemiesKilled
+            };
+
+            // Get player stats
+            const playerStats = this.upgradeSystem.getPlayerStats();
+
+            // Get upgrade levels
+            const upgrades = this.upgradeSystem.upgrades;
+
+            this.screenManager.showPauseMenu(gameStats, playerStats, upgrades);
+        } else {
+            // Resume the game
+            this.resumeGame();
+        }
+    }
+
+    resumeGame() {
+        this.isPaused = false;
+        this.screenManager.hideScreen('pauseMenu');
         const pauseBtn = document.getElementById('pauseBtn');
         if (pauseBtn) {
-            pauseBtn.textContent = this.isPaused ? '▶' : '⏸';
+            pauseBtn.textContent = '⏸';
         }
+    }
+
+    saveAndQuit() {
+        // Save the game state
+        this.saveProgress();
+        // Return to main menu
+        this.quitToMenu();
+    }
+
+    quitToMenu() {
+        // Stop the game
+        this.isPlaying = false;
+        this.isPaused = false;
+
+        // Hide all game UI
+        this.screenManager.hideHUD();
+        this.screenManager.hideScreen('pauseMenu');
+
+        // Show main menu
+        this.screenManager.showScreen('mainMenu');
+
+        // Clear the canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     // Menu functions
@@ -613,9 +664,14 @@ export class SpaceShooterGame {
     loadOptions() {
         const saved = localStorage.getItem('spaceShooterOptions');
         if (saved) {
-            const options = JSON.parse(saved);
-            this.controlMode = options.controlMode || 'touch';
-            this.autoFire = options.autoFire !== undefined ? options.autoFire : true;
+            try {
+                const options = JSON.parse(saved);
+                this.controlMode = options.controlMode || 'touch';
+                this.autoFire = options.autoFire !== undefined ? options.autoFire : true;
+            } catch (e) {
+                console.error('Error loading options:', e);
+                // Keep defaults if loading fails
+            }
         }
     }
 

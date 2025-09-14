@@ -1,12 +1,14 @@
+import { formulaService } from './FormulaService.js';
+
 export class UpgradeSystem {
     constructor() {
         this.upgrades = {
-            maxHealth: { level: 0, maxLevel: 10, baseCost: 100, multiplier: 1.5 },
-            damage: { level: 0, maxLevel: 10, baseCost: 150, multiplier: 1.5 },
-            fireRate: { level: 0, maxLevel: 8, baseCost: 120, multiplier: 1.4 },
-            speed: { level: 0, maxLevel: 10, baseCost: 80, multiplier: 1.3 },
-            shield: { level: 0, maxLevel: 10, baseCost: 200, multiplier: 1.6 },
-            ammoCrate: { level: 0, maxLevel: 10, baseCost: 100, multiplier: 1.4 }
+            maxHealth: { level: 0, maxLevel: 10 },
+            damage: { level: 0, maxLevel: 10 },
+            fireRate: { level: 0, maxLevel: 8 },
+            speed: { level: 0, maxLevel: 10 },
+            shield: { level: 0, maxLevel: 10 },
+            ammoCrate: { level: 0, maxLevel: 10 }
         };
 
         this.upgradeInfo = {
@@ -29,7 +31,7 @@ export class UpgradeSystem {
 
     getUpgradeCost(type) {
         const upgrade = this.upgrades[type];
-        return Math.floor(upgrade.baseCost * Math.pow(upgrade.multiplier, upgrade.level));
+        return formulaService.calculateUpgradeCost(type, upgrade.level);
     }
 
     canPurchase(type, credits) {
@@ -48,14 +50,17 @@ export class UpgradeSystem {
     }
 
     getPlayerStats() {
-        return {
-            maxHealth: 100 + (this.upgrades.maxHealth.level * 40),
-            damage: 10 + (this.upgrades.damage.level * 5),
-            fireRate: 2 + (this.upgrades.fireRate.level * 0.5),
-            speed: 5 + (this.upgrades.speed.level * 0.5),
-            maxShield: 50 + (this.upgrades.shield.level * 15),
-            ammoMultiplier: 1 + (this.upgrades.ammoCrate.level * 0.2) // 20% more ammo per level
+        // Use FormulaService for all calculations
+        const upgradeLevels = {
+            maxHealth: this.upgrades.maxHealth.level,
+            damage: this.upgrades.damage.level,
+            fireRate: this.upgrades.fireRate.level,
+            speed: this.upgrades.speed.level,
+            shield: this.upgrades.shield.level,
+            ammoCrate: this.upgrades.ammoCrate.level
         };
+
+        return formulaService.calculateAllPlayerStats(upgradeLevels);
     }
 
     getAllUpgrades() {

@@ -1,8 +1,8 @@
+import { formulaService } from './FormulaService.js';
+
 export class LevelConfig {
     constructor() {
         // Base configuration constants
-        this.BASE_ENEMIES_TO_BOSS = 10; // Base number of enemies before boss
-        this.ENEMIES_INCREMENT_PER_LEVEL = 3; // Additional enemies per level
         this.BASE_ENEMY_SPAWN_COUNT = 3; // Base enemies spawned per wave
         this.ENEMY_SPAWN_INCREMENT = 0.5; // Additional enemies per wave per level
         this.MAX_ENEMIES_PER_WAVE = 8; // Maximum enemies that can spawn in one wave
@@ -21,8 +21,8 @@ export class LevelConfig {
                 level: level,
                 name: `Level ${level}`,
 
-                // Enemy spawning
-                enemiesToBoss: this.BASE_ENEMIES_TO_BOSS + (level - 1) * this.ENEMIES_INCREMENT_PER_LEVEL,
+                // Enemy spawning - Use FormulaService
+                enemiesToBoss: formulaService.calculateEnemiesToBoss(level),
                 enemiesPerWave: Math.min(
                     Math.floor(this.BASE_ENEMY_SPAWN_COUNT + level * this.ENEMY_SPAWN_INCREMENT),
                     this.MAX_ENEMIES_PER_WAVE
@@ -35,7 +35,7 @@ export class LevelConfig {
 
                 // Boss configuration
                 hasBoss: true, // All levels have bosses
-                bossHealth: 500 + (level - 1) * 100,
+                bossHealth: this.calculateBossHealth(level),
                 bossName: this.getBossName(level),
 
                 // Asteroid spawning
@@ -73,6 +73,11 @@ export class LevelConfig {
         } else {
             return { scout: 0.1, fighter: 0.4, heavy: 0.5 };
         }
+    }
+
+    calculateBossHealth(level) {
+        // Use FormulaService for boss health calculation
+        return formulaService.calculateBossHealth(level);
     }
 
     getBossName(level) {

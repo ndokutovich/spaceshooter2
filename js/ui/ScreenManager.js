@@ -4,7 +4,7 @@ export class ScreenManager {
         this.screens = [
             'platformLogo', 'vendorLogo', 'gameLogo', 'mainMenu',
             'optionsScreen', 'recordsScreen', 'creditsScreen',
-            'upgradeScreen', 'gameOver', 'victoryScreen'
+            'upgradeScreen', 'gameOver', 'victoryScreen', 'pauseMenu'
         ];
     }
 
@@ -258,5 +258,60 @@ export class ScreenManager {
 
         const pauseBtn = document.getElementById('pauseBtn');
         if (pauseBtn) pauseBtn.style.display = 'none';
+    }
+
+    showPauseMenu(gameStats, playerStats, upgrades) {
+        this.showScreen('pauseMenu');
+
+        // Game progress stats
+        const levelEl = document.getElementById('pauseLevel');
+        if (levelEl) levelEl.textContent = gameStats.level;
+
+        const scoreEl = document.getElementById('pauseScore');
+        if (scoreEl) scoreEl.textContent = gameStats.score.toLocaleString();
+
+        const creditsEl = document.getElementById('pauseCredits');
+        if (creditsEl) creditsEl.textContent = gameStats.credits;
+
+        const enemiesKilledEl = document.getElementById('pauseEnemiesKilled');
+        if (enemiesKilledEl) enemiesKilledEl.textContent = gameStats.enemiesKilled;
+
+        // Player stats
+        const maxHealthEl = document.getElementById('pauseMaxHealth');
+        if (maxHealthEl) maxHealthEl.textContent = playerStats.maxHealth;
+
+        const maxShieldEl = document.getElementById('pauseMaxShield');
+        if (maxShieldEl) maxShieldEl.textContent = playerStats.maxShield;
+
+        const damageEl = document.getElementById('pauseDamage');
+        if (damageEl) damageEl.textContent = (playerStats.damage / 10).toFixed(1) + 'x';
+
+        const fireRateEl = document.getElementById('pauseFireRate');
+        if (fireRateEl) fireRateEl.textContent = playerStats.fireRate.toFixed(1) + '/s';
+
+        const speedEl = document.getElementById('pauseSpeed');
+        if (speedEl) speedEl.textContent = playerStats.speed.toFixed(1);
+
+        const ammoCapEl = document.getElementById('pauseAmmoCapacity');
+        if (ammoCapEl) ammoCapEl.textContent = Math.round(playerStats.ammoMultiplier * 100) + '%';
+
+        // Upgrade levels
+        const healthLevelEl = document.getElementById('pauseHealthLevel');
+        if (healthLevelEl) healthLevelEl.textContent = `${upgrades.maxHealth.level}/${upgrades.maxHealth.maxLevel}`;
+
+        const damageLevelEl = document.getElementById('pauseDamageLevel');
+        if (damageLevelEl) damageLevelEl.textContent = `${upgrades.damage.level}/${upgrades.damage.maxLevel}`;
+
+        const fireRateLevelEl = document.getElementById('pauseFireRateLevel');
+        if (fireRateLevelEl) fireRateLevelEl.textContent = `${upgrades.fireRate.level}/${upgrades.fireRate.maxLevel}`;
+
+        const speedLevelEl = document.getElementById('pauseSpeedLevel');
+        if (speedLevelEl) speedLevelEl.textContent = `${upgrades.speed.level}/${upgrades.speed.maxLevel}`;
+
+        const shieldLevelEl = document.getElementById('pauseShieldLevel');
+        if (shieldLevelEl) shieldLevelEl.textContent = `${upgrades.shield.level}/${upgrades.shield.maxLevel}`;
+
+        const ammoLevelEl = document.getElementById('pauseAmmoLevel');
+        if (ammoLevelEl) ammoLevelEl.textContent = `${upgrades.ammoCrate.level}/${upgrades.ammoCrate.maxLevel}`;
     }
 }

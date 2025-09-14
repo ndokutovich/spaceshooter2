@@ -153,6 +153,94 @@
             </div>
             <button class="menu-button" onclick="game.backToMenu()">MAIN MENU</button>
         </div>
+
+        <!-- Pause Menu -->
+        <div id="pauseMenu" class="screen">
+            <h2 style="font-size: 48px; margin-bottom: 30px; color: #ffff00;">PAUSED</h2>
+            <div style="display: flex; gap: 20px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap;">
+                <!-- Game Stats -->
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; min-width: 250px;">
+                    <h3 style="color: #00ffff; margin-bottom: 15px; text-align: center;">Game Progress</h3>
+                    <div class="stat-row">
+                        <span>Current Level:</span>
+                        <span id="pauseLevel">1</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Score:</span>
+                        <span id="pauseScore">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Credits:</span>
+                        <span id="pauseCredits">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Enemies Killed:</span>
+                        <span id="pauseEnemiesKilled">0</span>
+                    </div>
+                </div>
+
+                <!-- Player Stats -->
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; min-width: 250px;">
+                    <h3 style="color: #00ff00; margin-bottom: 15px; text-align: center;">Player Stats</h3>
+                    <div class="stat-row">
+                        <span>Max Health:</span>
+                        <span id="pauseMaxHealth">100</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Max Shield:</span>
+                        <span id="pauseMaxShield">50</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Damage Multi:</span>
+                        <span id="pauseDamage">1.0x</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Fire Rate:</span>
+                        <span id="pauseFireRate">2.0/s</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Move Speed:</span>
+                        <span id="pauseSpeed">5.0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>Ammo Capacity:</span>
+                        <span id="pauseAmmoCapacity">100%</span>
+                    </div>
+                </div>
+
+                <!-- Upgrade Levels -->
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; min-width: 250px;">
+                    <h3 style="color: #ff00ff; margin-bottom: 15px; text-align: center;">Upgrades</h3>
+                    <div class="stat-row">
+                        <span>❤️ Health:</span>
+                        <span id="pauseHealthLevel">0/10</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>⚔️ Damage:</span>
+                        <span id="pauseDamageLevel">0/10</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>🔫 Fire Rate:</span>
+                        <span id="pauseFireRateLevel">0/8</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>🚀 Speed:</span>
+                        <span id="pauseSpeedLevel">0/10</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>🛡️ Shield:</span>
+                        <span id="pauseShieldLevel">0/10</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>📦 Ammo Crate:</span>
+                        <span id="pauseAmmoLevel">0/10</span>
+                    </div>
+                </div>
+            </div>
+            <button class="menu-button" onclick="game.resumeGame()">RESUME</button>
+            <button class="menu-button" onclick="game.saveAndQuit()">SAVE & QUIT</button>
+            <button class="menu-button" onclick="game.quitToMenu()">QUIT TO MENU</button>
+        </div>
         
         <!-- HUD -->
         <div id="hud" style="display: none;">
