@@ -140,6 +140,10 @@ export class SpaceShooterGame {
     }
 
     createPlayer() {
+        // Update weapon system with ammo multiplier
+        const stats = this.upgradeSystem.getPlayerStats();
+        this.weaponSystem.updateAmmoMultiplier(stats.ammoMultiplier);
+
         this.player = new Player(this.canvas, this.upgradeSystem.upgrades, this.weaponSystem);
     }
 
@@ -448,6 +452,12 @@ export class SpaceShooterGame {
     }
 
     showUpgradeScreen() {
+        // Refill all weapon ammo when entering Space Hub
+        this.weaponSystem.refillAllAmmo();
+
+        // Show ammo refill notification
+        this.showAmmoRefillNotification();
+
         const upgrades = this.upgradeSystem.getAllUpgrades();
         this.screenManager.showUpgradeScreen(
             this.credits,
@@ -457,10 +467,39 @@ export class SpaceShooterGame {
         );
     }
 
+    showAmmoRefillNotification() {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 100, 200, 0.9);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 20px;
+            z-index: 1000;
+            text-align: center;
+            border: 2px solid #00aaff;
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
+        `;
+        notification.innerHTML = '🔫 All weapons refilled! 🔫';
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 2000);
+    }
+
     purchaseUpgrade(type) {
         const cost = this.upgradeSystem.purchase(type, this.credits);
         if (cost > 0) {
             this.credits -= cost;
+
+            // Update weapon system if ammo crate was upgraded
+            if (type === 'ammoCrate') {
+                const stats = this.upgradeSystem.getPlayerStats();
+                this.weaponSystem.updateAmmoMultiplier(stats.ammoMultiplier);
+            }
+
             this.showUpgradeScreen(); // Refresh display
         }
     }

@@ -2,6 +2,7 @@ export class WeaponSystem {
     constructor() {
         this.currentWeaponIndex = 0;
         this.unlockedWeapons = [true, false, false, false, false, false, false, false, false, false]; // Only pulse laser unlocked at start
+        this.ammoMultiplier = 1.0; // Default multiplier, will be updated by upgrades
 
         // DOOM 2-inspired space weapons
         this.weapons = [
@@ -373,12 +374,37 @@ export class WeaponSystem {
         return this.weapons.filter((weapon, index) => this.unlockedWeapons[index]);
     }
 
+    // Update ammo multiplier from upgrades
+    updateAmmoMultiplier(multiplier) {
+        this.ammoMultiplier = multiplier;
+        // Update max ammo for all weapons
+        this.weapons.forEach(weapon => {
+            if (weapon.ammo !== Infinity) {
+                // Store base max ammo if not already stored
+                if (!weapon.baseMaxAmmo) {
+                    weapon.baseMaxAmmo = weapon.maxAmmo;
+                }
+                weapon.maxAmmo = Math.floor(weapon.baseMaxAmmo * multiplier);
+            }
+        });
+    }
+
+    // Refill all weapon ammo (called when entering Space Hub)
+    refillAllAmmo() {
+        this.weapons.forEach((weapon, index) => {
+            if (weapon.ammo !== Infinity && this.unlockedWeapons[index]) {
+                weapon.ammo = weapon.maxAmmo;
+            }
+        });
+    }
+
     // Save/load weapon state
     saveState() {
         return {
             currentWeaponIndex: this.currentWeaponIndex,
             unlockedWeapons: [...this.unlockedWeapons],
-            ammo: this.weapons.map(w => ({ name: w.name, ammo: w.ammo }))
+            ammo: this.weapons.map(w => ({ name: w.name, ammo: w.ammo })),
+            ammoMultiplier: this.ammoMultiplier
         };
     }
 
@@ -386,10 +412,18 @@ export class WeaponSystem {
         if (state) {
             this.currentWeaponIndex = state.currentWeaponIndex || 0;
             this.unlockedWeapons = state.unlockedWeapons || [true, false, false, false, false, false, false, false, false, false];
+            this.ammoMultiplier = state.ammoMultiplier || 1.0;
+
+            // Update ammo multiplier first
+            if (this.ammoMultiplier !== 1.0) {
+                this.updateAmmoMultiplier(this.ammoMultiplier);
+            }
+
             if (state.ammo) {
                 state.ammo.forEach(ammoState => {
                     const weapon = this.weapons.find(w => w.name === ammoState.name);
-                    if (weapon) {
+                    if (weapon && weapon.ammo !== Infinity) {
+                        // Only update ammo for non-infinite weapons
                         weapon.ammo = ammoState.ammo;
                     }
                 });

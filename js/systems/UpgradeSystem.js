@@ -5,7 +5,8 @@ export class UpgradeSystem {
             damage: { level: 0, maxLevel: 10, baseCost: 150, multiplier: 1.5 },
             fireRate: { level: 0, maxLevel: 8, baseCost: 120, multiplier: 1.4 },
             speed: { level: 0, maxLevel: 10, baseCost: 80, multiplier: 1.3 },
-            shield: { level: 0, maxLevel: 10, baseCost: 200, multiplier: 1.6 }
+            shield: { level: 0, maxLevel: 10, baseCost: 200, multiplier: 1.6 },
+            ammoCrate: { level: 0, maxLevel: 10, baseCost: 100, multiplier: 1.4 }
         };
 
         this.upgradeInfo = {
@@ -13,7 +14,8 @@ export class UpgradeSystem {
             damage: { name: 'Damage', description: '+5 damage per shot', icon: '⚔️' },
             fireRate: { name: 'Fire Rate', description: '+0.5 shots/sec', icon: '🔫' },
             speed: { name: 'Speed', description: '+0.5 movement speed', icon: '🚀' },
-            shield: { name: 'Shield', description: '+15 shield capacity', icon: '🛡️' }
+            shield: { name: 'Shield', description: '+15 shield capacity', icon: '🛡️' },
+            ammoCrate: { name: 'Ammo Crate', description: '+20% max ammo capacity', icon: '📦' }
         };
     }
 
@@ -51,7 +53,8 @@ export class UpgradeSystem {
             damage: 10 + (this.upgrades.damage.level * 5),
             fireRate: 2 + (this.upgrades.fireRate.level * 0.5),
             speed: 5 + (this.upgrades.speed.level * 0.5),
-            maxShield: 50 + (this.upgrades.shield.level * 15)
+            maxShield: 50 + (this.upgrades.shield.level * 15),
+            ammoMultiplier: 1 + (this.upgrades.ammoCrate.level * 0.2) // 20% more ammo per level
         };
     }
 
