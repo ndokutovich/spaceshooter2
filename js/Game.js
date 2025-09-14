@@ -140,6 +140,7 @@ export class SpaceShooterGame {
         this.bossActive = false;
         this.bossDefeated = false;
         this.huntersDefeated = false;
+        this.huntersSpawned = false;  // Track if hunters were actually spawned
         this.particleSystem.clear();
 
         // Spawn initial asteroids for resource collection
@@ -315,15 +316,20 @@ export class SpaceShooterGame {
             return !shouldRemove;
         });
 
-        // Check if all hunters are defeated
-        if (this.hunters.length === 0 && this.enemiesKilled >= this.levelConfig.getLevel(this.level).enemiesToBoss * 0.8 && !this.huntersDefeated) {
-            this.huntersDefeated = true;
-            this.hunterLogShown = false; // Reset for next level
-            this.dialogSystem.showQuickMessage("Hunters eliminated! Boss approaching...");
-        }
+        // DON'T check for defeated hunters here - this runs every frame!
+        // The defeat check should only happen in destroyHunter when a hunter actually dies
     }
 
     drawHunters() {
+        if (this.hunters.length > 0) {
+            // Draw warning indicator
+            this.ctx.save();
+            this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            this.ctx.font = 'bold 20px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(`⚠️ ${this.hunters.length} HUNTER${this.hunters.length > 1 ? 'S' : ''} ACTIVE ⚠️`, this.canvas.width / 2, 50);
+            this.ctx.restore();
+        }
         this.hunters.forEach(hunter => hunter.draw(this.ctx));
     }
 
@@ -394,14 +400,18 @@ export class SpaceShooterGame {
             }
 
             // Check if we should spawn boss (only after hunters are defeated if they were spawned)
-            // If we never spawned hunters (killed < 80%), set huntersDefeated to true to allow boss spawn
             if (this.enemiesKilled >= levelConfig.enemiesToBoss) {
-                // Auto-set huntersDefeated if we somehow skipped hunter spawning
-                if (!shouldSpawnHunters && !this.huntersDefeated) {
-                    this.huntersDefeated = true;
+                // Check if we can spawn boss
+                const canSpawnBoss = this.huntersSpawned ? this.huntersDefeated : false;
+
+                if (!this.huntersSpawned) {
+                    console.log("ERROR: Reached boss threshold but hunters never spawned!");
+                    // Force spawn hunters now if somehow we missed them
+                    this.spawnHunters();
+                    return;
                 }
 
-                if (this.huntersDefeated &&
+                if (canSpawnBoss &&
                     !this.bossActive &&
                     !this.bossDefeated) {
                     this.spawnBoss();
@@ -453,10 +463,15 @@ export class SpaceShooterGame {
     }
 
     spawnHunters() {
+        // Mark that hunters have been spawned
+        this.huntersSpawned = true;
+
         // Spawn 2-3 hunters based on level
         const hunterCount = Math.min(1 + Math.floor(this.level / 4), 3);
 
+        console.log(`=============== HUNTER SPAWN ===============`);
         console.log(`Spawning ${hunterCount} hunters at level ${this.level}`);
+        console.log(`Enemies killed: ${this.enemiesKilled}`);
 
         // Create hunters immediately
         for (let i = 0; i < hunterCount; i++) {
@@ -585,6 +600,13 @@ export class SpaceShooterGame {
         }
 
         this.hunters.splice(index, 1);
+
+        // Check if all hunters are defeated after removing this one
+        if (this.hunters.length === 0 && this.huntersSpawned) {
+            this.huntersDefeated = true;
+            console.log("All hunters defeated! Boss can now spawn.");
+            this.dialogSystem.showQuickMessage("Hunters eliminated! Boss approaching...");
+        }
     }
 
     destroyAsteroid(index) {
@@ -1024,6 +1046,18 @@ export class SpaceShooterGame {
 
     updateHUD() {
         this.screenManager.updateHUD(this.player, this.score, this.credits, this.level);
+
+        // Draw debug info for enemies/hunters
+        const levelConfig = this.levelConfig.getLevel(this.level);
+        const hunterThreshold = Math.floor(levelConfig.enemiesToBoss * 0.8);
+
+        this.ctx.save();
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        this.ctx.font = '12px Arial';
+        this.ctx.textAlign = 'left';
+        const hunterStatus = this.huntersSpawned ? (this.huntersDefeated ? 'DEFEATED' : `ACTIVE: ${this.hunters.length}`) : 'NOT SPAWNED';
+        this.ctx.fillText(`Kills: ${this.enemiesKilled}/${levelConfig.enemiesToBoss} | Hunters at: ${hunterThreshold} | Status: ${hunterStatus}`, 10, this.canvas.height - 10);
+        this.ctx.restore();
 
         // Update family status in HUD
         const status = this.familyWelfare.getStatus();
