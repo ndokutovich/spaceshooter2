@@ -57,26 +57,58 @@ export class ScreenManager {
 
     async showLogoSequence() {
         return new Promise((resolve) => {
+            let currentTimeout1, currentTimeout2;
+            let skipped = false;
+
+            // Skip handler - works on any screen
+            const skipHandler = () => {
+                if (skipped) return;
+                skipped = true;
+
+                // Clear any pending timeouts
+                if (currentTimeout1) clearTimeout(currentTimeout1);
+                if (currentTimeout2) clearTimeout(currentTimeout2);
+
+                // Hide all logo screens
+                this.hideScreen('platformLogo');
+                this.hideScreen('vendorLogo');
+                this.hideScreen('gameLogo');
+
+                // Show main menu
+                this.showScreen('mainMenu');
+
+                // Clean up listeners
+                document.removeEventListener('click', skipHandler);
+                document.removeEventListener('touchstart', skipHandler);
+                document.removeEventListener('keydown', skipHandler);
+
+                resolve();
+            };
+
+            // Add skip listeners from the start
+            document.addEventListener('click', skipHandler);
+            document.addEventListener('touchstart', skipHandler);
+            document.addEventListener('keydown', skipHandler);
+
+            // Show platform logo
             this.showScreen('platformLogo');
 
-            setTimeout(() => {
+            currentTimeout1 = setTimeout(() => {
+                if (skipped) return;
                 this.hideScreen('platformLogo');
                 this.showScreen('vendorLogo');
 
-                setTimeout(() => {
+                currentTimeout2 = setTimeout(() => {
+                    if (skipped) return;
                     this.hideScreen('vendorLogo');
                     this.showScreen('gameLogo');
 
-                    const clickHandler = () => {
-                        this.hideScreen('gameLogo');
-                        this.showScreen('mainMenu');
-                        document.removeEventListener('click', clickHandler);
-                        document.removeEventListener('touchstart', clickHandler);
-                        resolve();
-                    };
-
-                    document.addEventListener('click', clickHandler);
-                    document.addEventListener('touchstart', clickHandler);
+                    // Auto-advance to menu after a delay if not skipped
+                    setTimeout(() => {
+                        if (!skipped) {
+                            skipHandler();
+                        }
+                    }, 3000);
                 }, 2000);
             }, 2000);
         });
