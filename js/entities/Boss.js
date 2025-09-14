@@ -1,32 +1,46 @@
 import { Projectile } from './Projectile.js';
 
 export class Boss {
-    constructor(canvas, level) {
+    constructor(canvas, level, levelConfig = null) {
         this.canvas = canvas;
+        this.level = level;
 
-        const bossTypes = [
-            { name: 'Destroyer Alpha', health: 500, color: '#ff0000' },
-            { name: 'Twin Sentinel', health: 600, color: '#ff00ff' },
-            { name: 'Asteroid Fortress', health: 800, color: '#888888' },
-            { name: 'Stealth Battleship', health: 700, color: '#0000ff' },
-            { name: 'Swarm Queen', health: 600, color: '#ffff00' }
+        // Boss color palette based on level
+        const bossColors = [
+            '#ff0000', // Red
+            '#ff00ff', // Magenta
+            '#888888', // Gray
+            '#0000ff', // Blue
+            '#ffff00', // Yellow
+            '#00ff00', // Green
+            '#ff8800', // Orange
+            '#8800ff', // Purple
+            '#00ffff', // Cyan
+            '#ffffff'  // White (final boss)
         ];
 
-        const bossType = bossTypes[Math.min(level - 1, bossTypes.length - 1)];
+        // Use level config if provided, otherwise fallback to default
+        if (levelConfig) {
+            const config = levelConfig.getLevel(level);
+            this.name = config.bossName;
+            this.health = config.bossHealth;
+            this.maxHealth = this.health;
+        } else {
+            // Fallback for compatibility
+            this.name = `Boss Level ${level}`;
+            this.health = 500 + (level - 1) * 100;
+            this.maxHealth = this.health;
+        }
 
         this.x = canvas.width / 2;
         this.y = -100;
         this.width = 120;
         this.height = 80;
-        this.health = bossType.health * (1 + (level - 1) * 0.3);
-        this.maxHealth = this.health;
-        this.name = bossType.name;
-        this.color = bossType.color;
+        this.color = bossColors[Math.min(level - 1, bossColors.length - 1)];
         this.speed = 1;
         this.phase = 1;
         this.attackTimer = 0;
         this.pattern = 'entering';
-        this.level = level;
     }
 
     update(player, projectiles) {

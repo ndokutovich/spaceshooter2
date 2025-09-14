@@ -9,6 +9,7 @@ import { Starfield } from './systems/Starfield.js';
 import { InputController } from './systems/InputController.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';
 import { CollisionSystem } from './systems/CollisionSystem.js';
+import { LevelConfig } from './systems/LevelConfig.js';
 import { ScreenManager } from './ui/ScreenManager.js';
 
 export class SpaceShooterGame {
@@ -54,6 +55,7 @@ export class SpaceShooterGame {
         this.inputController = new InputController(this.canvas);
         this.upgradeSystem = new UpgradeSystem();
         this.collisionSystem = new CollisionSystem();
+        this.levelConfig = new LevelConfig();
         this.screenManager = new ScreenManager();
 
         // High scores
@@ -273,23 +275,28 @@ export class SpaceShooterGame {
     spawnWaves() {
         this.waveTimer++;
 
+        const levelConfig = this.levelConfig.getLevel(this.level);
+
         // Check if we should spawn boss (but not if we just defeated one)
-        if (this.enemiesKilled >= 10 && !this.bossActive && !this.bossDefeated) {
+        if (this.enemiesKilled >= levelConfig.enemiesToBoss && !this.bossActive && !this.bossDefeated) {
             this.spawnBoss();
             return;
         }
 
         // Spawn regular enemies
-        if (this.waveTimer > 120 && this.enemies.length < 5 && !this.bossActive) { // Every 2 seconds
+        if (this.waveTimer > levelConfig.spawnInterval &&
+            this.enemies.length < levelConfig.maxEnemiesOnScreen &&
+            !this.bossActive) {
             this.waveTimer = 0;
 
-            const enemyCount = Math.min(3 + Math.floor(this.level / 2), 8);
+            const enemyCount = levelConfig.enemiesPerWave;
             for (let i = 0; i < enemyCount; i++) {
                 this.spawnEnemy();
             }
 
-            // Spawn asteroids occasionally
-            if (Math.random() < 0.3) {
+            // Spawn asteroids occasionally based on level config
+            if (this.levelConfig.shouldSpawnAsteroid(this.level) &&
+                this.asteroids.length < levelConfig.maxAsteroids) {
                 this.spawnAsteroid();
             }
         }
@@ -307,7 +314,7 @@ export class SpaceShooterGame {
 
     spawnBoss() {
         this.bossActive = true;
-        this.boss = new Boss(this.canvas, this.level);
+        this.boss = new Boss(this.canvas, this.level, this.levelConfig);
     }
 
     checkCollisions() {
@@ -318,22 +325,24 @@ export class SpaceShooterGame {
         const enemy = this.enemies[index];
         if (!enemy) return;
 
+        const levelConfig = this.levelConfig.getLevel(this.level);
+
         // Create explosion
         for (let i = 0; i < 10; i++) {
             this.particleSystem.createParticle(enemy.x, enemy.y, enemy.color);
         }
 
-        // Rewards
-        this.score += enemy.value;
-        this.credits += Math.floor(enemy.value / 2);
+        // Rewards with level multipliers
+        this.score += Math.floor(enemy.value * levelConfig.scoreMultiplier);
+        this.credits += Math.floor(enemy.value / 2 * levelConfig.creditMultiplier);
         this.enemiesKilled++;
 
-        // Chance to drop power-up
-        if (Math.random() < 0.1) {
+        // Chance to drop power-up based on level config
+        if (this.levelConfig.shouldDropPowerUp(this.level)) {
             this.powerUps.push(new PowerUp(
                 enemy.x,
                 enemy.y,
-                Math.random() < 0.7 ? 'health' : 'shield'
+                this.levelConfig.getPowerUpType(this.level)
             ));
         }
 
