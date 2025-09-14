@@ -8,7 +8,9 @@ export class UpgradeSystem {
             fireRate: { level: 0, maxLevel: 8 },
             speed: { level: 0, maxLevel: 10 },
             shield: { level: 0, maxLevel: 10 },
-            ammoCrate: { level: 0, maxLevel: 10 }
+            ammoCrate: { level: 0, maxLevel: 10 },
+            goldRush: { level: 0, maxLevel: 5 },
+            investment: { level: 0, maxLevel: 5 }
         };
 
         this.upgradeInfo = {
@@ -17,7 +19,9 @@ export class UpgradeSystem {
             fireRate: { name: 'Fire Rate', description: '+0.5 shots/sec', icon: '🔫' },
             speed: { name: 'Speed', description: '+0.5 movement speed', icon: '🚀' },
             shield: { name: 'Shield', description: '+15 shield capacity', icon: '🛡️' },
-            ammoCrate: { name: 'Ammo Crate', description: '+20% max ammo capacity', icon: '📦' }
+            ammoCrate: { name: 'Ammo Crate', description: '+20% max ammo capacity', icon: '📦' },
+            goldRush: { name: 'Gold Rush', description: '+20% credit earnings', icon: '💰' },
+            investment: { name: 'Investment Portfolio', description: '+5% interest on saved credits', icon: '📈' }
         };
     }
 
@@ -57,7 +61,9 @@ export class UpgradeSystem {
             fireRate: this.upgrades.fireRate.level,
             speed: this.upgrades.speed.level,
             shield: this.upgrades.shield.level,
-            ammoCrate: this.upgrades.ammoCrate.level
+            ammoCrate: this.upgrades.ammoCrate.level,
+            goldRush: this.upgrades.goldRush.level,
+            investment: this.upgrades.investment.level
         };
 
         return formulaService.calculateAllPlayerStats(upgradeLevels);

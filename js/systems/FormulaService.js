@@ -28,7 +28,9 @@ export class FormulaService {
                 fireRate: 120,
                 speed: 80,
                 shield: 200,
-                ammoCrate: 100
+                ammoCrate: 100,
+                goldRush: 300,
+                investment: 250
             },
             UPGRADE_COST_MULTIPLIERS: {
                 maxHealth: 1.5,
@@ -36,7 +38,9 @@ export class FormulaService {
                 fireRate: 1.4,
                 speed: 1.3,
                 shield: 1.6,
-                ammoCrate: 1.4
+                ammoCrate: 1.4,
+                goldRush: 2.0,
+                investment: 1.8
             },
 
             // Enemy base stats
@@ -161,6 +165,24 @@ export class FormulaService {
     }
 
     /**
+     * Calculate credit earning multiplier
+     * @param {number} upgradeLevel - Gold Rush upgrade level (0-5)
+     * @returns {number} Credit multiplier (1.0 = 100%, 1.2 = 120%, etc.)
+     */
+    calculateCreditMultiplier(upgradeLevel) {
+        return 1.0 + (upgradeLevel * 0.2); // +20% per level
+    }
+
+    /**
+     * Calculate passive income rate
+     * @param {number} upgradeLevel - Investment upgrade level (0-5)
+     * @returns {number} Interest rate (0.05 = 5%, 0.1 = 10%, etc.)
+     */
+    calculatePassiveIncomeRate(upgradeLevel) {
+        return upgradeLevel * 0.05; // +5% per level
+    }
+
+    /**
      * Get all player stats at once
      * @param {Object} upgradeLevels - Object with all upgrade levels
      * @returns {Object} All calculated player stats
@@ -173,7 +195,9 @@ export class FormulaService {
             damageMultiplier: this.calculatePlayerDamageMultiplier(upgradeLevels.damage || 0),
             fireRate: this.calculatePlayerFireRate(upgradeLevels.fireRate || 0),
             speed: this.calculatePlayerSpeed(upgradeLevels.speed || 0),
-            ammoMultiplier: this.calculateAmmoMultiplier(upgradeLevels.ammoCrate || 0)
+            ammoMultiplier: this.calculateAmmoMultiplier(upgradeLevels.ammoCrate || 0),
+            creditMultiplier: this.calculateCreditMultiplier(upgradeLevels.goldRush || 0),
+            passiveIncomeRate: this.calculatePassiveIncomeRate(upgradeLevels.investment || 0)
         };
     }
 

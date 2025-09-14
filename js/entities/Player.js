@@ -34,12 +34,16 @@ export class Player {
 
         // Weapon system
         this.weaponSystem = weaponSystem || new WeaponSystem();
+
+        // Morale modifiers (will be set by Game)
+        this.moraleModifiers = { damage: 1.0, speed: 1.0, description: "" };
     }
 
     update(touchData, controlMode, autoFire, projectiles) {
         // Handle movement based on control mode
         if (touchData.isTouching) {
             if (controlMode === 'touch') {
+                // Instant teleport to touch position (original behavior)
                 this.x = touchData.touchX;
                 this.y = touchData.touchY;
             } else if (controlMode === 'relative') {
@@ -89,9 +93,9 @@ export class Player {
         const offset = formulaService.getPlayerProjectileOffset();
         const weaponProjectiles = this.weaponSystem.createProjectiles(this.x, this.y - offset);
 
-        // Apply damage upgrade modifier
+        // Apply damage upgrade modifier AND morale modifier
         weaponProjectiles.forEach(proj => {
-            proj.damage = Math.floor(proj.damage * formulaService.calculateWeaponDamageMultiplier(this.baseDamage));
+            proj.damage = Math.floor(proj.damage * formulaService.calculateWeaponDamageMultiplier(this.baseDamage) * this.moraleModifiers.damage);
             projectiles.push(new Projectile(
                 proj.x,
                 proj.y,

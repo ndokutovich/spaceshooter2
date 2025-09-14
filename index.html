@@ -96,6 +96,34 @@
         <!-- Upgrade Screen (Space Hub) -->
         <div id="upgradeScreen" class="screen">
             <h2 style="text-align: center; margin-bottom: 30px; color: #00ffff;">SPACE HUB - UPGRADES</h2>
+
+            <!-- Family Status Panel -->
+            <div id="familyPanel" style="background: rgba(0,0,20,0.9); border: 2px solid #00ffff; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center;">
+                <h3 style="color: #00ffff; margin-bottom: 10px;">📡 FAMILY STATUS REPORT</h3>
+                <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <span style="color: #aaa;">Morale:</span>
+                        <span id="familyMorale" style="color: #fff; font-weight: bold;">Hopeful 🙂</span>
+                    </div>
+                    <div>
+                        <span style="color: #aaa;">Food Status:</span>
+                        <span id="familyHunger" style="color: #fff; font-weight: bold;">Fed</span>
+                    </div>
+                    <div>
+                        <span style="color: #aaa;">Medical Debt:</span>
+                        <span id="familyDebt" style="color: #ff6666; font-weight: bold;">5000 credits</span>
+                    </div>
+                    <div>
+                        <span style="color: #aaa;">Total Sent Home:</span>
+                        <span id="familySent" style="color: #66ff66; font-weight: bold;">0 credits</span>
+                    </div>
+                </div>
+                <div id="familyMessage" style="color: #fff; margin-top: 15px; font-style: italic; min-height: 20px;"></div>
+                <button class="menu-button" onclick="game.sendMoneyHome()" style="background: #FFD700; color: #000; margin-top: 15px; padding: 10px 20px;">
+                    💰 SEND MONEY HOME
+                </button>
+            </div>
+
             <div class="currency-display">
                 Credits: <span id="creditsDisplay">0</span>
             </div>
@@ -261,6 +289,10 @@
                     <div>Level: <span id="level">1</span></div>
                     <div>Weapon: <span id="weaponName" style="color: #00ffff;">Pulse Laser</span></div>
                     <div>Ammo: <span id="ammo">∞</span></div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
+                        <div>Family: <span id="hudFamilyMorale" style="font-weight: bold;">🙂</span></div>
+                        <div style="font-size: 12px; color: #aaa;">Debt: <span id="hudFamilyDebt">5000</span></div>
+                    </div>
                 </div>
             </div>
         </div>

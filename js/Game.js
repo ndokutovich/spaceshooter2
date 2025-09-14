@@ -139,20 +139,26 @@ export class SpaceShooterGame {
         // Create player
         this.createPlayer();
 
-        // Show intro dialog for level 1
-        if (this.level === 1 && fromMenu) {
-            this.isPaused = true;
-            this.dialogSystem.showSequence(StoryEvents.intro, () => {
-                this.isPaused = false;
-                this.showLevelStartDialog();
-            });
-        } else {
-            this.showLevelStartDialog();
-        }
-
-        // Start game loop
+        // Start game loop first
         this.isPlaying = true;
+        this.isPaused = false;
         this.gameLoop();
+
+        // Show intro dialog for level 1 after a small delay
+        if (this.level === 1 && fromMenu) {
+            setTimeout(() => {
+                this.isPaused = true;
+                this.dialogSystem.showSequence(StoryEvents.intro, () => {
+                    this.isPaused = false;
+                    this.showLevelStartDialog();
+                });
+            }, 500);
+        } else {
+            // Show level start dialog after a small delay
+            setTimeout(() => {
+                this.showLevelStartDialog();
+            }, 500);
+        }
     }
 
     showLevelStartDialog() {
@@ -171,6 +177,10 @@ export class SpaceShooterGame {
         this.weaponSystem.updateAmmoMultiplier(stats.ammoMultiplier);
 
         this.player = new Player(this.canvas, this.upgradeSystem.upgrades, this.weaponSystem);
+
+        // Apply family morale modifiers
+        const modifiers = this.familyWelfare.getStatModifiers();
+        this.player.moraleModifiers = modifiers;
     }
 
     gameLoop() {
@@ -236,6 +246,10 @@ export class SpaceShooterGame {
 
     updatePlayer() {
         if (!this.player) return;
+
+        // Update morale modifiers in real-time
+        const modifiers = this.familyWelfare.getStatModifiers();
+        this.player.moraleModifiers = modifiers;
 
         // Process keyboard input
         this.inputController.processPlayerInput(
@@ -351,18 +365,20 @@ export class SpaceShooterGame {
         this.bossActive = true;
         this.boss = new Boss(this.canvas, this.level, this.levelConfig);
 
-        // Show boss intro dialog
+        // Show boss intro dialog after a brief delay
         const bossDialog = this.boss.getDialog('intro');
         if (bossDialog) {
-            this.isPaused = true;
-            this.dialogSystem.show(
-                bossDialog.speaker,
-                bossDialog.message,
-                bossDialog.portrait,
-                () => {
-                    this.isPaused = false;
-                }
-            );
+            setTimeout(() => {
+                this.isPaused = true;
+                this.dialogSystem.show(
+                    bossDialog.speaker,
+                    bossDialog.message,
+                    bossDialog.portrait,
+                    () => {
+                        this.isPaused = false;
+                    }
+                );
+            }, 1000); // Give player a moment to see the boss appear
         }
     }
 
@@ -381,9 +397,10 @@ export class SpaceShooterGame {
             this.particleSystem.createParticle(enemy.x, enemy.y, enemy.color);
         }
 
-        // Rewards with level multipliers
+        // Rewards with level multipliers and gold rush
+        const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         this.score += Math.floor(enemy.value * levelConfig.scoreMultiplier);
-        this.credits += Math.floor(enemy.value / 2 * levelConfig.creditMultiplier);
+        this.credits += Math.floor(enemy.value / 2 * levelConfig.creditMultiplier * goldRushMultiplier);
         this.enemiesKilled++;
 
         // Chance to drop power-up based on level config
@@ -407,9 +424,10 @@ export class SpaceShooterGame {
             this.particleSystem.createParticle(asteroid.x, asteroid.y, '#8B7355');
         }
 
-        // Rewards
+        // Rewards with gold rush
+        const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         this.score += asteroid.value;
-        this.credits += formulaService.calculateAsteroidCredits(asteroid.value);
+        this.credits += Math.floor(formulaService.calculateAsteroidCredits(asteroid.value) * goldRushMultiplier);
 
         // Small chance to drop power-up
         if (Math.random() < 0.05) {
@@ -426,27 +444,13 @@ export class SpaceShooterGame {
     defeatBoss() {
         if (!this.boss) return;
 
-        // Show boss defeat dialog
-        const defeatDialog = this.boss.getDialog('defeat');
-        if (defeatDialog) {
-            this.isPaused = true;
-            this.dialogSystem.show(
-                defeatDialog.speaker,
-                defeatDialog.message,
-                defeatDialog.portrait,
-                () => {
-                    this.isPaused = false;
-                    this.checkBossDefeatSpecialEvents();
-                }
-            );
-        }
-
         // Create explosion effect
         this.particleSystem.createExplosion(this.boss.x, this.boss.y, this.boss.color);
 
-        // Get rewards
+        // Get rewards with gold rush
+        const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         const rewards = this.boss.getDefeatRewards();
-        this.credits += rewards.credits;
+        this.credits += Math.floor(rewards.credits * goldRushMultiplier);
         this.score += rewards.score;
 
         // Spawn power-up
@@ -456,19 +460,36 @@ export class SpaceShooterGame {
             rewards.powerUp.type
         ));
 
-        // Unlock new weapon based on level
-        const newWeapon = this.weaponSystem.unlockWeapon(this.level);
-        if (newWeapon) {
-            // Show weapon unlock notification
-            this.showWeaponUnlock(newWeapon);
-        }
+        // Store boss defeat dialog and weapon unlock for sequential display
+        this.pendingBossDefeatDialog = this.boss.getDialog('defeat');
+        this.pendingWeaponUnlock = this.weaponSystem.unlockWeapon(this.level);
 
         this.boss = null;
         this.bossActive = false;
         this.bossDefeated = true; // Prevent new boss spawning during victory delay
 
-        // Level complete
-        setTimeout(() => this.levelComplete(), 2000);
+        // Start the sequential display of events
+        this.showBossDefeatSequence();
+    }
+
+    showBossDefeatSequence() {
+        // First show boss defeat dialog if exists
+        if (this.pendingBossDefeatDialog) {
+            this.isPaused = true;
+            this.dialogSystem.show(
+                this.pendingBossDefeatDialog.speaker,
+                this.pendingBossDefeatDialog.message,
+                this.pendingBossDefeatDialog.portrait,
+                () => {
+                    this.isPaused = false;
+                    this.pendingBossDefeatDialog = null;
+                    // Continue to special events
+                    this.checkBossDefeatSpecialEvents();
+                }
+            );
+        } else {
+            this.checkBossDefeatSpecialEvents();
+        }
     }
 
     checkBossDefeatSpecialEvents() {
@@ -477,7 +498,26 @@ export class SpaceShooterGame {
             this.isPaused = true;
             this.dialogSystem.showSequence(levelEvent, () => {
                 this.isPaused = false;
+                // Continue to weapon unlock
+                this.showWeaponUnlockIfNeeded();
             });
+        } else {
+            // No special events, go straight to weapon unlock
+            this.showWeaponUnlockIfNeeded();
+        }
+    }
+
+    showWeaponUnlockIfNeeded() {
+        if (this.pendingWeaponUnlock) {
+            // Show weapon unlock notification
+            this.showWeaponUnlock(this.pendingWeaponUnlock);
+            this.pendingWeaponUnlock = null;
+
+            // Wait for notification to show, then complete level
+            setTimeout(() => this.levelComplete(), 3000);
+        } else {
+            // No weapon unlock, complete level after short delay
+            setTimeout(() => this.levelComplete(), 2000);
         }
     }
 
@@ -510,16 +550,51 @@ export class SpaceShooterGame {
 
     levelComplete() {
         this.isPlaying = false;
-        this.screenManager.hideHUD();
 
+        // Increment level AFTER checking for victory
         if (this.level >= 10) {
-            this.victory();
+            // Add delay before showing victory
+            setTimeout(() => {
+                this.screenManager.hideHUD();
+                this.victory();
+            }, 500);
         } else {
-            this.showUpgradeScreen();
+            this.level++;
+            // Add delay before showing upgrade screen
+            setTimeout(() => {
+                this.screenManager.hideHUD();
+                this.showUpgradeScreen();
+            }, 500);
         }
     }
 
     showUpgradeScreen() {
+        // Calculate passive income
+        const passiveIncomeRate = this.upgradeSystem.getPlayerStats().passiveIncomeRate || 0;
+        if (passiveIncomeRate > 0) {
+            const passiveIncome = Math.floor(this.credits * passiveIncomeRate);
+            if (passiveIncome > 0) {
+                this.credits += passiveIncome;
+                // Show passive income notification
+                setTimeout(() => {
+                    this.dialogSystem.showQuickMessage(`Investment Portfolio earned you ${passiveIncome} credits! (+${Math.floor(passiveIncomeRate * 100)}% interest)`);
+                }, 500);
+            }
+        }
+
+        // Update family hunger when entering hub
+        const isStarving = this.familyWelfare.updateHunger(this.level);
+
+        // Update family UI
+        this.updateFamilyUI();
+
+        // Show starving message after a delay to not conflict with other UI
+        if (isStarving) {
+            setTimeout(() => {
+                this.dialogSystem.showQuickMessage("Your family is starving! Send money home soon!");
+            }, 1500); // Delayed more to not overlap with passive income
+        }
+
         // Refill all weapon ammo when entering Space Hub
         this.weaponSystem.refillAllAmmo();
 
@@ -533,6 +608,115 @@ export class SpaceShooterGame {
             upgrades,
             (type) => this.purchaseUpgrade(type)
         );
+    }
+
+    updateFamilyUI() {
+        const status = this.familyWelfare.getStatus();
+        const moraleLevels = {
+            'starving': { text: 'Desperate 😰', color: '#ff3333' },
+            'worried': { text: 'Worried 😟', color: '#ff9933' },
+            'hopeful': { text: 'Hopeful 🙂', color: '#ffff66' },
+            'grateful': { text: 'Grateful 😊', color: '#66ff66' },
+            'proud': { text: 'Proud 😍', color: '#66ffff' }
+        };
+
+        const moraleInfo = moraleLevels[status.morale] || moraleLevels.hopeful;
+
+        const moraleEl = document.getElementById('familyMorale');
+        if (moraleEl) {
+            moraleEl.textContent = moraleInfo.text;
+            moraleEl.style.color = moraleInfo.color;
+        }
+
+        const hungerEl = document.getElementById('familyHunger');
+        if (hungerEl) {
+            hungerEl.textContent = status.hungerStatus;
+            hungerEl.style.color = status.hunger < 30 ? '#ff3333' : status.hunger < 50 ? '#ff9933' : '#66ff66';
+        }
+
+        const debtEl = document.getElementById('familyDebt');
+        if (debtEl) {
+            debtEl.textContent = status.medicalDebt + ' credits';
+        }
+
+        const sentEl = document.getElementById('familySent');
+        if (sentEl) {
+            sentEl.textContent = status.creditsSentHome + ' credits';
+        }
+
+        const messageEl = document.getElementById('familyMessage');
+        if (messageEl) {
+            messageEl.textContent = this.familyWelfare.getRandomFamilyMessage();
+        }
+    }
+
+    sendMoneyHome() {
+        // Create dialog for sending money
+        const amounts = [100, 200, 500, 1000, 'All'];
+        const buttonsHTML = amounts.map(amount => {
+            const value = amount === 'All' ? this.credits : amount;
+            const disabled = this.credits < value;
+            return `<button
+                class="menu-button"
+                style="padding: 10px; margin: 5px; ${disabled ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
+                ${disabled ? 'disabled' : ''}
+                onclick="game.confirmSendMoney(${value})">
+                ${amount === 'All' ? `All (${this.credits} credits)` : `${amount} credits`}
+            </button>`;
+        }).join('');
+
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,20,0.95);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 30px;
+            z-index: 10001;
+            text-align: center;
+        `;
+        dialog.innerHTML = `
+            <h3 style="color: #00ffff; margin-bottom: 20px;">Send Money to Family</h3>
+            <p style="color: #fff; margin-bottom: 20px;">You have ${this.credits} credits</p>
+            <div>${buttonsHTML}</div>
+            <button class="menu-button" style="margin-top: 20px; background: #ff6666;" onclick="game.cancelSendMoney()">Cancel</button>
+        `;
+        dialog.id = 'sendMoneyDialog';
+        document.body.appendChild(dialog);
+    }
+
+    confirmSendMoney(amount) {
+        if (amount > this.credits) return;
+
+        // Send money and get result
+        const result = this.familyWelfare.sendMoneyHome(amount);
+        this.credits -= amount;
+
+        // Update UI
+        this.updateFamilyUI();
+        document.getElementById('creditsDisplay').textContent = this.credits;
+
+        // Show result message
+        if (result) {
+            let message = result.message;
+            if (result.debtPayment > 0) {
+                message += ` (${result.debtPayment} credits applied to medical debt)`;
+            }
+            this.dialogSystem.showQuickMessage(message);
+        }
+
+        // Close dialog
+        this.cancelSendMoney();
+    }
+
+    cancelSendMoney() {
+        const dialog = document.getElementById('sendMoneyDialog');
+        if (dialog) {
+            dialog.remove();
+        }
     }
 
     showAmmoRefillNotification() {
@@ -600,6 +784,18 @@ export class SpaceShooterGame {
         this.isPlaying = false;
         this.screenManager.hideHUD();
 
+        // Show victory dialog sequence
+        const victoryEvents = getLevelEvent(10, 'victory');
+        if (victoryEvents && victoryEvents.length > 0) {
+            this.dialogSystem.showSequence(victoryEvents, () => {
+                this.completeVictory();
+            });
+        } else {
+            this.completeVictory();
+        }
+    }
+
+    completeVictory() {
         this.saveHighScore(this.score);
 
         const time = Math.floor((Date.now() - this.gameStartTime) / 1000);
@@ -622,6 +818,28 @@ export class SpaceShooterGame {
 
     updateHUD() {
         this.screenManager.updateHUD(this.player, this.score, this.credits, this.level);
+
+        // Update family status in HUD
+        const status = this.familyWelfare.getStatus();
+        const moraleEl = document.getElementById('hudFamilyMorale');
+        if (moraleEl) {
+            moraleEl.textContent = status.moraleEmoji;
+            // Add morale text color
+            const colors = {
+                '😰': '#ff3333',
+                '😟': '#ff9933',
+                '🙂': '#ffff66',
+                '😊': '#66ff66',
+                '😍': '#66ffff'
+            };
+            moraleEl.style.color = colors[status.moraleEmoji] || '#ffffff';
+        }
+
+        const debtEl = document.getElementById('hudFamilyDebt');
+        if (debtEl) {
+            debtEl.textContent = status.medicalDebt;
+            debtEl.style.color = status.medicalDebt === 0 ? '#66ff66' : '#ff6666';
+        }
     }
 
     checkCheats() {
@@ -801,6 +1019,7 @@ export class SpaceShooterGame {
             credits: this.credits,
             upgrades: this.upgradeSystem.upgrades,
             weapons: this.weaponSystem.saveState(),
+            familyWelfare: this.familyWelfare.saveState(),
             timestamp: Date.now(),
             version: '1.0'
         };
@@ -845,6 +1064,11 @@ export class SpaceShooterGame {
             // Restore weapon state
             if (saveData.weapons) {
                 this.weaponSystem.loadState(saveData.weapons);
+            }
+
+            // Restore family welfare
+            if (saveData.familyWelfare) {
+                this.familyWelfare.loadState(saveData.familyWelfare);
             }
 
             return true;

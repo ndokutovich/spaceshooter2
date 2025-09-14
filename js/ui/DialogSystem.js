@@ -129,7 +129,16 @@ export class DialogSystem {
      * @param {function} callback - Called when dialog is closed
      */
     show(speaker, message, portrait = '👤', callback = null) {
-        if (this.isShowing) return;
+        // If dialog is already showing, queue this one for later
+        if (this.isShowing) {
+            // Force close current dialog and show new one
+            this.hide();
+            // Small delay to prevent visual glitches
+            setTimeout(() => {
+                this.show(speaker, message, portrait, callback);
+            }, 100);
+            return;
+        }
 
         this.isShowing = true;
         this.callback = callback;
