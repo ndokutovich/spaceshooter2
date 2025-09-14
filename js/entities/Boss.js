@@ -1,5 +1,6 @@
 import { Projectile } from './Projectile.js';
 import { formulaService } from '../systems/FormulaService.js';
+import { StoryEvents } from '../data/StoryEvents.js';
 
 export class Boss {
     constructor(canvas, level, levelConfig = null) {
@@ -8,30 +9,39 @@ export class Boss {
 
         // Boss color palette based on level
         const bossColors = [
-            '#ff0000', // Red
-            '#ff00ff', // Magenta
-            '#888888', // Gray
-            '#0000ff', // Blue
-            '#ffff00', // Yellow
-            '#00ff00', // Green
-            '#ff8800', // Orange
-            '#8800ff', // Purple
-            '#00ffff', // Cyan
-            '#ffffff'  // White (final boss)
+            '#ff0000', // Red - Scarface Jake
+            '#ff00ff', // Magenta - Twin Vipers
+            '#888888', // Gray - Asteroid King
+            '#0000ff', // Blue - Ghost Captain
+            '#ffff00', // Yellow - Queen Cobra
+            '#00ff00', // Green - Red Baron
+            '#ff8800', // Orange - Captain Vega
+            '#8800ff', // Purple - Crystal Warlord
+            '#00ffff', // Cyan - Dark Nebula
+            '#ffffff'  // White - Admiral Vega (final boss)
         ];
+
+        // Get boss data from StoryEvents
+        const bossData = StoryEvents.bosses[level];
 
         // Use level config if provided, otherwise fallback to default
         if (levelConfig) {
             const config = levelConfig.getLevel(level);
-            this.name = config.bossName;
+            this.name = bossData ? bossData.name : config.bossName;
             this.health = config.bossHealth;
             this.maxHealth = this.health;
         } else {
             // Fallback using FormulaService
-            this.name = `Boss Level ${level}`;
+            this.name = bossData ? bossData.name : `Boss Level ${level}`;
             this.health = formulaService.calculateBossHealth(level);
             this.maxHealth = this.health;
         }
+
+        // Store boss dialog data
+        this.portrait = bossData ? bossData.portrait : '☠️';
+        this.introDialog = bossData ? bossData.intro : null;
+        this.defeatDialog = bossData ? bossData.defeat : null;
+        this.tauntDialog = bossData ? bossData.taunt : null;
 
         this.x = canvas.width / 2;
         this.y = -100;
@@ -277,6 +287,29 @@ export class Boss {
                 width: 20,
                 height: 20
             }
+        };
+    }
+
+    getDialog(type = 'intro') {
+        let message = null;
+        switch(type) {
+            case 'intro':
+                message = this.introDialog;
+                break;
+            case 'defeat':
+                message = this.defeatDialog;
+                break;
+            case 'taunt':
+                message = this.tauntDialog;
+                break;
+        }
+
+        if (!message) return null;
+
+        return {
+            speaker: this.name,
+            message: message,
+            portrait: this.portrait
         };
     }
 }

@@ -13,6 +13,9 @@ import { LevelConfig } from './systems/LevelConfig.js';
 import { WeaponSystem } from './systems/WeaponSystem.js';
 import { ScreenManager } from './ui/ScreenManager.js';
 import { formulaService } from './systems/FormulaService.js';
+import { DialogSystem } from './ui/DialogSystem.js';
+import { FamilyWelfare } from './systems/FamilyWelfare.js';
+import { StoryEvents, getLevelEvent } from './data/StoryEvents.js';
 
 export class SpaceShooterGame {
     constructor() {
@@ -60,6 +63,8 @@ export class SpaceShooterGame {
         this.levelConfig = new LevelConfig();
         this.weaponSystem = new WeaponSystem();
         this.screenManager = new ScreenManager();
+        this.dialogSystem = new DialogSystem();
+        this.familyWelfare = new FamilyWelfare();
 
         // High scores
         this.highScores = this.loadHighScores();
@@ -134,10 +139,30 @@ export class SpaceShooterGame {
         // Create player
         this.createPlayer();
 
+        // Show intro dialog for level 1
+        if (this.level === 1 && fromMenu) {
+            this.isPaused = true;
+            this.dialogSystem.showSequence(StoryEvents.intro, () => {
+                this.isPaused = false;
+                this.showLevelStartDialog();
+            });
+        } else {
+            this.showLevelStartDialog();
+        }
+
         // Start game loop
         this.isPlaying = true;
-        this.isPaused = false;
         this.gameLoop();
+    }
+
+    showLevelStartDialog() {
+        const levelEvent = getLevelEvent(this.level, 'start');
+        if (levelEvent && levelEvent.length > 0) {
+            this.isPaused = true;
+            this.dialogSystem.showSequence(levelEvent, () => {
+                this.isPaused = false;
+            });
+        }
     }
 
     createPlayer() {
@@ -325,6 +350,20 @@ export class SpaceShooterGame {
     spawnBoss() {
         this.bossActive = true;
         this.boss = new Boss(this.canvas, this.level, this.levelConfig);
+
+        // Show boss intro dialog
+        const bossDialog = this.boss.getDialog('intro');
+        if (bossDialog) {
+            this.isPaused = true;
+            this.dialogSystem.show(
+                bossDialog.speaker,
+                bossDialog.message,
+                bossDialog.portrait,
+                () => {
+                    this.isPaused = false;
+                }
+            );
+        }
     }
 
     checkCollisions() {
@@ -387,6 +426,21 @@ export class SpaceShooterGame {
     defeatBoss() {
         if (!this.boss) return;
 
+        // Show boss defeat dialog
+        const defeatDialog = this.boss.getDialog('defeat');
+        if (defeatDialog) {
+            this.isPaused = true;
+            this.dialogSystem.show(
+                defeatDialog.speaker,
+                defeatDialog.message,
+                defeatDialog.portrait,
+                () => {
+                    this.isPaused = false;
+                    this.checkBossDefeatSpecialEvents();
+                }
+            );
+        }
+
         // Create explosion effect
         this.particleSystem.createExplosion(this.boss.x, this.boss.y, this.boss.color);
 
@@ -415,6 +469,16 @@ export class SpaceShooterGame {
 
         // Level complete
         setTimeout(() => this.levelComplete(), 2000);
+    }
+
+    checkBossDefeatSpecialEvents() {
+        const levelEvent = getLevelEvent(this.level, 'boss_defeat');
+        if (levelEvent && levelEvent.length > 0) {
+            this.isPaused = true;
+            this.dialogSystem.showSequence(levelEvent, () => {
+                this.isPaused = false;
+            });
+        }
     }
 
     showWeaponUnlock(weapon) {
