@@ -55,7 +55,7 @@ class AchievementUI {
             font-weight: bold;
             color: ${isComplete ? '#ffd700' : '#00ff00'};
         `;
-        title.textContent = achievement.name;
+        title.textContent = languageSystem.t(achievement.name);
 
         const tierText = document.createElement('div');
         tierText.style.cssText = `
@@ -65,7 +65,7 @@ class AchievementUI {
         `;
 
         if (tier.suffix) {
-            tierText.textContent = `${languageSystem.t('Tier')} ${tierIndex + 1}: ${tier.suffix}`;
+            tierText.textContent = `${languageSystem.t('Tier')} ${tierIndex + 1}: ${languageSystem.t(tier.suffix)}`;
         } else {
             tierText.textContent = `${languageSystem.t('Tier')} ${tierIndex + 1} ${languageSystem.t('of')} ${achievement.tiers.length}`;
         }
@@ -83,7 +83,7 @@ class AchievementUI {
             color: #dddddd;
             margin-bottom: 10px;
         `;
-        description.textContent = achievement.description;
+        description.textContent = languageSystem.t(achievement.description);
 
         // Requirement
         const requirement = document.createElement('div');
@@ -92,7 +92,10 @@ class AchievementUI {
             color: #999999;
             margin-bottom: 10px;
         `;
-        requirement.textContent = `${languageSystem.t('Requirement:')} ${tier.required} ${achievement.trackStat.replace(/([A-Z])/g, ' $1').toLowerCase()}`;
+        // Format trackStat name for display
+        const statName = achievement.trackStat.replace(/([A-Z])/g, ' $1').toLowerCase();
+        const statNameKey = statName.charAt(0).toUpperCase() + statName.slice(1);
+        requirement.textContent = `${languageSystem.t('Requirement:')} ${tier.required} ${languageSystem.t(statNameKey) || statName}`;
 
         // Rewards
         const rewardsContainer = document.createElement('div');
@@ -248,7 +251,7 @@ class AchievementUI {
                 padding-bottom: 10px;
                 border-bottom: 1px solid rgba(0, 255, 255, 0.3);
             `;
-            categoryTitle.textContent = category;
+            categoryTitle.textContent = languageSystem.t(category);
 
             const achievementGrid = document.createElement('div');
             achievementGrid.style.cssText = `
@@ -328,7 +331,7 @@ class AchievementUI {
             font-size: 16px;
             font-weight: bold;
         `;
-        name.textContent = achievement.name;
+        name.textContent = languageSystem.t(achievement.name);
 
         const tier = document.createElement('div');
         tier.style.cssText = `
@@ -350,7 +353,7 @@ class AchievementUI {
             font-size: 12px;
             margin-bottom: 10px;
         `;
-        description.textContent = achievement.description;
+        description.textContent = languageSystem.t(achievement.description);
 
         // Progress bar
         const progressContainer = document.createElement('div');
