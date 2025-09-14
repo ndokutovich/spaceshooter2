@@ -69,11 +69,11 @@ export class FormulaService {
             POWERUP_SCORE_VALUE: 50,
             POWERUP_FALL_SPEED: 2,
 
-            // Asteroid stats
+            // Asteroid stats - increased base credits for family economy
             ASTEROID_SIZES: {
-                small: { radius: 15, health: 10, credits: 10 },
-                medium: { radius: 25, health: 25, credits: 25 },
-                large: { radius: 40, health: 50, credits: 50 }
+                small: { radius: 15, health: 10, credits: 15 },
+                medium: { radius: 25, health: 25, credits: 35 },
+                large: { radius: 40, health: 50, credits: 75 }
             },
             ASTEROID_BASE_SPEED: 1,
             ASTEROID_SPEED_VARIANCE: 2,
@@ -413,7 +413,8 @@ export class FormulaService {
      * @returns {number} Credits earned from destroying asteroid
      */
     calculateAsteroidCredits(baseValue) {
-        return Math.floor(baseValue / this.BASE_VALUES.ASTEROID_CREDIT_DIVISOR);
+        // Asteroids now give full value since types handle multipliers
+        return baseValue;
     }
 
     // ========== POWERUP FORMULAS ==========

@@ -38,9 +38,9 @@ export class LevelConfig {
                 bossHealth: this.calculateBossHealth(level),
                 bossName: this.getBossName(level),
 
-                // Asteroid spawning
-                asteroidChance: 0.2 + (level * 0.03), // Increasing asteroid chance
-                maxAsteroids: Math.min(3 + Math.floor(level / 3), 6),
+                // Asteroid spawning - increased for economy balance
+                asteroidChance: 0.35 + (level * 0.05), // Higher base chance (35% -> 85% at level 10)
+                maxAsteroids: Math.min(5 + Math.floor(level / 2), 10), // More asteroids allowed (5 -> 10)
 
                 // Difficulty modifiers
                 enemySpeedMultiplier: 1 + (level - 1) * 0.1,

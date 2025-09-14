@@ -343,10 +343,19 @@ export class SpaceShooterGame {
                 this.spawnEnemy();
             }
 
-            // Spawn asteroids occasionally based on level config
-            if (this.levelConfig.shouldSpawnAsteroid(this.level) &&
-                this.asteroids.length < levelConfig.maxAsteroids) {
-                this.spawnAsteroid();
+            // Spawn asteroids more frequently for economy balance
+            if (this.asteroids.length < levelConfig.maxAsteroids) {
+                if (this.levelConfig.shouldSpawnAsteroid(this.level)) {
+                    this.spawnAsteroid();
+                }
+                // Second chance for more variety and income
+                if (Math.random() < 0.3 && this.levelConfig.shouldSpawnAsteroid(this.level)) {
+                    setTimeout(() => {
+                        if (this.asteroids.length < levelConfig.maxAsteroids) {
+                            this.spawnAsteroid();
+                        }
+                    }, 500);
+                }
             }
         }
     }
@@ -419,15 +428,22 @@ export class SpaceShooterGame {
         const asteroid = this.asteroids[index];
         if (!asteroid) return;
 
-        // Create explosion
+        // Create explosion with type-specific color
+        const props = asteroid.typeProperties[asteroid.type];
         for (let i = 0; i < 15; i++) {
-            this.particleSystem.createParticle(asteroid.x, asteroid.y, '#8B7355');
+            this.particleSystem.createParticle(asteroid.x, asteroid.y, props.color);
         }
 
-        // Rewards with gold rush
+        // Rewards with gold rush - asteroid value already includes type multiplier
         const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         this.score += asteroid.value;
-        this.credits += Math.floor(formulaService.calculateAsteroidCredits(asteroid.value) * goldRushMultiplier);
+        const creditsEarned = Math.floor(asteroid.value * goldRushMultiplier);
+        this.credits += creditsEarned;
+
+        // Show special notification for valuable asteroids
+        if (asteroid.type === 'gold' || asteroid.type === 'crystal' || asteroid.type === 'platinum') {
+            this.showResourceNotification(asteroid.type, creditsEarned);
+        }
 
         // Small chance to drop power-up
         if (Math.random() < 0.05) {
@@ -439,6 +455,33 @@ export class SpaceShooterGame {
         }
 
         this.asteroids.splice(index, 1);
+    }
+
+    showResourceNotification(type, credits) {
+        const messages = {
+            gold: `💰 Gold ore! +${credits} credits!`,
+            crystal: `💎 Energy crystal! +${credits} credits!`,
+            platinum: `✨ PLATINUM! +${credits} credits!`
+        };
+
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 215, 0, 0.9);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: fadeInOut 2s;
+        `;
+        notification.textContent = messages[type];
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 2000);
     }
 
     defeatBoss() {

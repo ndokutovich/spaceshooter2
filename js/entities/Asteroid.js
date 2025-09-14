@@ -1,17 +1,44 @@
 import { formulaService } from '../systems/FormulaService.js';
 
 export class Asteroid {
-    constructor(canvas) {
+    constructor(canvas, forceType = null) {
         this.canvas = canvas;
         const sizes = ['small', 'medium', 'large'];
         this.size = sizes[Math.floor(Math.random() * sizes.length)];
 
+        // Different asteroid types with varying rarity and value
+        const typeRoll = Math.random();
+        if (forceType) {
+            this.type = forceType;
+        } else if (typeRoll < 0.60) {
+            this.type = 'rock';     // 60% - Normal asteroid
+        } else if (typeRoll < 0.80) {
+            this.type = 'iron';     // 20% - Iron-rich (1.5x credits)
+        } else if (typeRoll < 0.92) {
+            this.type = 'gold';     // 12% - Gold ore (3x credits)
+        } else if (typeRoll < 0.98) {
+            this.type = 'crystal';  // 6% - Energy crystal (5x credits)
+        } else {
+            this.type = 'platinum'; // 2% - Platinum (10x credits)
+        }
+
+        // Type properties
+        this.typeProperties = {
+            rock: { color: '#8B7355', creditMult: 1, healthMult: 1 },
+            iron: { color: '#696969', creditMult: 1.5, healthMult: 1.2 },
+            gold: { color: '#FFD700', creditMult: 3, healthMult: 1.5 },
+            crystal: { color: '#00CED1', creditMult: 5, healthMult: 0.8 },
+            platinum: { color: '#E5E4E2', creditMult: 10, healthMult: 2 }
+        };
+
+        const props = this.typeProperties[this.type];
+
         // Use FormulaService for stats
         const stats = formulaService.getAsteroidStats(this.size);
         this.radius = stats.radius;
-        this.health = stats.health;
-        this.maxHealth = stats.health;
-        this.value = stats.credits;
+        this.health = stats.health * props.healthMult;
+        this.maxHealth = this.health;
+        this.value = Math.floor(stats.credits * props.creditMult);
 
         this.x = Math.random() * (canvas.width - 60) + 30;
         this.y = -60;
@@ -50,7 +77,16 @@ export class Asteroid {
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
 
-        ctx.fillStyle = '#8B7355';
+        // Use type-specific color
+        const props = this.typeProperties[this.type];
+        ctx.fillStyle = props.color;
+
+        // Add glow effect for valuable asteroids
+        if (this.type === 'gold' || this.type === 'crystal' || this.type === 'platinum') {
+            ctx.shadowColor = props.color;
+            ctx.shadowBlur = 10 + Math.sin(Date.now() * 0.002) * 5;
+        }
+
         ctx.beginPath();
 
         // Draw irregular asteroid shape using pre-generated points
