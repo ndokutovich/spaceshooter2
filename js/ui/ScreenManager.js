@@ -117,7 +117,7 @@ class ScreenManager {
     showUpgradeScreen(credits, level, upgrades, purchaseCallback) {
         this.showScreen('upgradeScreen');
         document.getElementById('creditsDisplay').textContent = credits;
-        document.getElementById('nextLevelNum').textContent = level + 1;
+        document.getElementById('nextLevelNum').textContent = level;
 
         const upgradeGrid = document.getElementById('upgradeGrid');
         upgradeGrid.innerHTML = '';

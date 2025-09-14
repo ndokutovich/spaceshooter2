@@ -192,8 +192,8 @@ class SpaceShooterGame {
         const stats = this.upgradeSystem.getPlayerStats();
         this.weaponSystem.updateAmmoMultiplier(stats.ammoMultiplier);
 
-        // Select best available weapon (e.g., Shotgun Blaster if unlocked)
-        this.weaponSystem.selectBestAvailableWeapon();
+        // Reset to default weapon (Pulse Laser) for each new level
+        this.weaponSystem.currentWeaponIndex = 0;
 
         this.player = new Player(this.canvas, this.upgradeSystem.upgrades, this.weaponSystem);
 
@@ -1335,7 +1335,7 @@ class SpaceShooterGame {
     // Save game progress (only available in Space Hub)
     saveProgress() {
         const saveData = {
-            level: this.level + 1,  // Save the NEXT level (the one shown in Space Hub)
+            level: this.level,  // Save the current level (already incremented in levelComplete)
             score: this.score,
             credits: this.credits,
             upgrades: this.upgradeSystem.upgrades,
