@@ -51,6 +51,18 @@ export class CollisionSystem {
                     game.player.height
                 )) {
                     const isDead = game.player.takeDamage(projectile.damage);
+
+                    // Create damage number for player taking damage
+                    if (game.damageNumberSystem) {
+                        game.damageNumberSystem.createDamageNumber(
+                            game.player.x,
+                            game.player.y - game.player.height/2,
+                            projectile.damage,
+                            false,
+                            false  // damage TO player
+                        );
+                    }
+
                     if (isDead) {
                         game.gameOver();
                     }
@@ -77,6 +89,17 @@ export class CollisionSystem {
                         enemy.health -= projectile.damage;
                         projectilesToRemove.push(pIndex);
 
+                        // Create damage number
+                        if (game.damageNumberSystem) {
+                            game.damageNumberSystem.createDamageNumber(
+                                enemy.x,
+                                enemy.y - enemy.height/2,
+                                projectile.damage,
+                                false, // not critical
+                                true   // is player damage
+                            );
+                        }
+
                         if (enemy.health <= 0) {
                             enemiesToDestroy.push(eIndex);
                         }
@@ -100,6 +123,21 @@ export class CollisionSystem {
                             projectilesToRemove.push(pIndex);
                             game.particleSystem.createParticle(projectile.x, projectile.y, hunter.color);
 
+                            // Create damage number for hunter
+                            if (game.damageNumberSystem) {
+                                const isCritical = Math.random() < 0.1; // 10% crit chance
+                                const damage = isCritical ? projectile.damage * 2 : projectile.damage;
+                                hunter.health -= (isCritical ? projectile.damage : 0); // Apply extra crit damage
+
+                                game.damageNumberSystem.createDamageNumber(
+                                    hunter.x,
+                                    hunter.y - hunter.height/2,
+                                    damage,
+                                    isCritical,
+                                    true
+                                );
+                            }
+
                             if (hunter.health <= 0) {
                                 huntersToDestroy.push(hIndex);
                             }
@@ -122,6 +160,21 @@ export class CollisionSystem {
                         game.boss.health -= projectile.damage;
                         projectilesToRemove.push(pIndex);
                         game.particleSystem.createParticle(projectile.x, projectile.y, '#ffff00');
+
+                        // Create damage number for boss
+                        if (game.damageNumberSystem) {
+                            const isCritical = Math.random() < 0.05; // 5% crit chance on boss
+                            const damage = isCritical ? projectile.damage * 2 : projectile.damage;
+                            game.boss.health -= (isCritical ? projectile.damage : 0);
+
+                            game.damageNumberSystem.createDamageNumber(
+                                projectile.x,
+                                projectile.y,
+                                damage,
+                                isCritical,
+                                true
+                            );
+                        }
                     }
                 }
 
@@ -135,6 +188,46 @@ export class CollisionSystem {
                         if (distance < asteroid.radius) {
                             asteroid.health -= projectile.damage;
                             projectilesToRemove.push(pIndex);
+
+                            // Create damage number for asteroid
+                            if (game.damageNumberSystem) {
+                                // Different color based on asteroid type
+                                let damageColor = '#ffff00'; // Default yellow
+                                if (asteroid.type === 'gold') {
+                                    damageColor = '#ffd700'; // Gold color
+                                } else if (asteroid.type === 'crystal') {
+                                    damageColor = '#ff00ff'; // Purple for crystal
+                                } else if (asteroid.type === 'platinum') {
+                                    damageColor = '#e5e5e5'; // Silver for platinum
+                                } else if (asteroid.type === 'iron') {
+                                    damageColor = '#cd853f'; // Brown for iron
+                                }
+
+                                game.damageNumberSystem.createDamageNumber(
+                                    asteroid.x,
+                                    asteroid.y - asteroid.radius,
+                                    projectile.damage,
+                                    false,
+                                    true
+                                );
+
+                                // If asteroid destroyed, show bonus text for valuable ones
+                                if (asteroid.health <= 0 &&
+                                    (asteroid.type === 'gold' || asteroid.type === 'crystal' || asteroid.type === 'platinum')) {
+                                    const bonusText = asteroid.type === 'platinum' ? 'PLATINUM!' :
+                                                     asteroid.type === 'crystal' ? 'CRYSTAL!' :
+                                                     asteroid.type === 'gold' ? 'GOLD!' : '';
+
+                                    if (bonusText) {
+                                        game.damageNumberSystem.createTextNotification(
+                                            asteroid.x,
+                                            asteroid.y,
+                                            bonusText,
+                                            damageColor
+                                        );
+                                    }
+                                }
+                            }
 
                             if (asteroid.health <= 0) {
                                 asteroidsToDestroy.push(aIndex);
@@ -179,6 +272,26 @@ export class CollisionSystem {
                 game.player.height
             )) {
                 const isDead = game.player.takeDamage(30);
+
+                // Show damage number for asteroid collision
+                if (game.damageNumberSystem) {
+                    game.damageNumberSystem.createDamageNumber(
+                        game.player.x,
+                        game.player.y - game.player.height/2,
+                        30,
+                        false,
+                        false  // damage TO player
+                    );
+
+                    // Also show warning text
+                    game.damageNumberSystem.createTextNotification(
+                        asteroid.x,
+                        asteroid.y,
+                        'COLLISION!',
+                        '#ff0000'
+                    );
+                }
+
                 if (isDead) {
                     game.gameOver();
                 }
@@ -197,8 +310,37 @@ export class CollisionSystem {
                 game.player.width,
                 game.player.height
             )) {
+                // Get the current health/shield before applying
+                const oldHealth = game.player.health;
+                const oldShield = game.player.shield;
+
                 const scoreBonus = powerUp.applyEffect(game.player);
                 game.score += scoreBonus;
+
+                // Show healing number
+                if (game.damageNumberSystem) {
+                    if (powerUp.type === 'health') {
+                        const healAmount = game.player.health - oldHealth;
+                        if (healAmount > 0) {
+                            game.damageNumberSystem.createHealNumber(
+                                game.player.x,
+                                game.player.y - game.player.height/2,
+                                healAmount
+                            );
+                        }
+                    } else if (powerUp.type === 'shield') {
+                        const shieldAmount = game.player.shield - oldShield;
+                        if (shieldAmount > 0) {
+                            game.damageNumberSystem.createTextNotification(
+                                game.player.x,
+                                game.player.y - game.player.height/2,
+                                `+${Math.floor(shieldAmount)} Shield`,
+                                '#00ddff'
+                            );
+                        }
+                    }
+                }
+
                 powerUpsToCollect.push(index);
             }
         });

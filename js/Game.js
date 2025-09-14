@@ -6,6 +6,7 @@ import { Asteroid } from './entities/Asteroid.js';
 import { PowerUp } from './entities/PowerUp.js';
 import { Projectile } from './entities/Projectile.js';
 import { ParticleSystem } from './systems/ParticleSystem.js';
+import { DamageNumberSystem } from './systems/DamageNumberSystem.js';
 import { Starfield } from './systems/Starfield.js';
 import { InputController } from './systems/InputController.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';
@@ -59,6 +60,7 @@ export class SpaceShooterGame {
 
         // Systems
         this.particleSystem = new ParticleSystem();
+        this.damageNumberSystem = new DamageNumberSystem();
         this.starfield = new Starfield(this.canvas);
         this.inputController = new InputController(this.canvas);
         this.upgradeSystem = new UpgradeSystem();
@@ -142,6 +144,7 @@ export class SpaceShooterGame {
         this.huntersDefeated = false;
         this.huntersSpawned = false;  // Track if hunters were actually spawned
         this.particleSystem.clear();
+        this.damageNumberSystem.clear();
 
         // Spawn initial asteroids for resource collection
         const initialAsteroids = 3 + Math.floor(this.level / 2); // 3-8 asteroids
@@ -238,6 +241,10 @@ export class SpaceShooterGame {
 
         this.particleSystem.update();
         this.particleSystem.draw(this.ctx);
+
+        // Update and draw damage numbers
+        this.damageNumberSystem.update();
+        this.damageNumberSystem.draw(this.ctx);
 
         this.updateAsteroids();
         this.drawAsteroids();
