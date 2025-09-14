@@ -8,6 +8,14 @@ export class InputController {
         this.isTouching = false;
         this.keys = {};
 
+        // Cheat code tracking
+        this.cheatBuffer = '';
+        this.cheatTimeout = null;
+        this.cheatsActivated = {
+            allWeapons: false,
+            replenish: false
+        };
+
         this.setupEventListeners();
     }
 
@@ -70,10 +78,49 @@ export class InputController {
 
     handleKeyDown(e) {
         this.keys[e.key] = true;
+
+        // Track cheat codes
+        this.trackCheatCode(e.key);
     }
 
     handleKeyUp(e) {
         this.keys[e.key] = false;
+    }
+
+    trackCheatCode(key) {
+        // Clear buffer after 1 second of no input
+        if (this.cheatTimeout) {
+            clearTimeout(this.cheatTimeout);
+        }
+        this.cheatTimeout = setTimeout(() => {
+            this.cheatBuffer = '';
+        }, 1000);
+
+        // Add key to buffer
+        this.cheatBuffer += key;
+
+        // Check for cheat codes
+        if (this.cheatBuffer.endsWith(']]')) {
+            this.cheatsActivated.allWeapons = true;
+            this.cheatBuffer = '';
+            console.log('CHEAT: All weapons unlocked!');
+        } else if (this.cheatBuffer.endsWith('[[')) {
+            this.cheatsActivated.replenish = true;
+            this.cheatBuffer = '';
+            console.log('CHEAT: Replenished!');
+        }
+
+        // Keep buffer size reasonable
+        if (this.cheatBuffer.length > 10) {
+            this.cheatBuffer = this.cheatBuffer.slice(-10);
+        }
+    }
+
+    checkAndResetCheats() {
+        const cheats = { ...this.cheatsActivated };
+        this.cheatsActivated.allWeapons = false;
+        this.cheatsActivated.replenish = false;
+        return cheats;
     }
 
     getTouchData() {

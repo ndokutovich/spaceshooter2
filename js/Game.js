@@ -202,6 +202,9 @@ export class SpaceShooterGame {
             this.togglePause();
         }
 
+        // Check for cheat codes
+        this.checkCheats();
+
         // Continue loop
         requestAnimationFrame(() => this.gameLoop());
     }
@@ -555,6 +558,57 @@ export class SpaceShooterGame {
 
     updateHUD() {
         this.screenManager.updateHUD(this.player, this.score, this.credits, this.level);
+    }
+
+    checkCheats() {
+        const cheats = this.inputController.checkAndResetCheats();
+
+        // Unlock all weapons cheat
+        if (cheats.allWeapons) {
+            for (let i = 0; i < this.weaponSystem.weapons.length; i++) {
+                this.weaponSystem.unlockedWeapons[i] = true;
+                // Give max ammo to all weapons
+                const weapon = this.weaponSystem.weapons[i];
+                if (weapon.ammo !== Infinity) {
+                    weapon.ammo = weapon.maxAmmo;
+                }
+            }
+            this.showCheatNotification('ALL WEAPONS UNLOCKED!');
+        }
+
+        // Replenish cheat
+        if (cheats.replenish && this.player) {
+            // Restore health and shield
+            this.player.health = this.player.maxHealth;
+            this.player.shield = this.player.maxShield;
+
+            // Refill all ammo
+            this.weaponSystem.refillAllAmmo();
+
+            this.showCheatNotification('FULLY REPLENISHED!');
+        }
+    }
+
+    showCheatNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: white;
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 10px;
+            z-index: 10000;
+            animation: cheatPulse 0.5s ease-in-out;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 2000);
     }
 
     togglePause() {
