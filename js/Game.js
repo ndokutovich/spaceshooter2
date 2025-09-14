@@ -124,6 +124,7 @@ export class SpaceShooterGame {
         this.enemiesKilled = 0;
         this.currentWave = 1;
         this.waveTimer = 0;
+        this.enemySpawnDelay = 180; // 3 seconds delay before enemies appear (60fps)
 
         if (fromMenu) {
             this.gameStartTime = Date.now();
@@ -141,38 +142,51 @@ export class SpaceShooterGame {
         this.huntersDefeated = false;
         this.particleSystem.clear();
 
+        // Spawn initial asteroids for resource collection
+        const initialAsteroids = 3 + Math.floor(this.level / 2); // 3-8 asteroids
+        for (let i = 0; i < initialAsteroids; i++) {
+            setTimeout(() => {
+                if (this.isPlaying) {
+                    this.spawnAsteroid();
+                }
+            }, i * 200); // Stagger spawning
+        }
+
         // Create player
         this.createPlayer();
 
-        // Start game loop first
+        // Set up game state but pause immediately
         this.isPlaying = true;
-        this.isPaused = false;
+        this.isPaused = true;  // Start paused for dialog
+
+        // Start the game loop (will be paused)
         this.gameLoop();
 
-        // Show intro dialog for level 1 after a small delay
+        // Show intro dialog for level 1
         if (this.level === 1 && fromMenu) {
             setTimeout(() => {
-                this.isPaused = true;
                 this.dialogSystem.showSequence(StoryEvents.intro, () => {
-                    this.isPaused = false;
                     this.showLevelStartDialog();
                 });
-            }, 500);
+            }, 100);
         } else {
-            // Show level start dialog after a small delay
+            // Show level start dialog
             setTimeout(() => {
                 this.showLevelStartDialog();
-            }, 500);
+            }, 100);
         }
     }
 
     showLevelStartDialog() {
         const levelEvent = getLevelEvent(this.level, 'start');
         if (levelEvent && levelEvent.length > 0) {
-            this.isPaused = true;
+            // Keep paused while showing dialog
             this.dialogSystem.showSequence(levelEvent, () => {
-                this.isPaused = false;
+                this.isPaused = false;  // Unpause after dialog
             });
+        } else {
+            // No dialog, unpause immediately
+            this.isPaused = false;
         }
     }
 
@@ -180,6 +194,9 @@ export class SpaceShooterGame {
         // Update weapon system with ammo multiplier
         const stats = this.upgradeSystem.getPlayerStats();
         this.weaponSystem.updateAmmoMultiplier(stats.ammoMultiplier);
+
+        // Select best available weapon (e.g., Shotgun Blaster if unlocked)
+        this.weaponSystem.selectBestAvailableWeapon();
 
         this.player = new Player(this.canvas, this.upgradeSystem.upgrades, this.weaponSystem);
 
@@ -355,59 +372,71 @@ export class SpaceShooterGame {
     spawnWaves() {
         this.waveTimer++;
 
+        // Decrease enemy spawn delay
+        if (this.enemySpawnDelay > 0) {
+            this.enemySpawnDelay--;
+        }
+
         const levelConfig = this.levelConfig.getLevel(this.level);
 
-        // Check if we should spawn hunters before boss (at 80% of enemies killed)
-        const shouldSpawnHunters = this.enemiesKilled >= levelConfig.enemiesToBoss * 0.8;
+        // Only spawn enemies after the delay
+        if (this.enemySpawnDelay <= 0) {
+            // Check if we should spawn hunters before boss (at 80% of enemies killed)
+            const shouldSpawnHunters = this.enemiesKilled >= levelConfig.enemiesToBoss * 0.8;
 
-        if (shouldSpawnHunters &&
-            this.hunters.length === 0 &&
-            !this.huntersDefeated &&
-            !this.bossActive &&
-            !this.bossDefeated) {
-            this.spawnHunters();
-            return;
-        }
-
-        // Check if we should spawn boss (only after hunters are defeated if they were spawned)
-        // If we never spawned hunters (killed < 80%), set huntersDefeated to true to allow boss spawn
-        if (this.enemiesKilled >= levelConfig.enemiesToBoss) {
-            // Auto-set huntersDefeated if we somehow skipped hunter spawning
-            if (!shouldSpawnHunters && !this.huntersDefeated) {
-                this.huntersDefeated = true;
-            }
-
-            if (this.huntersDefeated &&
+            if (shouldSpawnHunters &&
+                this.hunters.length === 0 &&
+                !this.huntersDefeated &&
                 !this.bossActive &&
                 !this.bossDefeated) {
-                this.spawnBoss();
+                this.spawnHunters();
                 return;
+            }
+
+            // Check if we should spawn boss (only after hunters are defeated if they were spawned)
+            // If we never spawned hunters (killed < 80%), set huntersDefeated to true to allow boss spawn
+            if (this.enemiesKilled >= levelConfig.enemiesToBoss) {
+                // Auto-set huntersDefeated if we somehow skipped hunter spawning
+                if (!shouldSpawnHunters && !this.huntersDefeated) {
+                    this.huntersDefeated = true;
+                }
+
+                if (this.huntersDefeated &&
+                    !this.bossActive &&
+                    !this.bossDefeated) {
+                    this.spawnBoss();
+                    return;
+                }
+            }
+
+            // Spawn regular enemies
+            if (this.waveTimer > levelConfig.spawnInterval &&
+                this.enemies.length < levelConfig.maxEnemiesOnScreen &&
+                !this.bossActive) {
+                this.waveTimer = 0;
+
+                const enemyCount = levelConfig.enemiesPerWave;
+                for (let i = 0; i < enemyCount; i++) {
+                    this.spawnEnemy();
+                }
             }
         }
 
-        // Spawn regular enemies
-        if (this.waveTimer > levelConfig.spawnInterval &&
-            this.enemies.length < levelConfig.maxEnemiesOnScreen &&
-            !this.bossActive) {
-            this.waveTimer = 0;
-
-            const enemyCount = levelConfig.enemiesPerWave;
-            for (let i = 0; i < enemyCount; i++) {
-                this.spawnEnemy();
-            }
-
-            // Spawn asteroids more frequently for economy balance
-            if (this.asteroids.length < levelConfig.maxAsteroids) {
-                if (this.levelConfig.shouldSpawnAsteroid(this.level)) {
+        // Spawn asteroids continuously throughout the level (not just with enemies)
+        if (this.waveTimer % 30 === 0) { // Check every half second
+            if (this.asteroids.length < levelConfig.maxAsteroids * 1.5) { // Allow more asteroids
+                // Higher chance to spawn asteroids
+                if (Math.random() < 0.6) {
                     this.spawnAsteroid();
-                }
-                // Second chance for more variety and income
-                if (Math.random() < 0.3 && this.levelConfig.shouldSpawnAsteroid(this.level)) {
-                    setTimeout(() => {
-                        if (this.asteroids.length < levelConfig.maxAsteroids) {
-                            this.spawnAsteroid();
-                        }
-                    }, 500);
+
+                    // Sometimes spawn 2 asteroids at once for clusters
+                    if (Math.random() < 0.3 && this.asteroids.length < levelConfig.maxAsteroids * 1.5 - 1) {
+                        setTimeout(() => {
+                            if (this.isPlaying) {
+                                this.spawnAsteroid();
+                            }
+                        }, 300);
+                    }
                 }
             }
         }

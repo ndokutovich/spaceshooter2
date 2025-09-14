@@ -242,6 +242,18 @@ export class WeaponSystem {
         return false;
     }
 
+    selectBestAvailableWeapon() {
+        // Select the highest unlocked weapon (preferring Shotgun Blaster over Pulse Laser)
+        for (let i = this.weapons.length - 1; i >= 0; i--) {
+            if (this.unlockedWeapons[i] && this.weapons[i].ammo > 0) {
+                this.currentWeaponIndex = i;
+                return;
+            }
+        }
+        // Fallback to pulse laser
+        this.currentWeaponIndex = 0;
+    }
+
     switchWeaponByKey(key) {
         const weaponIndex = this.weapons.findIndex(w => w.key === key);
         if (weaponIndex !== -1) {
