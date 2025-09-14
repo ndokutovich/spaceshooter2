@@ -1,4 +1,12 @@
 import { Projectile } from './Projectile.js';
+import {
+    ExplosiveProjectile,
+    ChainLightningProjectile,
+    PiercingProjectile,
+    FlameProjectile,
+    BFGProjectile,
+    QuantumProjectile
+} from './SpecialProjectiles.js';
 import { formulaService } from '../systems/FormulaService.js';
 import { StoryEvents } from '../data/StoryEvents.js';
 
@@ -84,55 +92,260 @@ export class Boss {
     attack(player, projectiles) {
         if (!player) return;
 
-        // Different attack patterns based on boss phase
-        const attackPattern = Math.floor(Math.random() * 3);
+        // Each boss uses the weapon they drop when defeated
+        switch(this.level) {
+            case 1:
+                this.shotgunBlasterAttack(player, projectiles);
+                break;
+            case 2:
+                this.plasmaRifleAttack(player, projectiles);
+                break;
+            case 3:
+                this.rocketLauncherAttack(player, projectiles);
+                break;
+            case 4:
+                this.lightningGunAttack(player, projectiles);
+                break;
+            case 5:
+                this.superShotgunAttack(player, projectiles);
+                break;
+            case 6:
+                this.gaussCannonAttack(player, projectiles);
+                break;
+            case 7:
+                this.flamethrowerAttack(player, projectiles);
+                break;
+            case 8:
+                this.bfgAttack(player, projectiles);
+                break;
+            case 9:
+                this.quantumDisruptorAttack(player, projectiles);
+                break;
+            case 10:
+                this.finalBossAttack(player, projectiles);
+                break;
+            default:
+                this.defaultAttack(player, projectiles);
+        }
+    }
 
-        if (attackPattern === 0) {
-            // Spread shot
-            for (let i = -2; i <= 2; i++) {
-                projectiles.push(new Projectile(
-                    this.x,
-                    this.y + this.height / 2,
-                    i * 2,
-                    5,
-                    formulaService.calculateBossAttackDamage(this.damage, 'spread'),
-                    false,
-                    '#ff00ff',
-                    6,
-                    10
-                ));
-            }
-        } else if (attackPattern === 1) {
-            // Aimed shot
-            const angle = Math.atan2(player.y - this.y, player.x - this.x);
+    // Level 1 Boss - Shotgun Blaster pattern
+    shotgunBlasterAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        // Spread of 5 projectiles
+        for (let i = -2; i <= 2; i++) {
+            const spread = 0.3; // Similar to weapon spread
             projectiles.push(new Projectile(
                 this.x,
                 this.y + this.height / 2,
-                Math.cos(angle) * 8,
-                Math.sin(angle) * 8,
-                formulaService.calculateBossAttackDamage(this.damage, 'aimed'),
+                Math.cos(angle + i * spread * 0.5) * 8,
+                Math.sin(angle + i * spread * 0.5) * 8,
+                formulaService.calculateBossAttackDamage(this.damage * 0.8, 'spread'),
                 false,
-                '#ff0000',
-                8,
+                '#ffaa00',
+                6,
+                6
+            ));
+        }
+    }
+
+    // Level 2 Boss - Plasma Rifle pattern
+    plasmaRifleAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        // Rapid fire plasma bolts (burst of 3)
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                if (this.health > 0) {
+                    projectiles.push(new Projectile(
+                        this.x,
+                        this.y + this.height / 2,
+                        Math.cos(angle + (Math.random() - 0.5) * 0.05) * 12,
+                        Math.sin(angle + (Math.random() - 0.5) * 0.05) * 12,
+                        formulaService.calculateBossAttackDamage(this.damage * 1.2, 'aimed'),
+                        false,
+                        '#00aaff',
+                        8,
+                        8
+                    ));
+                }
+            }, i * 100);
+        }
+    }
+
+    // Level 3 Boss - Rocket Launcher pattern
+    rocketLauncherAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        // Slower, high damage explosive projectile
+        projectiles.push(new ExplosiveProjectile(
+            this.x,
+            this.y + this.height / 2,
+            Math.cos(angle) * 6,
+            Math.sin(angle) * 6,
+            formulaService.calculateBossAttackDamage(this.damage * 2.5, 'heavy'),
+            false,
+            '#ff0000',
+            10,
+            16
+        ));
+    }
+
+    // Level 4 Boss - Lightning Gun pattern
+    lightningGunAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        // Fast chain lightning projectile
+        projectiles.push(new ChainLightningProjectile(
+            this.x,
+            this.y + this.height / 2,
+            Math.cos(angle) * 20,
+            Math.sin(angle) * 20,
+            formulaService.calculateBossAttackDamage(this.damage * 1.5, 'pierce'),
+            false,
+            '#ffff00',
+            3,
+            30
+        ));
+    }
+
+    // Level 5 Boss - Super Shotgun pattern
+    superShotgunAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        // Wide spread of 10 projectiles
+        for (let i = -5; i < 5; i++) {
+            const spread = 0.5;
+            projectiles.push(new Projectile(
+                this.x,
+                this.y + this.height / 2,
+                Math.cos(angle + i * spread * 0.2) * 9,
+                Math.sin(angle + i * spread * 0.2) * 9,
+                formulaService.calculateBossAttackDamage(this.damage * 0.6, 'spread'),
+                false,
+                '#ff6600',
+                7,
+                7
+            ));
+        }
+    }
+
+    // Level 6 Boss - Gauss Cannon pattern
+    gaussCannonAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        // High velocity piercing shot
+        projectiles.push(new PiercingProjectile(
+            this.x,
+            this.y + this.height / 2,
+            Math.cos(angle) * 25,
+            Math.sin(angle) * 25,
+            formulaService.calculateBossAttackDamage(this.damage * 3, 'heavy'),
+            false,
+            '#ff00ff',
+            5,
+            40
+        ));
+    }
+
+    // Level 7 Boss - Flamethrower pattern
+    flamethrowerAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        // Stream of fire projectiles
+        for (let i = -1; i <= 1; i++) {
+            projectiles.push(new FlameProjectile(
+                this.x,
+                this.y + this.height / 2,
+                Math.cos(angle + i * 0.2) * 7,
+                Math.sin(angle + i * 0.2) * 7,
+                formulaService.calculateBossAttackDamage(this.damage * 0.5, 'burn'),
+                false,
+                '#ff4400',
+                12,
                 12
             ));
+        }
+    }
+
+    // Level 8 Boss - BFG 9000 pattern
+    bfgAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        // Massive slow-moving projectile with area damage
+        projectiles.push(new BFGProjectile(
+            this.x,
+            this.y + this.height / 2,
+            Math.cos(angle) * 4,
+            Math.sin(angle) * 4,
+            formulaService.calculateBossAttackDamage(this.damage * 5, 'massive'),
+            false,
+            '#00ff00',
+            30,
+            30
+        ));
+    }
+
+    // Level 9 Boss - Quantum Disruptor pattern
+    quantumDisruptorAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        // Quantum projectile that distorts space
+        projectiles.push(new QuantumProjectile(
+            this.x,
+            this.y + this.height / 2,
+            Math.cos(angle) * 15,
+            Math.sin(angle) * 15,
+            formulaService.calculateBossAttackDamage(this.damage * 3.5, 'quantum'),
+            false,
+            '#ffffff',
+            20,
+            20
+        ));
+    }
+
+    // Level 10 Final Boss - Uses all weapon patterns
+    finalBossAttack(player, projectiles) {
+        // Cycle through different weapon patterns based on health
+        const healthPercent = this.health / this.maxHealth;
+
+        if (healthPercent > 0.75) {
+            // Phase 1: Shotgun and Plasma
+            if (this.attackTimer % 120 < 60) {
+                this.shotgunBlasterAttack(player, projectiles);
+            } else {
+                this.plasmaRifleAttack(player, projectiles);
+            }
+        } else if (healthPercent > 0.5) {
+            // Phase 2: Rockets and Lightning
+            if (this.attackTimer % 120 < 60) {
+                this.rocketLauncherAttack(player, projectiles);
+            } else {
+                this.lightningGunAttack(player, projectiles);
+            }
+        } else if (healthPercent > 0.25) {
+            // Phase 3: Gauss and Flame
+            if (this.attackTimer % 120 < 60) {
+                this.gaussCannonAttack(player, projectiles);
+            } else {
+                this.flamethrowerAttack(player, projectiles);
+            }
         } else {
-            // Circular pattern
-            for (let i = 0; i < 8; i++) {
-                const angle = (Math.PI * 2 / 8) * i;
-                projectiles.push(new Projectile(
-                    this.x,
-                    this.y,
-                    Math.cos(angle) * 4,
-                    Math.sin(angle) * 4,
-                    formulaService.calculateBossAttackDamage(this.damage, 'circle'),
-                    false,
-                    '#ffff00',
-                    5,
-                    5
-                ));
+            // Phase 4: BFG and Quantum
+            if (this.attackTimer % 180 < 90) {
+                this.bfgAttack(player, projectiles);
+            } else {
+                this.quantumDisruptorAttack(player, projectiles);
             }
         }
+    }
+
+    // Default attack pattern (fallback)
+    defaultAttack(player, projectiles) {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        projectiles.push(new Projectile(
+            this.x,
+            this.y + this.height / 2,
+            Math.cos(angle) * 8,
+            Math.sin(angle) * 8,
+            formulaService.calculateBossAttackDamage(this.damage, 'aimed'),
+            false,
+            '#ff0000',
+            8,
+            12
+        ));
     }
 
     draw(ctx) {

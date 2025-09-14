@@ -1,6 +1,7 @@
 import { Player } from './entities/Player.js';
 import { Enemy } from './entities/Enemy.js';
 import { Boss } from './entities/Boss.js';
+import { Hunter } from './entities/Hunter.js';
 import { Asteroid } from './entities/Asteroid.js';
 import { PowerUp } from './entities/PowerUp.js';
 import { Projectile } from './entities/Projectile.js';
@@ -35,6 +36,7 @@ export class SpaceShooterGame {
         // Entities
         this.player = null;
         this.enemies = [];
+        this.hunters = [];  // Elite enemies before boss
         this.projectiles = [];
         this.powerUps = [];
         this.asteroids = [];
@@ -43,6 +45,7 @@ export class SpaceShooterGame {
         this.boss = null;
         this.bossActive = false;
         this.bossDefeated = false;
+        this.huntersDefeated = false;  // Track if hunters are defeated
 
         // Wave system
         this.waveTimer = 0;
@@ -128,12 +131,14 @@ export class SpaceShooterGame {
 
         // Clear entities
         this.enemies = [];
+        this.hunters = [];
         this.projectiles = [];
         this.powerUps = [];
         this.asteroids = [];
         this.boss = null;
         this.bossActive = false;
         this.bossDefeated = false;
+        this.huntersDefeated = false;
         this.particleSystem.clear();
 
         // Create player
@@ -203,6 +208,9 @@ export class SpaceShooterGame {
 
         this.updateEnemies();
         this.drawEnemies();
+
+        this.updateHunters();
+        this.drawHunters();
 
         this.updateProjectiles();
         this.drawProjectiles();
@@ -279,6 +287,29 @@ export class SpaceShooterGame {
         this.enemies.forEach(enemy => enemy.draw(this.ctx));
     }
 
+    updateHunters() {
+        if (this.hunters.length > 0 && !this.hunterLogShown) {
+            console.log(`Updating ${this.hunters.length} hunters`, this.hunters);
+            this.hunterLogShown = true;
+        }
+
+        this.hunters = this.hunters.filter(hunter => {
+            const shouldRemove = hunter.update(this.player, this.projectiles);
+            return !shouldRemove;
+        });
+
+        // Check if all hunters are defeated
+        if (this.hunters.length === 0 && this.enemiesKilled >= this.levelConfig.getLevel(this.level).enemiesToBoss * 0.8 && !this.huntersDefeated) {
+            this.huntersDefeated = true;
+            this.hunterLogShown = false; // Reset for next level
+            this.dialogSystem.showQuickMessage("Hunters eliminated! Boss approaching...");
+        }
+    }
+
+    drawHunters() {
+        this.hunters.forEach(hunter => hunter.draw(this.ctx));
+    }
+
     updateBoss() {
         if (!this.boss) return;
 
@@ -326,10 +357,32 @@ export class SpaceShooterGame {
 
         const levelConfig = this.levelConfig.getLevel(this.level);
 
-        // Check if we should spawn boss (but not if we just defeated one)
-        if (this.enemiesKilled >= levelConfig.enemiesToBoss && !this.bossActive && !this.bossDefeated) {
-            this.spawnBoss();
+        // Check if we should spawn hunters before boss (at 80% of enemies killed)
+        const shouldSpawnHunters = this.enemiesKilled >= levelConfig.enemiesToBoss * 0.8;
+
+        if (shouldSpawnHunters &&
+            this.hunters.length === 0 &&
+            !this.huntersDefeated &&
+            !this.bossActive &&
+            !this.bossDefeated) {
+            this.spawnHunters();
             return;
+        }
+
+        // Check if we should spawn boss (only after hunters are defeated if they were spawned)
+        // If we never spawned hunters (killed < 80%), set huntersDefeated to true to allow boss spawn
+        if (this.enemiesKilled >= levelConfig.enemiesToBoss) {
+            // Auto-set huntersDefeated if we somehow skipped hunter spawning
+            if (!shouldSpawnHunters && !this.huntersDefeated) {
+                this.huntersDefeated = true;
+            }
+
+            if (this.huntersDefeated &&
+                !this.bossActive &&
+                !this.bossDefeated) {
+                this.spawnBoss();
+                return;
+            }
         }
 
         // Spawn regular enemies
@@ -368,6 +421,56 @@ export class SpaceShooterGame {
     spawnAsteroid() {
         const asteroid = new Asteroid(this.canvas);
         this.asteroids.push(asteroid);
+    }
+
+    spawnHunters() {
+        // Spawn 2-3 hunters based on level
+        const hunterCount = Math.min(1 + Math.floor(this.level / 4), 3);
+
+        console.log(`Spawning ${hunterCount} hunters at level ${this.level}`);
+
+        // Create hunters immediately
+        for (let i = 0; i < hunterCount; i++) {
+            // Spawn different types or random
+            let type = null;
+            if (hunterCount === 1) {
+                type = 'bounty';
+            } else if (hunterCount === 2) {
+                type = i === 0 ? 'bounty' : 'raider';
+            } else {
+                type = ['bounty', 'raider', 'assassin'][i];
+            }
+
+            const hunter = new Hunter(this.canvas, this.level, type);
+            // Spread them out horizontally
+            hunter.x = (this.canvas.width / (hunterCount + 1)) * (i + 1);
+            hunter.y = -100; // Start above screen
+            this.hunters.push(hunter);
+            console.log(`Created hunter ${i+1}/${hunterCount}: ${type} at (${hunter.x}, ${hunter.y})`);
+        }
+
+        console.log(`Total hunters array:`, this.hunters);
+
+        // Show warning message that doesn't wait for input
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+            border: 2px solid #ffff00;
+            animation: pulse 0.5s 3;
+        `;
+        notification.textContent = "⚠️ ELITE HUNTERS INCOMING!";
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
     }
 
     spawnBoss() {
@@ -424,6 +527,37 @@ export class SpaceShooterGame {
         this.enemies.splice(index, 1);
     }
 
+    destroyHunter(index) {
+        const hunter = this.hunters[index];
+        if (!hunter) return;
+
+        // Create big explosion for hunters
+        for (let i = 0; i < 20; i++) {
+            this.particleSystem.createParticle(hunter.x, hunter.y, hunter.color);
+        }
+
+        // Better rewards for hunters
+        const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
+        this.score += hunter.value * 2; // Double score for hunters
+        const creditsEarned = Math.floor(hunter.value * goldRushMultiplier);
+        this.credits += creditsEarned;
+
+        // Show reward notification
+        this.showResourceNotification('hunter', creditsEarned);
+
+        // High chance to drop power-up
+        if (Math.random() < 0.5) {
+            const powerUpType = Math.random() < 0.5 ? 'health' : 'shield';
+            this.powerUps.push(new PowerUp(
+                hunter.x,
+                hunter.y,
+                powerUpType
+            ));
+        }
+
+        this.hunters.splice(index, 1);
+    }
+
     destroyAsteroid(index) {
         const asteroid = this.asteroids[index];
         if (!asteroid) return;
@@ -461,7 +595,8 @@ export class SpaceShooterGame {
         const messages = {
             gold: `💰 Gold ore! +${credits} credits!`,
             crystal: `💎 Energy crystal! +${credits} credits!`,
-            platinum: `✨ PLATINUM! +${credits} credits!`
+            platinum: `✨ PLATINUM! +${credits} credits!`,
+            hunter: `🎯 Hunter bounty! +${credits} credits!`
         };
 
         const notification = document.createElement('div');
@@ -800,8 +935,7 @@ export class SpaceShooterGame {
     }
 
     continueToNextLevel() {
-        this.level++;
-
+        // Level was already incremented in levelComplete(), don't increment again
         if (this.level > 10) {
             this.victory();
         } else {

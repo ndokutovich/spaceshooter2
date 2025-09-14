@@ -1,3 +1,12 @@
+import {
+    ExplosiveProjectile,
+    ChainLightningProjectile,
+    PiercingProjectile,
+    FlameProjectile,
+    BFGProjectile,
+    QuantumProjectile
+} from '../entities/SpecialProjectiles.js';
+
 export class CollisionSystem {
     checkRectCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
         return x1 < x2 + w2 &&
@@ -24,6 +33,7 @@ export class CollisionSystem {
 
         const projectilesToRemove = [];
         const enemiesToDestroy = [];
+        const huntersToDestroy = [];
         const asteroidsToDestroy = [];
         const powerUpsToCollect = [];
 
@@ -69,6 +79,30 @@ export class CollisionSystem {
 
                         if (enemy.health <= 0) {
                             enemiesToDestroy.push(eIndex);
+                        }
+                    }
+                });
+
+                // Check hunters
+                game.hunters.forEach((hunter, hIndex) => {
+                    if (!projectilesToRemove.includes(pIndex)) {
+                        if (this.checkRectCollision(
+                            projectile.x - projectile.width / 2,
+                            projectile.y - projectile.height / 2,
+                            projectile.width,
+                            projectile.height,
+                            hunter.x - hunter.width / 2,
+                            hunter.y - hunter.height / 2,
+                            hunter.width,
+                            hunter.height
+                        )) {
+                            hunter.health -= projectile.damage;
+                            projectilesToRemove.push(pIndex);
+                            game.particleSystem.createParticle(projectile.x, projectile.y, hunter.color);
+
+                            if (hunter.health <= 0) {
+                                huntersToDestroy.push(hIndex);
+                            }
                         }
                     }
                 });
@@ -176,6 +210,10 @@ export class CollisionSystem {
 
         enemiesToDestroy.sort((a, b) => b - a).forEach(index => {
             game.destroyEnemy(index);
+        });
+
+        huntersToDestroy.sort((a, b) => b - a).forEach(index => {
+            game.destroyHunter(index);
         });
 
         asteroidsToDestroy.sort((a, b) => b - a).forEach(index => {
