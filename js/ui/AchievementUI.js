@@ -117,22 +117,22 @@ class AchievementUI {
         // Format rewards
         const rewardTexts = [];
         if (tier.reward.credits) {
-            rewardTexts.push(`💰 ${tier.reward.credits} Credits`);
+            rewardTexts.push(`💰 ${tier.reward.credits} ${languageSystem.t('Credits')}`);
         }
         if (tier.reward.damageBonus) {
-            rewardTexts.push(`⚔️ +${(tier.reward.damageBonus * 100).toFixed(0)}% Damage`);
+            rewardTexts.push(`⚔️ +${(tier.reward.damageBonus * 100).toFixed(0)}% ${languageSystem.t('Damage')}`);
         }
         if (tier.reward.healthBonus) {
-            rewardTexts.push(`❤️ +${tier.reward.healthBonus} Max Health`);
+            rewardTexts.push(`❤️ +${tier.reward.healthBonus} ${languageSystem.t('Max Health')}`);
         }
         if (tier.reward.shieldBonus) {
-            rewardTexts.push(`🛡️ +${tier.reward.shieldBonus} Max Shield`);
+            rewardTexts.push(`🛡️ +${tier.reward.shieldBonus} ${languageSystem.t('Max Shield')}`);
         }
         if (tier.reward.creditMultiplier) {
-            rewardTexts.push(`💎 +${(tier.reward.creditMultiplier * 100).toFixed(0)}% Credit Gain`);
+            rewardTexts.push(`💎 +${(tier.reward.creditMultiplier * 100).toFixed(0)}% ${languageSystem.t('Credit Gain')}`);
         }
         if (tier.reward.title) {
-            rewardTexts.push(`🏆 Title: "${tier.reward.title}"`);
+            rewardTexts.push(`🏆 ${languageSystem.t('Title:')} "${tier.reward.title}"`);
         }
 
         rewardsList.innerHTML = rewardTexts.join('<br>');

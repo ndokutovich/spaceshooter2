@@ -284,16 +284,16 @@ class ScreenManager {
         if (maxShieldEl) maxShieldEl.textContent = playerStats.maxShield;
 
         const damageEl = document.getElementById('pauseDamage');
-        if (damageEl) damageEl.textContent = (playerStats.damage / 10).toFixed(1) + 'x';
+        if (damageEl) damageEl.textContent = (playerStats.damage / 10).toFixed(1) + languageSystem.t('x');
 
         const fireRateEl = document.getElementById('pauseFireRate');
-        if (fireRateEl) fireRateEl.textContent = playerStats.fireRate.toFixed(1) + '/s';
+        if (fireRateEl) fireRateEl.textContent = playerStats.fireRate.toFixed(1) + '/' + languageSystem.t('s');
 
         const speedEl = document.getElementById('pauseSpeed');
         if (speedEl) speedEl.textContent = playerStats.speed.toFixed(1);
 
         const ammoCapEl = document.getElementById('pauseAmmoCapacity');
-        if (ammoCapEl) ammoCapEl.textContent = Math.round(playerStats.ammoMultiplier * 100) + '%';
+        if (ammoCapEl) ammoCapEl.textContent = Math.round(playerStats.ammoMultiplier * 100) + languageSystem.t('%');
 
         // Upgrade levels
         const healthLevelEl = document.getElementById('pauseHealthLevel');

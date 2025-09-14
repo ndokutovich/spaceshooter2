@@ -484,6 +484,15 @@ class LanguageSystem {
                 'You have': 'You have',
                 'All': 'All',
                 'Cancel': 'Cancel',
+                's': 's',
+                'x': 'x',
+                '%': '%',
+                'Credits': 'Credits',
+                'Damage': 'Damage',
+                'Max Health': 'Max Health',
+                'Max Shield': 'Max Shield',
+                'Credit Gain': 'Credit Gain',
+                'Title:': 'Title:',
 
                 // Console messages
                 'All hunters defeated! Boss can now spawn.': 'All hunters defeated! Boss can now spawn.',
@@ -1155,6 +1164,15 @@ class LanguageSystem {
                 'You have': 'У вас есть',
                 'All': 'Всё',
                 'Cancel': 'Отмена',
+                's': 'с',
+                'x': 'x',
+                '%': '%',
+                'Credits': 'Кредиты',
+                'Damage': 'Урон',
+                'Max Health': 'Макс. здоровье',
+                'Max Shield': 'Макс. щит',
+                'Credit Gain': 'Получение кредитов',
+                'Title:': 'Титул:',
 
                 // Console messages
                 'All hunters defeated! Boss can now spawn.': 'Все охотники побеждены! Босс может появиться.',
