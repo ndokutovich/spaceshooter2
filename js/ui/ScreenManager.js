@@ -20,6 +20,25 @@ export class ScreenManager {
         if (screen) {
             screen.classList.add('active');
             this.currentScreen = screenId;
+
+            // Show/hide continue button if showing main menu
+            if (screenId === 'mainMenu') {
+                const continueBtn = document.getElementById('continueBtn');
+                if (continueBtn) {
+                    const saveData = localStorage.getItem('spaceShooterSave');
+                    if (saveData) {
+                        try {
+                            const save = JSON.parse(saveData);
+                            continueBtn.innerHTML = `CONTINUE<br><span style="font-size: 14px; opacity: 0.7;">Level ${save.level} • Score: ${save.score}</span>`;
+                            continueBtn.style.display = 'block';
+                        } catch (e) {
+                            continueBtn.style.display = 'none';
+                        }
+                    } else {
+                        continueBtn.style.display = 'none';
+                    }
+                }
+            }
         }
     }
 

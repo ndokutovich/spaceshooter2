@@ -27,7 +27,8 @@
         <!-- Main Menu -->
         <div id="mainMenu" class="screen">
             <div class="logo" style="margin-bottom: 40px;">SPACE SHOOTER</div>
-            <button class="menu-button" onclick="game.startGame()">PLAY</button>
+            <button class="menu-button" onclick="game.startGame()">NEW GAME</button>
+            <button id="continueBtn" class="menu-button" onclick="game.continueGame()" style="display: none;">CONTINUE</button>
             <button class="menu-button" onclick="game.showOptions()">OPTIONS</button>
             <button class="menu-button" onclick="game.showRecords()">RECORDS</button>
             <button class="menu-button" onclick="game.showCredits()">CREDITS</button>
@@ -99,7 +100,10 @@
             <div class="upgrade-grid" id="upgradeGrid">
                 <!-- Upgrades will be populated here -->
             </div>
-            <button class="menu-button" onclick="game.continueToNextLevel()" style="margin-top: 30px;">CONTINUE TO LEVEL <span id="nextLevelNum">2</span></button>
+            <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
+                <button class="menu-button" onclick="game.saveProgress()" style="background: #4CAF50;">SAVE PROGRESS</button>
+                <button class="menu-button" onclick="game.continueToNextLevel()">CONTINUE TO LEVEL <span id="nextLevelNum">2</span></button>
+            </div>
         </div>
         
         <!-- Game Over Screen -->

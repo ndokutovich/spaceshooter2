@@ -534,6 +534,74 @@ export class SpaceShooterGame {
             this.autoFire = options.autoFire !== undefined ? options.autoFire : true;
         }
     }
+
+    // Save game progress (only available in Space Hub)
+    saveProgress() {
+        const saveData = {
+            level: this.level + 1,  // Save the NEXT level (the one shown in Space Hub)
+            score: this.score,
+            credits: this.credits,
+            upgrades: this.upgradeSystem.upgrades,
+            timestamp: Date.now(),
+            version: '1.0'
+        };
+
+        localStorage.setItem('spaceShooterSave', JSON.stringify(saveData));
+
+        // Show confirmation (brief message)
+        const upgradeScreen = document.getElementById('upgradeScreen');
+        if (upgradeScreen && upgradeScreen.classList.contains('active')) {
+            const saveMsg = document.createElement('div');
+            saveMsg.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 255, 0, 0.9); color: white; padding: 20px; border-radius: 10px; font-size: 24px; z-index: 1000;';
+            saveMsg.textContent = 'Progress Saved!';
+            document.body.appendChild(saveMsg);
+            setTimeout(() => saveMsg.remove(), 2000);
+        }
+    }
+
+    // Load saved progress
+    loadProgress() {
+        const saved = localStorage.getItem('spaceShooterSave');
+        if (!saved) {
+            return false;
+        }
+
+        try {
+            const saveData = JSON.parse(saved);
+
+            // Restore game state
+            this.level = saveData.level || 1;
+            this.score = saveData.score || 0;
+            this.credits = saveData.credits || 500;
+
+            // Restore upgrades
+            if (saveData.upgrades) {
+                Object.keys(saveData.upgrades).forEach(key => {
+                    if (this.upgradeSystem.upgrades[key]) {
+                        this.upgradeSystem.upgrades[key].level = saveData.upgrades[key].level || 0;
+                    }
+                });
+            }
+
+            return true;
+        } catch (e) {
+            console.error('Failed to load save:', e);
+            return false;
+        }
+    }
+
+    // Check if save exists
+    hasSaveGame() {
+        return localStorage.getItem('spaceShooterSave') !== null;
+    }
+
+    // Start from saved game
+    continueGame() {
+        if (this.loadProgress()) {
+            this.screenManager.hideScreen('mainMenu');
+            this.startGame(false); // Start game preserving loaded state
+        }
+    }
 }
 
 // Make game globally accessible for HTML onclick handlers
