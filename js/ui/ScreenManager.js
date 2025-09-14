@@ -260,7 +260,7 @@ export class ScreenManager {
         if (pauseBtn) pauseBtn.style.display = 'none';
     }
 
-    showPauseMenu(gameStats, playerStats, upgrades) {
+    showPauseMenu(gameStats, playerStats, upgrades, weapons = [], unlockedWeapons = [], currentWeaponIndex = 0) {
         this.showScreen('pauseMenu');
 
         // Game progress stats
@@ -313,5 +313,92 @@ export class ScreenManager {
 
         const ammoLevelEl = document.getElementById('pauseAmmoLevel');
         if (ammoLevelEl) ammoLevelEl.textContent = `${upgrades.ammoCrate.level}/${upgrades.ammoCrate.maxLevel}`;
+
+        // Weapon list
+        const weaponListEl = document.getElementById('pauseWeaponList');
+        if (weaponListEl) {
+            weaponListEl.innerHTML = '';
+
+            weapons.forEach((weapon, index) => {
+                const isUnlocked = unlockedWeapons[index];
+                const isCurrent = index === currentWeaponIndex;
+
+                const weaponDiv = document.createElement('div');
+                weaponDiv.style.cssText = `
+                    padding: 8px;
+                    margin: 4px 0;
+                    border-radius: 5px;
+                    background: ${isCurrent ? 'rgba(255, 255, 0, 0.2)' : 'rgba(255, 255, 255, 0.05)'};
+                    border: 1px solid ${isCurrent ? '#ffff00' : (isUnlocked ? '#00ff00' : '#666666')};
+                    opacity: ${isUnlocked ? '1' : '0.5'};
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                `;
+
+                const leftSide = document.createElement('div');
+                leftSide.style.cssText = 'display: flex; align-items: center; gap: 10px;';
+
+                const keySpan = document.createElement('span');
+                keySpan.style.cssText = `
+                    background: ${isUnlocked ? '#333' : '#222'};
+                    color: ${isUnlocked ? '#fff' : '#666'};
+                    padding: 2px 6px;
+                    border-radius: 3px;
+                    font-family: monospace;
+                    font-size: 12px;
+                `;
+                keySpan.textContent = weapon.key;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.style.cssText = `
+                    color: ${isUnlocked ? weapon.color : '#666666'};
+                    font-weight: ${isCurrent ? 'bold' : 'normal'};
+                `;
+                nameSpan.textContent = weapon.name;
+
+                if (isCurrent) {
+                    const currentBadge = document.createElement('span');
+                    currentBadge.style.cssText = `
+                        background: #ffff00;
+                        color: #000;
+                        padding: 2px 6px;
+                        border-radius: 3px;
+                        font-size: 10px;
+                        font-weight: bold;
+                    `;
+                    currentBadge.textContent = 'EQUIPPED';
+                    leftSide.appendChild(keySpan);
+                    leftSide.appendChild(nameSpan);
+                    leftSide.appendChild(currentBadge);
+                } else {
+                    leftSide.appendChild(keySpan);
+                    leftSide.appendChild(nameSpan);
+                }
+
+                const ammoSpan = document.createElement('span');
+                ammoSpan.style.cssText = 'font-size: 14px;';
+
+                if (!isUnlocked) {
+                    ammoSpan.textContent = '🔒 LOCKED';
+                    ammoSpan.style.color = '#666666';
+                } else if (weapon.ammo === Infinity) {
+                    ammoSpan.textContent = '∞';
+                    ammoSpan.style.color = '#00ffff';
+                } else {
+                    const ammoPercent = weapon.ammo / weapon.maxAmmo;
+                    let ammoColor = '#00ff00';
+                    if (ammoPercent <= 0.25) ammoColor = '#ff0000';
+                    else if (ammoPercent <= 0.5) ammoColor = '#ffaa00';
+
+                    ammoSpan.textContent = `${weapon.ammo}/${weapon.maxAmmo}`;
+                    ammoSpan.style.color = ammoColor;
+                }
+
+                weaponDiv.appendChild(leftSide);
+                weaponDiv.appendChild(ammoSpan);
+                weaponListEl.appendChild(weaponDiv);
+            });
+        }
     }
 }

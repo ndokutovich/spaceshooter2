@@ -1152,7 +1152,12 @@ export class SpaceShooterGame {
             // Get upgrade levels
             const upgrades = this.upgradeSystem.upgrades;
 
-            this.screenManager.showPauseMenu(gameStats, playerStats, upgrades);
+            // Get weapon list
+            const weapons = this.weaponSystem ? this.weaponSystem.weapons : [];
+            const unlockedWeapons = this.weaponSystem ? this.weaponSystem.unlockedWeapons : [];
+            const currentWeaponIndex = this.weaponSystem ? this.weaponSystem.currentWeaponIndex : 0;
+
+            this.screenManager.showPauseMenu(gameStats, playerStats, upgrades, weapons, unlockedWeapons, currentWeaponIndex);
         } else {
             // Resume the game
             this.resumeGame();
