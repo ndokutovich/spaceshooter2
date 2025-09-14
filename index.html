@@ -12,86 +12,93 @@
         
         <!-- Logo Screens -->
         <div id="platformLogo" class="screen active">
-            <div class="logo">PLATFORM STUDIOS</div>
-            <p style="position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 14px; opacity: 0.5;">Click to skip</p>
+            <div class="logo" data-i18n="PLATFORM STUDIOS">PLATFORM STUDIOS</div>
+            <p style="position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 14px; opacity: 0.5;" data-i18n="Click to skip">Click to skip</p>
         </div>
 
         <div id="vendorLogo" class="screen">
-            <div class="logo">COSMIC GAMES</div>
-            <p style="position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 14px; opacity: 0.5;">Click to skip</p>
+            <div class="logo" data-i18n="COSMIC GAMES">COSMIC GAMES</div>
+            <p style="position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 14px; opacity: 0.5;" data-i18n="Click to skip">Click to skip</p>
         </div>
 
         <div id="gameLogo" class="screen">
-            <div class="logo" style="font-size: 64px;">SPACE SHOOTER</div>
-            <p style="margin-top: 20px; font-size: 20px; opacity: 0.7;">Click to Continue</p>
+            <div class="logo" style="font-size: 64px;" data-i18n="SPACE SHOOTER">SPACE SHOOTER</div>
+            <p style="margin-top: 20px; font-size: 20px; opacity: 0.7;" data-i18n="Click to Continue">Click to Continue</p>
         </div>
         
         <!-- Main Menu -->
         <div id="mainMenu" class="screen">
-            <div class="logo" style="margin-bottom: 40px;">SPACE SHOOTER</div>
-            <button class="menu-button" onclick="game.startGame()">NEW GAME</button>
-            <button id="continueBtn" class="menu-button" onclick="game.continueGame()" style="display: none;">CONTINUE</button>
-            <button class="menu-button" onclick="game.showOptions()">OPTIONS</button>
-            <button class="menu-button" onclick="game.showAchievements()" style="background: linear-gradient(135deg, #FFD700, #FFA500);">🏆 ACHIEVEMENTS</button>
-            <button class="menu-button" onclick="game.showRecords()">RECORDS</button>
-            <button class="menu-button" onclick="game.showCredits()">CREDITS</button>
+            <div class="logo" style="margin-bottom: 40px;" data-i18n="SPACE SHOOTER">SPACE SHOOTER</div>
+            <button class="menu-button" onclick="game.startGame()" data-i18n="NEW GAME">NEW GAME</button>
+            <button id="continueBtn" class="menu-button" onclick="game.continueGame()" style="display: none;" data-i18n="CONTINUE">CONTINUE</button>
+            <button class="menu-button" onclick="game.showOptions()" data-i18n="OPTIONS">OPTIONS</button>
+            <button class="menu-button" onclick="game.showAchievements()" style="background: linear-gradient(135deg, #FFD700, #FFA500);"><span>🏆 </span><span data-i18n="ACHIEVEMENTS">ACHIEVEMENTS</span></button>
+            <button class="menu-button" onclick="game.showRecords()" data-i18n="RECORDS">RECORDS</button>
+            <button class="menu-button" onclick="game.showCredits()" data-i18n="CREDITS">CREDITS</button>
         </div>
         
         <!-- Options Screen -->
         <div id="optionsScreen" class="screen">
-            <h2 style="margin-bottom: 30px;">OPTIONS</h2>
+            <h2 style="margin-bottom: 30px;" data-i18n="OPTIONS">OPTIONS</h2>
             <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px;">
                 <div style="margin: 20px 0;">
-                    <label>Control Mode:</label>
-                    <select id="controlMode" style="margin-left: 10px; padding: 5px;">
-                        <option value="touch">Touch & Drag</option>
-                        <option value="joystick">Virtual Joystick</option>
-                        <option value="relative">Relative Touch</option>
+                    <label data-i18n="Language:">Language:</label>
+                    <select id="languageSelect" style="margin-left: 10px; padding: 5px;" onchange="game.changeLanguage(this.value)">
+                        <option value="en" data-i18n="English">English</option>
+                        <option value="ru" data-i18n="Russian">Russian</option>
                     </select>
                 </div>
                 <div style="margin: 20px 0;">
-                    <label>Auto Fire:</label>
+                    <label data-i18n="Control Mode:">Control Mode:</label>
+                    <select id="controlMode" style="margin-left: 10px; padding: 5px;">
+                        <option value="touch" data-i18n="Touch & Drag">Touch & Drag</option>
+                        <option value="joystick" data-i18n="Virtual Joystick">Virtual Joystick</option>
+                        <option value="relative" data-i18n="Relative Touch">Relative Touch</option>
+                    </select>
+                </div>
+                <div style="margin: 20px 0;">
+                    <label data-i18n="Auto Fire:">Auto Fire:</label>
                     <input type="checkbox" id="autoFire" checked style="margin-left: 10px; transform: scale(1.5);">
                 </div>
                 <div style="margin: 20px 0;">
-                    <label>Sound Effects:</label>
+                    <label data-i18n="Sound Effects:">Sound Effects:</label>
                     <input type="range" id="sfxVolume" min="0" max="100" value="70" style="margin-left: 10px;">
                 </div>
                 <div style="margin: 20px 0;">
-                    <label>Music:</label>
+                    <label data-i18n="Music:">Music:</label>
                     <input type="range" id="musicVolume" min="0" max="100" value="50" style="margin-left: 10px;">
                 </div>
             </div>
-            <button class="menu-button" onclick="game.saveOptions()" style="margin-top: 30px;">SAVE</button>
-            <button class="menu-button" onclick="game.backToMenu()">BACK</button>
+            <button class="menu-button" onclick="game.saveOptions()" style="margin-top: 30px;" data-i18n="SAVE">SAVE</button>
+            <button class="menu-button" onclick="game.backToMenu()" data-i18n="BACK">BACK</button>
         </div>
         
         <!-- Records Screen -->
         <div id="recordsScreen" class="screen">
-            <h2 style="margin-bottom: 30px;">HIGH SCORES</h2>
+            <h2 style="margin-bottom: 30px;" data-i18n="HIGH SCORES">HIGH SCORES</h2>
             <div id="highScoresList" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; min-width: 400px;">
                 <!-- High scores will be populated here -->
             </div>
-            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;">BACK</button>
+            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;" data-i18n="BACK">BACK</button>
         </div>
         
         <!-- Credits Screen -->
         <div id="creditsScreen" class="screen">
-            <h2 style="margin-bottom: 30px;">CREDITS</h2>
+            <h2 style="margin-bottom: 30px;" data-i18n="CREDITS">CREDITS</h2>
             <div style="text-align: center; line-height: 2;">
-                <p>Game Design & Development</p>
-                <p style="color: #00ffff;">Space Shooter Team</p>
+                <p data-i18n="Game Design & Development">Game Design & Development</p>
+                <p style="color: #00ffff;" data-i18n="Space Shooter Team">Space Shooter Team</p>
                 <br>
-                <p>Programming</p>
-                <p style="color: #00ffff;">Lead Developer</p>
+                <p data-i18n="Programming">Programming</p>
+                <p style="color: #00ffff;" data-i18n="Lead Developer">Lead Developer</p>
                 <br>
-                <p>Art & Design</p>
-                <p style="color: #00ffff;">Visual Artists</p>
+                <p data-i18n="Art & Design">Art & Design</p>
+                <p style="color: #00ffff;" data-i18n="Visual Artists">Visual Artists</p>
                 <br>
-                <p>Sound & Music</p>
-                <p style="color: #00ffff;">Audio Team</p>
+                <p data-i18n="Sound & Music">Sound & Music</p>
+                <p style="color: #00ffff;" data-i18n="Audio Team">Audio Team</p>
             </div>
-            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;">BACK</button>
+            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;" data-i18n="BACK">BACK</button>
         </div>
         
         <!-- Upgrade Screen (Space Hub) -->
@@ -107,65 +114,65 @@
                         <span id="familyMorale" style="color: #fff; font-weight: bold;">Hopeful 🙂</span>
                     </div>
                     <div>
-                        <span style="color: #aaa;">Food Status:</span>
+                        <span style="color: #aaa;" data-i18n="Food Status:">Food Status:</span>
                         <span id="familyHunger" style="color: #fff; font-weight: bold;">Fed</span>
                     </div>
                     <div>
-                        <span style="color: #aaa;">Medical Debt:</span>
+                        <span style="color: #aaa;" data-i18n="Medical Debt:">Medical Debt:</span>
                         <span id="familyDebt" style="color: #ff6666; font-weight: bold;">5000 credits</span>
                     </div>
                     <div>
-                        <span style="color: #aaa;">Total Sent Home:</span>
+                        <span style="color: #aaa;" data-i18n="Total Sent Home:">Total Sent Home:</span>
                         <span id="familySent" style="color: #66ff66; font-weight: bold;">0 credits</span>
                     </div>
                 </div>
                 <div id="familyMessage" style="color: #fff; margin-top: 15px; font-style: italic; min-height: 20px;"></div>
                 <button class="menu-button" onclick="game.sendMoneyHome()" style="background: #FFD700; color: #000; margin-top: 15px; padding: 10px 20px;">
-                    💰 SEND MONEY HOME
+                    💰 <span data-i18n="SEND MONEY HOME">SEND MONEY HOME</span>
                 </button>
             </div>
 
             <div class="currency-display">
-                Credits: <span id="creditsDisplay">0</span>
+                <span data-i18n="Credits:">Credits:</span> <span id="creditsDisplay">0</span>
             </div>
             <div class="upgrade-grid" id="upgradeGrid">
                 <!-- Upgrades will be populated here -->
             </div>
             <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
-                <button class="menu-button" onclick="game.saveProgress()" style="background: #4CAF50;">SAVE PROGRESS</button>
-                <button class="menu-button" onclick="game.continueToNextLevel()">CONTINUE TO LEVEL <span id="nextLevelNum">2</span></button>
+                <button class="menu-button" onclick="game.saveProgress()" style="background: #4CAF50;" data-i18n="SAVE PROGRESS">SAVE PROGRESS</button>
+                <button class="menu-button" onclick="game.continueToNextLevel()"><span data-i18n="CONTINUE TO LEVEL">CONTINUE TO LEVEL</span> <span id="nextLevelNum">2</span></button>
             </div>
         </div>
         
         <!-- Game Over Screen -->
         <div id="gameOver" class="screen">
-            <h2 style="font-size: 48px; margin-bottom: 30px; color: #ff6666;">GAME OVER</h2>
+            <h2 style="font-size: 48px; margin-bottom: 30px; color: #ff6666;" data-i18n="GAME OVER">GAME OVER</h2>
             <div class="game-over-stats">
                 <div class="stat-row">
-                    <span>Score:</span>
+                    <span data-i18n="Score:">Score:</span>
                     <span id="finalScore">0</span>
                 </div>
                 <div class="stat-row">
-                    <span>Level Reached:</span>
+                    <span data-i18n="Level Reached:">Level Reached:</span>
                     <span id="levelReached">1</span>
                 </div>
                 <div class="stat-row">
-                    <span>Enemies Destroyed:</span>
+                    <span data-i18n="Enemies Destroyed:">Enemies Destroyed:</span>
                     <span id="enemiesDestroyed">0</span>
                 </div>
                 <div class="stat-row">
-                    <span>Credits Earned:</span>
+                    <span data-i18n="Credits Earned:">Credits Earned:</span>
                     <span id="creditsEarned">0</span>
                 </div>
             </div>
-            <button class="menu-button" onclick="game.retryLevel()">RETRY</button>
-            <button class="menu-button" onclick="game.backToMenu()">MAIN MENU</button>
+            <button class="menu-button" onclick="game.retryLevel()" data-i18n="RETRY">RETRY</button>
+            <button class="menu-button" onclick="game.backToMenu()" data-i18n="MAIN MENU">MAIN MENU</button>
         </div>
         
         <!-- Victory Screen -->
         <div id="victoryScreen" class="screen">
-            <h2 style="font-size: 48px; margin-bottom: 30px; color: #66ff66;">VICTORY!</h2>
-            <p style="font-size: 24px; margin: 20px;">You have saved the galaxy!</p>
+            <h2 style="font-size: 48px; margin-bottom: 30px; color: #66ff66;" data-i18n="VICTORY!">VICTORY!</h2>
+            <p style="font-size: 24px; margin: 20px;" data-i18n="You have saved the galaxy!">You have saved the galaxy!</p>
             <div class="game-over-stats">
                 <div class="stat-row">
                     <span>Final Score:</span>
@@ -185,61 +192,61 @@
 
         <!-- Pause Menu -->
         <div id="pauseMenu" class="screen">
-            <h2 style="font-size: 48px; margin-bottom: 30px; color: #ffff00;">PAUSED</h2>
+            <h2 style="font-size: 48px; margin-bottom: 30px; color: #ffff00;" data-i18n="PAUSED">PAUSED</h2>
             <div style="display: flex; gap: 20px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap;">
                 <!-- Game Stats -->
                 <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; min-width: 250px;">
-                    <h3 style="color: #00ffff; margin-bottom: 15px; text-align: center;">Game Progress</h3>
+                    <h3 style="color: #00ffff; margin-bottom: 15px; text-align: center;" data-i18n="Game Progress">Game Progress</h3>
                     <div class="stat-row">
-                        <span>Current Level:</span>
+                        <span data-i18n="Current Level:">Current Level:</span>
                         <span id="pauseLevel">1</span>
                     </div>
                     <div class="stat-row">
-                        <span>Score:</span>
+                        <span data-i18n="Score:">Score:</span>
                         <span id="pauseScore">0</span>
                     </div>
                     <div class="stat-row">
-                        <span>Credits:</span>
+                        <span data-i18n="Credits:">Credits:</span>
                         <span id="pauseCredits">0</span>
                     </div>
                     <div class="stat-row">
-                        <span>Enemies Killed:</span>
+                        <span data-i18n="Enemies Killed:">Enemies Killed:</span>
                         <span id="pauseEnemiesKilled">0</span>
                     </div>
                 </div>
 
                 <!-- Player Stats -->
                 <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; min-width: 250px;">
-                    <h3 style="color: #00ff00; margin-bottom: 15px; text-align: center;">Player Stats</h3>
+                    <h3 style="color: #00ff00; margin-bottom: 15px; text-align: center;" data-i18n="Player Stats">Player Stats</h3>
                     <div class="stat-row">
-                        <span>Max Health:</span>
+                        <span data-i18n="Max Health:">Max Health:</span>
                         <span id="pauseMaxHealth">100</span>
                     </div>
                     <div class="stat-row">
-                        <span>Max Shield:</span>
+                        <span data-i18n="Max Shield:">Max Shield:</span>
                         <span id="pauseMaxShield">50</span>
                     </div>
                     <div class="stat-row">
-                        <span>Damage Multi:</span>
+                        <span data-i18n="Damage Multi:">Damage Multi:</span>
                         <span id="pauseDamage">1.0x</span>
                     </div>
                     <div class="stat-row">
-                        <span>Fire Rate:</span>
+                        <span data-i18n="Fire Rate:">Fire Rate:</span>
                         <span id="pauseFireRate">2.0/s</span>
                     </div>
                     <div class="stat-row">
-                        <span>Move Speed:</span>
+                        <span data-i18n="Move Speed:">Move Speed:</span>
                         <span id="pauseSpeed">5.0</span>
                     </div>
                     <div class="stat-row">
-                        <span>Ammo Capacity:</span>
+                        <span data-i18n="Ammo Capacity:">Ammo Capacity:</span>
                         <span id="pauseAmmoCapacity">100%</span>
                     </div>
                 </div>
 
                 <!-- Upgrade Levels -->
                 <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; min-width: 250px;">
-                    <h3 style="color: #ff00ff; margin-bottom: 15px; text-align: center;">Upgrades</h3>
+                    <h3 style="color: #ff00ff; margin-bottom: 15px; text-align: center;" data-i18n="Upgrades">Upgrades</h3>
                     <div class="stat-row">
                         <span>❤️ Health:</span>
                         <span id="pauseHealthLevel">0/10</span>
@@ -268,27 +275,27 @@
 
                 <!-- Weapon Arsenal -->
                 <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; min-width: 350px;">
-                    <h3 style="color: #ff9900; margin-bottom: 15px; text-align: center;">🔫 Weapon Arsenal</h3>
+                    <h3 style="color: #ff9900; margin-bottom: 15px; text-align: center;">🔫 <span data-i18n="Weapon Arsenal">Weapon Arsenal</span></h3>
                     <div id="pauseWeaponList" style="max-height: 250px; overflow-y: auto;">
                         <!-- Weapons will be populated here -->
                     </div>
                 </div>
             </div>
-            <button class="menu-button" onclick="game.resumeGame()">RESUME</button>
-            <button class="menu-button" onclick="game.showAchievements()" style="background: linear-gradient(135deg, #FFD700, #FFA500);">🏆 ACHIEVEMENTS</button>
-            <button class="menu-button" onclick="game.saveAndQuit()">SAVE & QUIT</button>
-            <button class="menu-button" onclick="game.quitToMenu()">QUIT TO MENU</button>
+            <button class="menu-button" onclick="game.resumeGame()" data-i18n="RESUME">RESUME</button>
+            <button class="menu-button" onclick="game.showAchievements()" style="background: linear-gradient(135deg, #FFD700, #FFA500);"><span>🏆 </span><span data-i18n="ACHIEVEMENTS">ACHIEVEMENTS</span></button>
+            <button class="menu-button" onclick="game.saveAndQuit()" data-i18n="SAVE & QUIT">SAVE & QUIT</button>
+            <button class="menu-button" onclick="game.quitToMenu()" data-i18n="QUIT TO MENU">QUIT TO MENU</button>
         </div>
         
         <!-- HUD -->
         <div id="hud" style="display: none;">
             <div class="hud-top">
                 <div>
-                    <div>Health</div>
+                    <div data-i18n="Health">Health</div>
                     <div class="health-bar">
                         <div class="health-fill" id="healthBar" style="width: 100%;"></div>
                     </div>
-                    <div>Shield</div>
+                    <div data-i18n="Shield">Shield</div>
                     <div class="shield-bar">
                         <div class="shield-fill" id="shieldBar" style="width: 100%;"></div>
                     </div>
@@ -314,6 +321,7 @@
     
     <!-- Load game scripts in dependency order -->
     <!-- Core utilities and services first -->
+    <script src="js/systems/LanguageSystem.js"></script>
     <script src="js/systems/FormulaService.js"></script>
 
     <!-- Data -->

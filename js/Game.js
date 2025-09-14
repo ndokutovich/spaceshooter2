@@ -83,6 +83,16 @@ class SpaceShooterGame {
     init() {
         // Start with logo sequence
         this.showLogoSequence();
+
+        // Initialize language
+        setTimeout(() => {
+            languageSystem.updateAllTexts();
+        }, 100);
+
+        // Listen for language changes to update dynamic content
+        window.addEventListener('languageChanged', () => {
+            this.updateDynamicTexts();
+        });
     }
 
     async showLogoSequence() {
@@ -1315,6 +1325,23 @@ class SpaceShooterGame {
     backToMenu() {
         this.screenManager.hideAllScreens();
         this.screenManager.showScreen('mainMenu');
+        languageSystem.updateAllTexts();
+    }
+
+    changeLanguage(lang) {
+        this.language = lang;
+        languageSystem.setLanguage(lang);
+    }
+
+    updateDynamicTexts() {
+        // Update weapon names in HUD if playing
+        if (this.player && this.weaponSystem) {
+            const weaponName = document.getElementById('weaponName');
+            if (weaponName) {
+                const currentWeapon = this.weaponSystem.getCurrentWeapon();
+                weaponName.textContent = languageSystem.t(currentWeapon.name);
+            }
+        }
     }
 
     saveHighScore(score) {

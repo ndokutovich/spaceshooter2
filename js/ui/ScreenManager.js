@@ -220,7 +220,7 @@ class ScreenManager {
 
             const weaponEl = document.getElementById('weaponName');
             if (weaponEl) {
-                weaponEl.textContent = weapon.name;
+                weaponEl.textContent = languageSystem.t(weapon.name);
                 weaponEl.style.color = weapon.color;
             }
 
