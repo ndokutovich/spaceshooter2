@@ -69,6 +69,14 @@
                     <input type="checkbox" id="autoFire" checked style="margin-left: 10px; transform: scale(1.5);">
                 </div>
                 <div style="margin: 20px 0;">
+                    <label data-i18n="Weapon HUD Position:">Weapon HUD Position:</label>
+                    <select id="weaponHUDPosition" style="margin-left: 10px; padding: 5px;">
+                        <option value="left" data-i18n="Left Side">Left Side</option>
+                        <option value="right" data-i18n="Right Side">Right Side</option>
+                        <option value="bottom" selected data-i18n="Bottom">Bottom</option>
+                    </select>
+                </div>
+                <div style="margin: 20px 0;">
                     <label data-i18n="Sound Effects:">Sound Effects:</label>
                     <input type="range" id="sfxVolume" min="0" max="100" value="70" style="margin-left: 10px;">
                 </div>
@@ -414,7 +422,12 @@
                 </div>
             </div>
         </div>
-        
+
+        <!-- Weapon Selector HUD -->
+        <div id="weaponHUD" class="weapon-hud-bottom" style="display: none;">
+            <!-- Weapon slots will be dynamically generated -->
+        </div>
+
         <!-- Pause Button -->
         <button id="pauseBtn" style="display: none;" onclick="game.togglePause()">⏸</button>
     </div>

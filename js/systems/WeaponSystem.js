@@ -9,6 +9,7 @@ class WeaponSystem {
             {
                 id: 1,
                 name: "Pulse Laser",
+                icon: "🔫",
                 key: "1",
                 ammo: Infinity,
                 maxAmmo: Infinity,
@@ -27,6 +28,7 @@ class WeaponSystem {
             {
                 id: 2,
                 name: "Shotgun Blaster",
+                icon: "🔨",
                 key: "2",
                 ammo: 50,
                 maxAmmo: 50,
@@ -45,6 +47,7 @@ class WeaponSystem {
             {
                 id: 3,
                 name: "Plasma Rifle",
+                icon: "⚡",
                 key: "3",
                 ammo: 200,
                 maxAmmo: 200,
@@ -63,6 +66,7 @@ class WeaponSystem {
             {
                 id: 4,
                 name: "Rocket Launcher",
+                icon: "🚀",
                 key: "4",
                 ammo: 20,
                 maxAmmo: 20,
@@ -83,6 +87,7 @@ class WeaponSystem {
             {
                 id: 5,
                 name: "Lightning Gun",
+                icon: "⚡",
                 key: "5",
                 ammo: 100,
                 maxAmmo: 100,
@@ -104,6 +109,7 @@ class WeaponSystem {
             {
                 id: 6,
                 name: "Super Shotgun",
+                icon: "💥",
                 key: "6",
                 ammo: 30,
                 maxAmmo: 30,
@@ -122,6 +128,7 @@ class WeaponSystem {
             {
                 id: 7,
                 name: "Gauss Cannon",
+                icon: "🎯",
                 key: "7",
                 ammo: 40,
                 maxAmmo: 40,
@@ -141,6 +148,7 @@ class WeaponSystem {
             {
                 id: 8,
                 name: "Flamethrower",
+                icon: "🔥",
                 key: "8",
                 ammo: 150,
                 maxAmmo: 150,
@@ -162,6 +170,7 @@ class WeaponSystem {
             {
                 id: 9,
                 name: "BFG 9000",
+                icon: "☢️",
                 key: "9",
                 ammo: 10,
                 maxAmmo: 10,
@@ -183,6 +192,7 @@ class WeaponSystem {
             {
                 id: 10,
                 name: "Quantum Disruptor",
+                icon: "⚛️",
                 key: "0",
                 ammo: 15,
                 maxAmmo: 15,

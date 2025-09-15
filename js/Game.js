@@ -36,6 +36,7 @@ class SpaceShooterGame {
         // Game options
         this.controlMode = 'touch';
         this.autoFire = true;
+        this.weaponHUDPosition = 'bottom';
 
         // Systems
         this.particleSystem = new ParticleSystem();
@@ -409,6 +410,14 @@ class SpaceShooterGame {
         this.player.moraleModifiers = modifiers;
         // Apply speed modifier
         this.player.speed = this.player.baseSpeed * modifiers.speed;
+
+        // Initialize weapon HUD
+        this.screenManager.initWeaponHUD(this.weaponSystem.weapons);
+        this.screenManager.updateWeaponHUD(
+            this.weaponSystem.weapons,
+            this.weaponSystem.unlockedWeapons,
+            this.weaponSystem.currentWeaponIndex
+        );
 
         // Update family status in HUD immediately when game starts
         this.updateFamilyHUD();
@@ -1556,6 +1565,13 @@ class SpaceShooterGame {
     updateHUD() {
         this.screenManager.updateHUD(this.player, this.score, this.credits, this.level);
 
+        // Update weapon HUD
+        this.screenManager.updateWeaponHUD(
+            this.weaponSystem.weapons,
+            this.weaponSystem.unlockedWeapons,
+            this.weaponSystem.currentWeaponIndex
+        );
+
         // Draw debug info for enemies/hunters
         const levelConfig = this.levelConfig.getLevel(this.level);
         const hunterThreshold = Math.floor(levelConfig.enemiesToBoss * 0.8);
@@ -1732,15 +1748,21 @@ class SpaceShooterGame {
         this.screenManager.showScreen('optionsScreen');
         document.getElementById('controlMode').value = this.controlMode;
         document.getElementById('autoFire').checked = this.autoFire;
+        document.getElementById('weaponHUDPosition').value = this.weaponHUDPosition;
     }
 
     saveOptions() {
         this.controlMode = document.getElementById('controlMode').value;
         this.autoFire = document.getElementById('autoFire').checked;
+        this.weaponHUDPosition = document.getElementById('weaponHUDPosition').value;
+
+        // Apply weapon HUD position immediately
+        this.screenManager.setWeaponHUDPosition(this.weaponHUDPosition);
 
         profileManager.saveOptions({
             controlMode: this.controlMode,
             autoFire: this.autoFire,
+            weaponHUDPosition: this.weaponHUDPosition,
             sfxVolume: document.getElementById('sfxVolume').value,
             musicVolume: document.getElementById('musicVolume').value,
             language: languageSystem.currentLanguage
@@ -1843,6 +1865,10 @@ class SpaceShooterGame {
         if (options) {
             this.controlMode = options.controlMode || 'touch';
             this.autoFire = options.autoFire !== undefined ? options.autoFire : true;
+            this.weaponHUDPosition = options.weaponHUDPosition || 'bottom';
+
+            // Apply weapon HUD position
+            this.screenManager.setWeaponHUDPosition(this.weaponHUDPosition);
 
             // Apply language from profile
             if (options.language) {

@@ -246,6 +246,9 @@ class ScreenManager {
 
         const pauseBtn = document.getElementById('pauseBtn');
         if (pauseBtn) pauseBtn.style.display = 'block';
+
+        const weaponHUD = document.getElementById('weaponHUD');
+        if (weaponHUD) weaponHUD.style.display = 'flex';
     }
 
     hideHUD() {
@@ -254,6 +257,103 @@ class ScreenManager {
 
         const pauseBtn = document.getElementById('pauseBtn');
         if (pauseBtn) pauseBtn.style.display = 'none';
+
+        const weaponHUD = document.getElementById('weaponHUD');
+        if (weaponHUD) weaponHUD.style.display = 'none';
+    }
+
+    initWeaponHUD(weapons) {
+        const weaponHUD = document.getElementById('weaponHUD');
+        if (!weaponHUD) return;
+
+        weaponHUD.innerHTML = '';
+
+        weapons.forEach((weapon, index) => {
+            const slot = document.createElement('div');
+            slot.className = 'weapon-slot locked';
+            slot.id = `weapon-slot-${index}`;
+            slot.onclick = () => {
+                if (window.game && window.game.weaponSystem.unlockedWeapons[index]) {
+                    window.game.weaponSystem.switchWeapon(index);
+                    this.updateWeaponHUD(weapons, window.game.weaponSystem.unlockedWeapons, index);
+                }
+            };
+
+            const keyLabel = document.createElement('div');
+            keyLabel.className = 'weapon-slot-key';
+            keyLabel.textContent = weapon.key;
+
+            const icon = document.createElement('div');
+            icon.className = 'weapon-slot-icon';
+            icon.textContent = weapon.icon || '🔫';
+
+            const ammo = document.createElement('div');
+            ammo.className = 'weapon-slot-ammo';
+            ammo.id = `weapon-ammo-${index}`;
+
+            const name = document.createElement('div');
+            name.className = 'weapon-slot-name';
+            name.textContent = languageSystem.t(weapon.name);
+
+            slot.appendChild(keyLabel);
+            slot.appendChild(icon);
+            slot.appendChild(ammo);
+            slot.appendChild(name);
+            weaponHUD.appendChild(slot);
+        });
+    }
+
+    updateWeaponHUD(weapons, unlockedWeapons, currentIndex) {
+        weapons.forEach((weapon, index) => {
+            const slot = document.getElementById(`weapon-slot-${index}`);
+            const ammoEl = document.getElementById(`weapon-ammo-${index}`);
+
+            if (!slot || !ammoEl) return;
+
+            // Update slot classes
+            slot.className = 'weapon-slot';
+
+            if (!unlockedWeapons[index]) {
+                slot.classList.add('locked');
+                ammoEl.textContent = '🔒';
+            } else {
+                slot.classList.add('unlocked');
+
+                if (index === currentIndex) {
+                    slot.classList.add('current');
+                }
+
+                // Update ammo display
+                if (weapon.ammo === Infinity) {
+                    ammoEl.textContent = '∞';
+                    ammoEl.className = 'weapon-slot-ammo infinite';
+                } else {
+                    ammoEl.textContent = weapon.ammo;
+                    ammoEl.className = 'weapon-slot-ammo';
+
+                    const ammoPercent = weapon.ammo / weapon.maxAmmo;
+                    if (weapon.ammo === 0) {
+                        ammoEl.classList.add('empty');
+                        slot.classList.add('no-ammo');
+                    } else if (ammoPercent <= 0.25) {
+                        ammoEl.classList.add('low');
+                    }
+                }
+            }
+        });
+    }
+
+    setWeaponHUDPosition(position) {
+        const weaponHUD = document.getElementById('weaponHUD');
+        if (!weaponHUD) return;
+
+        if (position === 'bottom') {
+            weaponHUD.className = 'weapon-hud-bottom';
+        } else if (position === 'right') {
+            weaponHUD.className = 'weapon-hud-right';
+        } else {
+            weaponHUD.className = 'weapon-hud-left';
+        }
     }
 
     showPauseMenu(gameStats, playerStats, upgrades, weapons = [], unlockedWeapons = [], currentWeaponIndex = 0, familyStatus = null, moraleModifiers = null) {

@@ -591,3 +591,171 @@ html, body {
     width: 100%;
     height: 100%;
 }
+
+/* Weapon HUD Styles - DOOM-like */
+.weapon-hud-left {
+    position: fixed;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 100;
+}
+
+.weapon-hud-bottom {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    z-index: 100;
+}
+
+.weapon-hud-right {
+    position: fixed;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 100;
+}
+
+.weapon-slot {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    border: 2px solid #444;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.2s;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.weapon-slot.unlocked {
+    border-color: #666;
+    background: linear-gradient(135deg, #2a2a2a 0%, #3d3d3d 100%);
+}
+
+.weapon-slot.current {
+    border-color: #FFD700;
+    background: linear-gradient(135deg, #3a3a1a 0%, #4d4d2d 100%);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5), inset 0 2px 4px rgba(0,0,0,0.5);
+    animation: weaponPulse 1s infinite;
+}
+
+.weapon-slot.no-ammo {
+    opacity: 0.5;
+    border-color: #800000;
+}
+
+.weapon-slot-key {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #888;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    font-family: 'Courier New', monospace;
+}
+
+.weapon-slot.current .weapon-slot-key {
+    color: #FFD700;
+}
+
+.weapon-slot-icon {
+    font-size: 24px;
+    margin-bottom: 2px;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+}
+
+.weapon-slot-ammo {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #0f0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    font-family: 'Courier New', monospace;
+}
+
+.weapon-slot-ammo.low {
+    color: #fa0;
+}
+
+.weapon-slot-ammo.empty {
+    color: #f00;
+}
+
+.weapon-slot-ammo.infinite {
+    color: #0ff;
+    font-size: 16px;
+}
+
+.weapon-slot-name {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: #aaa;
+    white-space: nowrap;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    display: none;
+}
+
+.weapon-slot:hover .weapon-slot-name {
+    display: block;
+}
+
+.weapon-slot.locked {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    border-color: #222;
+    cursor: not-allowed;
+}
+
+.weapon-slot.locked .weapon-slot-icon {
+    opacity: 0.3;
+    filter: grayscale(100%);
+}
+
+@keyframes weaponPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive weapon HUD */
+@media (max-width: 768px) {
+    .weapon-slot {
+        width: 50px;
+        height: 50px;
+    }
+
+    .weapon-slot-icon {
+        font-size: 20px;
+    }
+
+    .weapon-hud-left {
+        left: 5px;
+    }
+
+    .weapon-hud-bottom {
+        bottom: 5px;
+    }
+
+    .weapon-hud-right {
+        right: 5px;
+    }
+}

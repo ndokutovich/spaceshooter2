@@ -51,6 +51,10 @@ class LanguageSystem {
                 'Language:': 'Language:',
                 'English': 'English',
                 'Russian': 'Russian',
+                'Weapon HUD Position:': 'Weapon HUD Position:',
+                'Left Side': 'Left Side',
+                'Right Side': 'Right Side',
+                'Bottom': 'Bottom',
                 'SAVE': 'SAVE',
 
                 // Credits Screen
@@ -735,6 +739,10 @@ class LanguageSystem {
                 'Language:': 'Язык:',
                 'English': 'Английский',
                 'Russian': 'Русский',
+                'Weapon HUD Position:': 'Позиция HUD оружия:',
+                'Left Side': 'Слева',
+                'Right Side': 'Справа',
+                'Bottom': 'Снизу',
                 'SAVE': 'СОХРАНИТЬ',
 
                 // Credits Screen

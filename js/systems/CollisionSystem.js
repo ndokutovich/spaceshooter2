@@ -50,15 +50,12 @@ class CollisionSystem {
                     const isDead = game.player.takeDamage(projectile.damage);
 
                     // Create damage number for player taking damage
-                    if (game.damageNumberSystem) {
-                        game.damageNumberSystem.createDamageNumber(
-                            game.player.x,
-                            game.player.y - game.player.height/2,
-                            projectile.damage,
-                            false,
-                            false  // damage TO player
-                        );
-                    }
+                    game.particleSystem.createDamageNumber(
+                        game.player.x,
+                        game.player.y - game.player.height/2,
+                        projectile.damage,
+                        false
+                    );
 
                     if (isDead) {
                         game.gameOver();
@@ -114,15 +111,12 @@ class CollisionSystem {
                         }
 
                         // Create damage number
-                        if (game.damageNumberSystem) {
-                            game.damageNumberSystem.createDamageNumber(
-                                enemy.x,
-                                enemy.y - enemy.height/2,
-                                critResult.damage,
-                                critResult.isCritical,
-                                true   // is player damage
-                            );
-                        }
+                        game.particleSystem.createDamageNumber(
+                            enemy.x,
+                            enemy.y - enemy.height/2,
+                            critResult.damage,
+                            critResult.isCritical
+                        );
 
                         if (enemy.health <= 0) {
                             enemiesToDestroy.push(eIndex);
@@ -177,15 +171,12 @@ class CollisionSystem {
                             }
 
                             // Create damage number for hunter
-                            if (game.damageNumberSystem) {
-                                game.damageNumberSystem.createDamageNumber(
-                                    hunter.x,
-                                    hunter.y - hunter.height/2,
-                                    critResult.damage,
-                                    critResult.isCritical,
-                                    true
-                                );
-                            }
+                            game.particleSystem.createDamageNumber(
+                                hunter.x,
+                                hunter.y - hunter.height/2,
+                                critResult.damage,
+                                critResult.isCritical
+                            );
 
                             if (hunter.health <= 0) {
                                 huntersToDestroy.push(hIndex);
@@ -238,15 +229,12 @@ class CollisionSystem {
                         }
 
                         // Create damage number for boss
-                        if (game.damageNumberSystem) {
-                            game.damageNumberSystem.createDamageNumber(
-                                projectile.x,
-                                projectile.y,
-                                critResult.damage,
-                                critResult.isCritical,
-                                true
-                            );
-                        }
+                        game.particleSystem.createDamageNumber(
+                            projectile.x,
+                            projectile.y,
+                            critResult.damage,
+                            critResult.isCritical
+                        );
                     }
                 }
 
@@ -401,26 +389,27 @@ class CollisionSystem {
                 game.score += scoreBonus;
 
                 // Show healing number
-                if (game.damageNumberSystem) {
-                    if (powerUp.type === 'health') {
-                        const healAmount = game.player.health - oldHealth;
-                        if (healAmount > 0) {
-                            game.damageNumberSystem.createHealNumber(
-                                game.player.x,
-                                game.player.y - game.player.height/2,
-                                healAmount
-                            );
-                        }
-                    } else if (powerUp.type === 'shield') {
-                        const shieldAmount = game.player.shield - oldShield;
-                        if (shieldAmount > 0) {
-                            game.damageNumberSystem.createTextNotification(
-                                game.player.x,
-                                game.player.y - game.player.height/2,
-                                `+${Math.floor(shieldAmount)} ${languageSystem.t('Shield')}`,
-                                '#00ddff'
-                            );
-                        }
+                if (powerUp.type === 'health') {
+                    const healAmount = game.player.health - oldHealth;
+                    if (healAmount > 0) {
+                        // Show heal as green number with plus
+                        game.particleSystem.createDamageNumber(
+                            game.player.x,
+                            game.player.y - game.player.height/2,
+                            -healAmount,  // Negative to show as heal
+                            false
+                        );
+                    }
+                } else if (powerUp.type === 'shield') {
+                    const shieldAmount = game.player.shield - oldShield;
+                    if (shieldAmount > 0) {
+                        // Show shield gain
+                        game.particleSystem.createDamageNumber(
+                            game.player.x,
+                            game.player.y - game.player.height/2,
+                            -shieldAmount,  // Negative to show as gain
+                            false
+                        );
                     }
                 }
 
