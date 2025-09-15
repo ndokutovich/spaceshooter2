@@ -339,9 +339,21 @@ class AchievementSystem {
     }
 
     loadProgress() {
-        const saved = localStorage.getItem('achievementProgress');
+        // Load from current profile
+        const saved = profileManager.getAchievementProgress();
         if (saved) {
-            return JSON.parse(saved);
+            // Ensure all achievements exist in progress (for new achievements added)
+            for (const id in this.achievements) {
+                if (!saved[id]) {
+                    saved[id] = {
+                        currentTier: 0,
+                        currentValue: 0,
+                        unlocked: false,
+                        unlockedTiers: []
+                    };
+                }
+            }
+            return saved;
         }
 
         // Initialize progress for all achievements
@@ -358,7 +370,14 @@ class AchievementSystem {
     }
 
     saveProgress() {
-        localStorage.setItem('achievementProgress', JSON.stringify(this.progress));
+        // Save to current profile
+        profileManager.saveAchievementProgress(this.progress);
+    }
+
+    // Reset progress when switching profiles
+    reloadProgress() {
+        this.progress = this.loadProgress();
+        this.sessionStats = this.initSessionStats();
     }
 
     // Update achievement progress

@@ -58,7 +58,7 @@ class SpaceShooterGame {
         this.lastFpsUpdate = performance.now();
 
         // High scores
-        this.highScores = this.loadHighScores();
+        this.highScores = [];
 
         // Load saved options
         this.loadOptions();
@@ -81,6 +81,24 @@ class SpaceShooterGame {
     }
 
     init() {
+        // Check if this is first launch (no profiles)
+        if (!profileManager.hasProfiles()) {
+            // Show profile creation dialog after logo sequence
+            this.needsProfileCreation = true;
+        } else {
+            // Initialize profile display
+            this.updateProfileDisplay();
+
+            // Load profile options
+            this.loadOptions();
+
+            // Load high scores from profile
+            this.highScores = profileManager.getHighScores();
+
+            // Load achievements for current profile
+            this.achievementSystem.reloadProgress();
+        }
+
         // Start with logo sequence
         this.showLogoSequence();
 
@@ -97,6 +115,11 @@ class SpaceShooterGame {
 
     async showLogoSequence() {
         await this.screenManager.showLogoSequence();
+
+        // If first launch, show profile creation
+        if (this.needsProfileCreation) {
+            this.showCreateProfileDialog();
+        }
     }
 
     showScreen(screenId) {
@@ -105,6 +128,234 @@ class SpaceShooterGame {
 
     hideScreen(screenId) {
         this.screenManager.hideScreen(screenId);
+    }
+
+    // Profile management methods
+    updateProfileDisplay() {
+        const profile = profileManager.getCurrentProfile();
+
+        const avatarEl = document.getElementById('profileAvatar');
+        const nameEl = document.getElementById('profileName');
+
+        if (profile) {
+            if (avatarEl) avatarEl.textContent = profile.avatar;
+            if (nameEl) nameEl.textContent = profile.name;
+        } else {
+            // No profile yet - show placeholder
+            if (avatarEl) avatarEl.textContent = '❓';
+            if (nameEl) nameEl.textContent = languageSystem.t('No Profile');
+        }
+    }
+
+    showProfiles() {
+        this.screenManager.showScreen('profileScreen');
+        this.refreshProfileList();
+    }
+
+    refreshProfileList() {
+        const profileList = document.getElementById('profileList');
+        if (!profileList) return;
+
+        profileList.innerHTML = '';
+        const profiles = profileManager.getAllProfiles();
+        const currentProfileId = profileManager.currentProfile;
+
+        profiles.forEach(profile => {
+            // Skip invalid profiles
+            if (!profile || !profile.name) {
+                console.warn('Skipping invalid profile in UI:', profile);
+                return;
+            }
+
+            const profileCard = document.createElement('div');
+            profileCard.className = 'profile-card';
+            if (profile.id === currentProfileId) {
+                profileCard.classList.add('active');
+            }
+
+            const stats = profile.stats || { totalScore: 0, highestLevel: 0 };
+            const lastPlayedDate = new Date(profile.lastPlayed || Date.now()).toLocaleDateString();
+
+            // Calculate achievements count from achievement progress
+            let achievementCount = 0;
+            const achievementProgress = profile.achievementProgress || {};
+            for (const id in achievementProgress) {
+                if (achievementProgress[id] && achievementProgress[id].unlockedTiers) {
+                    achievementCount += achievementProgress[id].unlockedTiers.length;
+                }
+            }
+            const totalPlayTime = stats.totalPlayTime || 0;
+            const hours = Math.floor(totalPlayTime / 3600);
+            const minutes = Math.floor((totalPlayTime % 3600) / 60);
+            const timeString = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+
+            profileCard.innerHTML = `
+                ${profile.id === currentProfileId ? '<span class="profile-current-badge">✓ ' + languageSystem.t('Active') + '</span>' : ''}
+                <div class="profile-card-header">
+                    <div class="profile-card-avatar">${profile.avatar}</div>
+                    <div style="flex: 1;">
+                        <div class="profile-card-name">${profile.name}</div>
+                        <div style="color: #888; font-size: 12px; margin-top: 5px;">${languageSystem.t('Last played')}: ${lastPlayedDate}</div>
+                    </div>
+                </div>
+                <div class="profile-card-stats">
+                    <div class="profile-stat-item">
+                        <span class="profile-stat-label">🏆 ${languageSystem.t('High Score')}:</span>
+                        <span class="profile-stat-value" style="color: #ffff00;">${stats.totalScore.toLocaleString()}</span>
+                    </div>
+                    <div class="profile-stat-item">
+                        <span class="profile-stat-label">📈 ${languageSystem.t('Highest Level')}:</span>
+                        <span class="profile-stat-value" style="color: #00ffff;">${stats.highestLevel || 0}</span>
+                    </div>
+                    <div class="profile-stat-item">
+                        <span class="profile-stat-label">🎮 ${languageSystem.t('Games Played')}:</span>
+                        <span class="profile-stat-value">${stats.totalGamesPlayed || 0}</span>
+                    </div>
+                    <div class="profile-stat-item">
+                        <span class="profile-stat-label">⏱️ ${languageSystem.t('Play Time')}:</span>
+                        <span class="profile-stat-value">${timeString}</span>
+                    </div>
+                    <div class="profile-stat-item">
+                        <span class="profile-stat-label">🌟 ${languageSystem.t('Achievements')}:</span>
+                        <span class="profile-stat-value" style="color: #ffa500;">${achievementCount}</span>
+                    </div>
+                </div>
+                <div class="profile-card-actions">
+                    ${profile.id !== currentProfileId ?
+                        `<button class="profile-button" onclick="game.switchProfile('${profile.id}')">📂 ${languageSystem.t('Select')}</button>` :
+                        `<button class="profile-button" onclick="game.editProfile('${profile.id}')">✏️ ${languageSystem.t('Edit')}</button>`
+                    }
+                    ${Object.keys(profileManager.profiles).length > 1 ?
+                        `<button class="profile-button delete" onclick="game.deleteProfile('${profile.id}')">🗑️ ${languageSystem.t('Delete')}</button>` : ''
+                    }
+                </div>
+            `;
+
+            profileList.appendChild(profileCard);
+        });
+    }
+
+    switchProfile(profileId) {
+        if (profileManager.switchProfile(profileId)) {
+            this.updateProfileDisplay();
+            this.loadOptions();
+            this.highScores = profileManager.getHighScores();
+
+            // Reload achievements for the new profile
+            this.achievementSystem.reloadProgress();
+
+            this.refreshProfileList();
+            // Show success message
+            this.dialogSystem.showQuickMessage(languageSystem.t('Profile switched successfully!'));
+        }
+    }
+
+    deleteProfile(profileId) {
+        if (confirm(languageSystem.t('Are you sure you want to delete this profile?'))) {
+            if (profileManager.deleteProfile(profileId)) {
+                this.updateProfileDisplay();
+                this.refreshProfileList();
+                this.dialogSystem.showQuickMessage(languageSystem.t('Profile deleted'));
+            } else {
+                this.dialogSystem.showQuickMessage(languageSystem.t('Cannot delete the last profile'));
+            }
+        }
+    }
+
+    editProfile(profileId) {
+        const profile = profileManager.profiles[profileId];
+        if (!profile) return;
+
+        // Show edit dialog
+        this.showCreateProfileDialog(profile);
+    }
+
+    showCreateProfileDialog(existingProfile = null) {
+        const dialog = document.getElementById('createProfileDialog');
+        if (!dialog) return;
+
+        dialog.style.display = 'block';
+
+        // Set initial values if editing
+        const nameInput = document.getElementById('profileNameInput');
+        if (nameInput) {
+            nameInput.value = existingProfile ? existingProfile.name : '';
+        }
+
+        // Update avatar selection
+        const avatarGrid = document.getElementById('avatarGrid');
+        if (avatarGrid) {
+            avatarGrid.innerHTML = '';
+            const avatars = ProfileManager.getAvatarOptions();
+
+            avatars.forEach(avatar => {
+                const avatarOption = document.createElement('div');
+                avatarOption.className = 'avatar-option';
+                if (existingProfile && existingProfile.avatar === avatar) {
+                    avatarOption.classList.add('selected');
+                }
+                avatarOption.textContent = avatar;
+                avatarOption.onclick = () => {
+                    document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+                    avatarOption.classList.add('selected');
+                };
+                avatarGrid.appendChild(avatarOption);
+            });
+
+            // Select first avatar if creating new profile
+            if (!existingProfile && avatarGrid.firstChild) {
+                avatarGrid.firstChild.classList.add('selected');
+            }
+        }
+
+        // Store profile ID if editing
+        dialog.dataset.editingProfileId = existingProfile ? existingProfile.id : '';
+    }
+
+    createProfile() {
+        const dialog = document.getElementById('createProfileDialog');
+        const nameInput = document.getElementById('profileNameInput');
+        const selectedAvatar = document.querySelector('.avatar-option.selected');
+
+        if (!nameInput || !nameInput.value.trim()) {
+            alert(languageSystem.t('Please enter a profile name'));
+            return;
+        }
+
+        const name = nameInput.value.trim();
+        const avatar = selectedAvatar ? selectedAvatar.textContent : '🚀';
+
+        if (dialog.dataset.editingProfileId) {
+            // Editing existing profile
+            profileManager.updateProfileName(dialog.dataset.editingProfileId, name);
+            profileManager.updateProfileAvatar(dialog.dataset.editingProfileId, avatar);
+        } else {
+            // Creating new profile
+            profileManager.createProfile(name, avatar);
+
+            // If this was first profile creation, initialize everything
+            if (this.needsProfileCreation) {
+                this.needsProfileCreation = false;
+                this.updateProfileDisplay();
+                this.loadOptions();
+                this.highScores = profileManager.getHighScores();
+
+                // Initialize achievements for the new profile
+                this.achievementSystem.reloadProgress();
+            }
+        }
+
+        this.updateProfileDisplay();
+        this.refreshProfileList();
+        this.cancelCreateProfile();
+    }
+
+    cancelCreateProfile() {
+        const dialog = document.getElementById('createProfileDialog');
+        if (dialog) {
+            dialog.style.display = 'none';
+            dialog.dataset.editingProfileId = '';
+        }
     }
 
     startGame(fromMenu = true) {
@@ -214,6 +465,9 @@ class SpaceShooterGame {
         // Apply family morale modifiers
         const modifiers = this.familyWelfare.getStatModifiers();
         this.player.moraleModifiers = modifiers;
+
+        // Update family status in HUD immediately when game starts
+        this.updateFamilyHUD();
     }
 
     gameLoop() {
@@ -900,8 +1154,12 @@ class SpaceShooterGame {
                 }
             }
 
-            // Update family hunger when entering hub
-            const isStarving = this.familyWelfare.updateHunger(this.level);
+            // Update family hunger when entering hub (decreases by 10 per level completed)
+            const isStarving = this.familyWelfare.updateHunger(1); // Pass 1 for one level completed
+
+            // Update family UI immediately to show new hunger status
+            this.updateFamilyUI();
+            this.updateFamilyHUD();
 
             // Show starving message after a delay to not conflict with other UI
             if (isStarving) {
@@ -1103,6 +1361,15 @@ class SpaceShooterGame {
         this.isPlaying = false;
         this.screenManager.hideHUD();
 
+        // Update profile stats
+        profileManager.updateStats({
+            totalGamesPlayed: 1,
+            totalScore: this.score,
+            totalCreditsEarned: this.credits,
+            totalEnemiesKilled: this.enemiesKilled
+        });
+        profileManager.setStatIfHigher('highestLevel', this.level);
+
         this.saveHighScore(this.score);
 
         // Store the failed level state for retry
@@ -1134,9 +1401,19 @@ class SpaceShooterGame {
     }
 
     completeVictory() {
+        // Update profile stats for victory
+        const time = Math.floor((Date.now() - this.gameStartTime) / 1000);
+        profileManager.updateStats({
+            totalGamesPlayed: 1,
+            totalScore: this.score,
+            totalCreditsEarned: this.credits,
+            totalEnemiesKilled: this.enemiesKilled,
+            totalPlayTime: time
+        });
+        profileManager.setStatIfHigher('highestLevel', 10);
+
         this.saveHighScore(this.score);
 
-        const time = Math.floor((Date.now() - this.gameStartTime) / 1000);
         const minutes = Math.floor(time / 60);
         const seconds = time % 60;
         const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -1178,6 +1455,10 @@ class SpaceShooterGame {
         this.ctx.restore();
 
         // Update family status in HUD
+        this.updateFamilyHUD();
+    }
+
+    updateFamilyHUD() {
         const status = this.familyWelfare.getStatus();
         const moraleEl = document.getElementById('hudFamilyMorale');
         if (moraleEl) {
@@ -1197,6 +1478,17 @@ class SpaceShooterGame {
         if (debtEl) {
             debtEl.textContent = status.medicalDebt;
             debtEl.style.color = status.medicalDebt === 0 ? '#66ff66' : '#ff6666';
+        }
+
+        // Also update hunger if displayed anywhere during gameplay
+        const hungerInfo = document.getElementById('hudFamilyHunger');
+        if (hungerInfo) {
+            const hungerPercent = Math.round(status.hunger);
+            const hungerColor = status.hunger >= 70 ? '#66ff66' :
+                               status.hunger >= 40 ? '#ffff66' :
+                               status.hunger >= 20 ? '#ff9933' : '#ff3333';
+            hungerInfo.textContent = `${status.hungerStatus} (${hungerPercent}%)`;
+            hungerInfo.style.color = hungerColor;
         }
     }
 
@@ -1325,12 +1617,13 @@ class SpaceShooterGame {
         this.controlMode = document.getElementById('controlMode').value;
         this.autoFire = document.getElementById('autoFire').checked;
 
-        localStorage.setItem('spaceShooterOptions', JSON.stringify({
+        profileManager.saveOptions({
             controlMode: this.controlMode,
             autoFire: this.autoFire,
             sfxVolume: document.getElementById('sfxVolume').value,
-            musicVolume: document.getElementById('musicVolume').value
-        }));
+            musicVolume: document.getElementById('musicVolume').value,
+            language: languageSystem.currentLanguage
+        });
 
         this.backToMenu();
     }
@@ -1370,27 +1663,19 @@ class SpaceShooterGame {
     }
 
     saveHighScore(score) {
-        this.highScores.push(score);
-        this.highScores.sort((a, b) => b - a);
-        this.highScores = this.highScores.slice(0, 10);
-        localStorage.setItem('spaceShooterHighScores', JSON.stringify(this.highScores));
-    }
-
-    loadHighScores() {
-        const saved = localStorage.getItem('spaceShooterHighScores');
-        return saved ? JSON.parse(saved) : [];
+        profileManager.saveHighScore(score);
+        this.highScores = profileManager.getHighScores();
     }
 
     loadOptions() {
-        const saved = localStorage.getItem('spaceShooterOptions');
-        if (saved) {
-            try {
-                const options = JSON.parse(saved);
-                this.controlMode = options.controlMode || 'touch';
-                this.autoFire = options.autoFire !== undefined ? options.autoFire : true;
-            } catch (e) {
-                console.error('Error loading options:', e);
-                // Keep defaults if loading fails
+        const options = profileManager.loadOptions();
+        if (options) {
+            this.controlMode = options.controlMode || 'touch';
+            this.autoFire = options.autoFire !== undefined ? options.autoFire : true;
+
+            // Apply language from profile
+            if (options.language) {
+                languageSystem.setLanguage(options.language);
             }
         }
     }
@@ -1408,7 +1693,7 @@ class SpaceShooterGame {
             version: '1.0'
         };
 
-        localStorage.setItem('spaceShooterSave', JSON.stringify(saveData));
+        profileManager.saveGameProgress(saveData);
 
         // Show confirmation (brief message)
         const upgradeScreen = document.getElementById('upgradeScreen');
@@ -1423,14 +1708,13 @@ class SpaceShooterGame {
 
     // Load saved progress
     loadProgress() {
-        const saved = localStorage.getItem('spaceShooterSave');
-        if (!saved) {
+        const saveData = profileManager.loadGameProgress();
+        if (!saveData) {
             return false;
         }
 
         try {
-            const saveData = JSON.parse(saved);
-
+            // saveData is already an object, no need to parse
             // Restore game state
             this.level = saveData.level || 1;
             this.score = saveData.score || 0;
@@ -1464,7 +1748,7 @@ class SpaceShooterGame {
 
     // Check if save exists
     hasSaveGame() {
-        return localStorage.getItem('spaceShooterSave') !== null;
+        return profileManager.hasGameProgress();
     }
 
     // Start from saved game
@@ -1478,3 +1762,11 @@ class SpaceShooterGame {
 
 // Make game globally accessible for HTML onclick handlers
 window.game = new SpaceShooterGame();
+
+// Debug helper to reset profiles if corrupted
+window.resetProfiles = () => {
+    if (confirm('This will delete ALL profiles. Are you sure?')) {
+        profileManager.resetAllProfiles();
+        location.reload();
+    }
+};

@@ -3,9 +3,10 @@ class ScreenManager {
         this.currentScreen = 'platformLogo';
         this.screens = [
             'platformLogo', 'vendorLogo', 'gameLogo', 'mainMenu',
-            'optionsScreen', 'recordsScreen', 'creditsScreen',
+            'optionsScreen', 'recordsScreen', 'creditsScreen', 'profileScreen',
             'upgradeScreen', 'gameOver', 'victoryScreen', 'pauseMenu'
         ];
+        // Note: createProfileDialog is NOT a screen - it's an overlay dialog
     }
 
     showScreen(screenId) {
@@ -25,15 +26,10 @@ class ScreenManager {
             if (screenId === 'mainMenu') {
                 const continueBtn = document.getElementById('continueBtn');
                 if (continueBtn) {
-                    const saveData = localStorage.getItem('spaceShooterSave');
+                    const saveData = profileManager.loadGameProgress();
                     if (saveData) {
-                        try {
-                            const save = JSON.parse(saveData);
-                            continueBtn.innerHTML = `${languageSystem.t('CONTINUE')}<br><span style="font-size: 14px; opacity: 0.7;">${languageSystem.t('Level')} ${save.level} • ${languageSystem.t('Score:').slice(0, -1)}: ${save.score}</span>`;
-                            continueBtn.style.display = 'block';
-                        } catch (e) {
-                            continueBtn.style.display = 'none';
-                        }
+                        continueBtn.innerHTML = `${languageSystem.t('CONTINUE')}<br><span style="font-size: 14px; opacity: 0.7;">${languageSystem.t('Level')} ${saveData.level} • ${languageSystem.t('Score:').slice(0, -1)}: ${saveData.score}</span>`;
+                        continueBtn.style.display = 'block';
                     } else {
                         continueBtn.style.display = 'none';
                     }
