@@ -1194,7 +1194,7 @@ class SpaceShooterGame {
                     weapon.ammo = weapon.maxAmmo;
                 }
             }
-            this.showCheatNotification('ALL WEAPONS UNLOCKED!');
+            this.showCheatNotification(languageSystem.t('ALL WEAPONS UNLOCKED!'));
         }
 
         // Replenish cheat
@@ -1206,7 +1206,7 @@ class SpaceShooterGame {
             // Refill all ammo
             this.weaponSystem.refillAllAmmo();
 
-            this.showCheatNotification('FULLY REPLENISHED!');
+            this.showCheatNotification(languageSystem.t('FULLY REPLENISHED!'));
         }
     }
 

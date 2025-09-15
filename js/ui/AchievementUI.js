@@ -384,7 +384,7 @@ class AchievementUI {
         `;
         progressText.textContent = achievement.nextRequired ?
             `${achievement.currentValue}/${achievement.nextRequired}` :
-            'COMPLETE';
+            languageSystem.t('COMPLETE');
 
         progressContainer.appendChild(progressBar);
         progressContainer.appendChild(progressText);

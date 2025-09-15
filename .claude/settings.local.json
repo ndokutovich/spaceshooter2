@@ -13,7 +13,9 @@
       "Read(//w/_proj/_own/_ideator/cyberops-game/**)",
       "Read(//w/_proj/_own/_ideator/**)",
       "Bash(dir:*)",
-      "Read(//w/**)"
+      "Read(//w/**)",
+      "Bash(awk:*)",
+      "Read(//w//**)"
     ],
     "deny": [],
     "ask": []

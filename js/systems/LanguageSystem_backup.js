@@ -43,21 +43,28 @@ class LanguageSystem {
 
                 // Game HUD
                 'Health': 'Health',
+                'Shield': 'Shield',
                 'Score': 'Score',
+                'Credits': 'Credits',
+                'Level': 'Level',
                 'Weapon': 'Weapon',
                 'Ammo': 'Ammo',
                 'FPS': 'FPS',
+                'Family': 'Family',
                 'Debt': 'Debt',
 
                 // Pause Menu
                 'PAUSED': 'PAUSED',
                 'Game Progress': 'Game Progress',
                 'Current Level:': 'Current Level:',
+                'Score:': 'Score:',
+                'Credits:': 'Credits:',
                 'Enemies Killed:': 'Enemies Killed:',
                 'Player Stats': 'Player Stats',
                 'Max Health:': 'Max Health:',
                 'Max Shield:': 'Max Shield:',
                 'Damage Multi:': 'Damage Multi:',
+                'Fire Rate:': 'Fire Rate:',
                 'Move Speed:': 'Move Speed:',
                 'Ammo Capacity:': 'Ammo Capacity:',
                 'Upgrades': 'Upgrades',
@@ -67,11 +74,16 @@ class LanguageSystem {
                 'QUIT TO MENU': 'QUIT TO MENU',
 
                 // Space Hub
+                'SPACE HUB - UPGRADES': 'SPACE HUB - UPGRADES',
+                'FAMILY STATUS REPORT': 'FAMILY STATUS REPORT',
+                'Morale:': 'Morale:',
+                'Food Status:': 'Food Status:',
                 'Medical Debt:': 'Medical Debt:',
                 'Total Sent Home:': 'Total Sent Home:',
                 'SEND MONEY HOME': 'SEND MONEY HOME',
                 'SAVE PROGRESS': 'SAVE PROGRESS',
                 'CONTINUE TO LEVEL': 'CONTINUE TO LEVEL',
+                'credits': 'credits',
 
                 // Family Morale States
                 'Desperate': 'Desperate',
@@ -85,8 +97,11 @@ class LanguageSystem {
                 'Starving': 'Starving',
 
                 // Upgrade Names
+                'Max Health': 'Max Health',
+                'Damage': 'Damage',
                 'Fire Rate': 'Fire Rate',
                 'Speed': 'Speed',
+                'Shield': 'Shield',
                 'Ammo Crate': 'Ammo Crate',
                 'Investment Portfolio': 'Investment Portfolio',
                 'Multi-Shot': 'Multi-Shot',
@@ -96,14 +111,6 @@ class LanguageSystem {
                 'Piercing Rounds': 'Piercing Rounds',
 
                 // Upgrade Descriptions
-                '+40 HP': '+40 HP',
-                '+5 damage per shot': '+5 damage per shot',
-                '+0.5 shots/sec': '+0.5 shots/sec',
-                '+0.5 movement speed': '+0.5 movement speed',
-                '+15 shield capacity': '+15 shield capacity',
-                '+20% max ammo capacity': '+20% max ammo capacity',
-                '+20% credit earnings': '+20% credit earnings',
-                '+10% passive income': '+10% passive income',
                 'Increases maximum health': 'Increases maximum health',
                 'Increases weapon damage': 'Increases weapon damage',
                 'Increases fire rate': 'Increases fire rate',
@@ -120,6 +127,7 @@ class LanguageSystem {
                 // Weapon Names
                 'Pulse Laser': 'Pulse Laser',
                 'Shotgun Blaster': 'Shotgun Blaster',
+                'Rapid Fire': 'Rapid Fire',
                 'Plasma Cannon': 'Plasma Cannon',
                 'Wave Beam': 'Wave Beam',
                 'Missile Launcher': 'Missile Launcher',
@@ -142,8 +150,14 @@ class LanguageSystem {
                 'MAIN MENU': 'MAIN MENU',
 
                 // Notifications
+                'Progress Saved!': 'Progress Saved!',
                 'All weapons refilled!': 'All weapons refilled!',
                 'NEW WEAPON UNLOCKED!': 'NEW WEAPON UNLOCKED!',
+                'HUNTERS APPROACHING!': 'HUNTERS APPROACHING!',
+                'BOSS APPROACHING!': 'BOSS APPROACHING!',
+                'WAVE COMPLETE!': 'WAVE COMPLETE!',
+                'COLLISION!': 'COLLISION!',
+                'CRITICAL!': 'CRITICAL!',
 
                 // Achievement Categories
                 'Combat': 'Combat',
@@ -157,7 +171,15 @@ class LanguageSystem {
                 'Special': 'Special',
 
                 // Common UI
+                'Cost:': 'Cost:',
+                'Level': 'Level',
+                'MAX': 'MAX',
+                'UPGRADE': 'UPGRADE',
                 'No high scores yet!': 'No high scores yet!',
+                'Send Money to Family': 'Send Money to Family',
+                'You have': 'You have',
+                'Cancel': 'Cancel',
+                'CLOSE': 'CLOSE',
 
                 // Dialog/Story
                 'Your family is starving! Send money home soon!': 'Your family is starving! Send money home soon!',
@@ -225,6 +247,7 @@ class LanguageSystem {
                 'Perfect waves': 'Perfect waves',
                 'Asteroids destroyed': 'Asteroids destroyed',
                 'Credits from asteroids': 'Credits from asteroids',
+                'Total credits earned': 'Total credits earned',
                 'Rare asteroids found': 'Rare asteroids found',
                 'Highest level': 'Highest level',
                 'Weapons unlocked': 'Weapons unlocked',
@@ -246,9 +269,13 @@ class LanguageSystem {
                 'Collect credits from asteroids': 'Collect credits from asteroids',
                 'Total credits earned': 'Total credits earned',
                 'Find rare asteroids (Gold, Crystal, Platinum)': 'Find rare asteroids (Gold, Crystal, Platinum)',
+                'Reach higher levels': 'Reach higher levels',
                 'Unlock weapons': 'Unlock weapons',
+                'Purchase upgrades': 'Purchase upgrades',
                 'Survive for extended time': 'Survive for extended time',
                 'Complete level using only collision damage': 'Complete level using only collision damage',
+                'Keep family well-fed': 'Keep family well-fed',
+                'Complete the game without dying': 'Complete the game without dying',
                 'Accumulate credits': 'Accumulate credits',
                 'Earn from investments': 'Earn from investments',
                 'Send money to family': 'Send money to family',
@@ -263,22 +290,26 @@ class LanguageSystem {
                 // Tier suffixes
                 'Rookie': 'Rookie',
                 'Veteran': 'Veteran',
+                'Elite': 'Elite',
                 'Master': 'Master',
                 'Champion': 'Champion',
                 'Hero': 'Hero',
                 'Legend': 'Legend',
 
                 // Additional UI
+                'All': 'All',
                 'Locked': 'Locked',
                 'Unlocked': 'Unlocked',
                 'Available': 'Available',
                 'Equipped': 'Equipped',
+                'Selected': 'Selected',
                 'Infinite': 'Infinite',
 
                 // Damage Numbers and Combat
                 'PLATINUM!': 'PLATINUM!',
                 'CRYSTAL!': 'CRYSTAL!',
                 'GOLD!': 'GOLD!',
+                'COLLISION!': 'COLLISION!',
                 'CRITICAL!': 'CRITICAL!',
                 'HUNTERS APPROACHING!': 'HUNTERS APPROACHING!',
                 'BOSS APPROACHING!': 'BOSS APPROACHING!',
@@ -286,11 +317,16 @@ class LanguageSystem {
                 'LEVEL COMPLETE!': 'LEVEL COMPLETE!',
 
                 // HUD Labels
+                'Health:': 'Health:',
+                'Shield:': 'Shield:',
+                'Score:': 'Score:',
                 'Credits:': 'Credits:',
                 'Level:': 'Level:',
                 'Weapon:': 'Weapon:',
                 'Ammo:': 'Ammo:',
                 'FPS:': 'FPS:',
+                'Family:': 'Family:',
+                'Debt:': 'Debt:',
 
                 // Family Messages
                 'Thank you for the money!': 'Thank you for the money!',
@@ -309,12 +345,6 @@ class LanguageSystem {
                 "The medicine is working! Thank you!": "The medicine is working! Thank you!",
                 "We're so proud of you!": "We're so proud of you!",
                 "Sarah is getting better every day!": "Sarah is getting better every day!",
-                "Sarah says she loves you.": "Sarah says she loves you.",
-                "Stay safe out there.": "Stay safe out there.",
-                "Sarah drew you a picture.": "Sarah drew you a picture.",
-                "Sarah needs her medicine soon.": "Sarah needs her medicine soon.",
-                "Sarah is getting worse without medicine.": "Sarah is getting worse without medicine.",
-                "The landlord is threatening eviction.": "The landlord is threatening eviction.",
                 "Thank you for the credits, we bought food.": "Thank you for the credits, we bought food.",
                 "Sarah says she loves you.": "Sarah says she loves you.",
                 "We're managing thanks to you.": "We're managing thanks to you.",
@@ -372,6 +402,8 @@ class LanguageSystem {
                 'TIER COMPLETE!': 'TIER COMPLETE!',
                 'NEW RECORD!': 'NEW RECORD!',
                 'REQUIREMENTS MET!': 'REQUIREMENTS MET!',
+                'REWARDS:': 'REWARDS:',
+                'Title:': 'Title:',
 
                 // Dialog/Commands
                 'Skip': 'Skip',
@@ -382,8 +414,14 @@ class LanguageSystem {
                 'OK': 'OK',
 
                 // Hunter/Boss Messages
+                'HUNTER': 'HUNTER',
+                'HUNTERS': 'HUNTERS',
+                'ACTIVE': 'ACTIVE',
+                'DEFEATED': 'DEFEATED',
+                'NOT SPAWNED': 'NOT SPAWNED',
                 'ELITE HUNTERS INCOMING!': 'ELITE HUNTERS INCOMING!',
                 'Hunters eliminated! Boss approaching...': 'Hunters eliminated! Boss approaching...',
+                'All hunters defeated! Boss can now spawn.': 'All hunters defeated! Boss can now spawn.',
                 'Hunter bonus': 'Hunter bonus',
                 'Hunters were defeated, awarding bonus!': 'Hunters were defeated, awarding bonus!',
                 'Hunters escaped! No bonus.': 'Hunters escaped! No bonus.',
@@ -393,6 +431,8 @@ class LanguageSystem {
                 'LOCKED': 'LOCKED',
                 'Current': 'Current',
                 'Selected': 'Selected',
+                'Damage:': 'Damage:',
+                'Fire Rate:': 'Fire Rate:',
                 'per second': 'per second',
 
                 // Console messages (for debugging)
@@ -402,6 +442,7 @@ class LanguageSystem {
                 'Enemies killed:': 'Enemies killed:',
                 'Created hunter': 'Created hunter',
                 'Total hunters array:': 'Total hunters array:',
+                'ERROR: Reached boss threshold but hunters never spawned!': 'ERROR: Reached boss threshold but hunters never spawned!',
                 'Error loading options:': 'Error loading options:',
                 'Failed to load save:': 'Failed to load save:',
 
@@ -413,6 +454,7 @@ class LanguageSystem {
                 'Victory': 'Victory',
 
                 // Numbers and formatting
+                'credits': 'credits',
                 'points': 'points',
                 'seconds': 'seconds',
                 'minutes': 'minutes',
@@ -434,6 +476,7 @@ class LanguageSystem {
                 'Tier': 'Tier',
                 'Requirement:': 'Requirement:',
                 'REWARDS:': 'REWARDS:',
+                'Score:': 'Score:',
                 'Unlocked:': 'Unlocked:',
                 'CLOSE': 'CLOSE',
                 'of': 'of',
@@ -509,6 +552,16 @@ class LanguageSystem {
                 'Devastating antimatter blast': 'Devastating antimatter blast',
 
                 // Character/Speaker names
+                'Sarah (Transmission)': 'Sarah (Transmission)',
+                'Wife (Transmission)': 'Wife (Transmission)',
+                'Captain Vega (Broadcast)': 'Captain Vega (Broadcast)',
+                'Wife (Emergency)': 'Wife (Emergency)',
+                'Admiral Vega (All Channels)': 'Admiral Vega (All Channels)',
+                'Admiral Vega': 'Admiral Vega',
+                'Sarah (Video Call)': 'Sarah (Video Call)',
+                'Wife': 'Wife',
+                'Doctor': 'Doctor',
+                'Sarah': 'Sarah',
 
                 // Story Events - Intro
                 'Narrator': 'Narrator',
@@ -567,15 +620,19 @@ class LanguageSystem {
                 'Ship Computer': 'Ship Computer',
                 'Entering Sector 1. Minimal pirate activity detected. Good hunting, Jack.': 'Entering Sector 1. Minimal pirate activity detected. Good hunting, Jack.',
                 'Daddy! I drew you a picture of your ship! It\'s on the fridge! Love you!': 'Daddy! I drew you a picture of your ship! It\'s on the fridge! Love you!',
+                'Jack... the medical bills came. 5000 credits. We believe in you. Stay safe.': 'Jack... the medical bills came. 5000 credits. We believe in you. Stay safe.',
                 'Half way there... Hold on Sarah, daddy\'s coming home with your medicine.': 'Half way there... Hold on Sarah, daddy\'s coming home with your medicine.',
                 'Attention \'Hope\'s Fortune\'! You\'ve killed too many of my men. Prepare to die!': 'Attention \'Hope\'s Fortune\'! You\'ve killed too many of my men. Prepare to die!',
                 'Vega\'s down... but something doesn\'t feel right. Better hurry home.': 'Vega\'s down... but something doesn\'t feel right. Better hurry home.',
                 'Jack! Pirates are asking about you at the station! We\'re scared!': 'Jack! Pirates are asking about you at the station! We\'re scared!',
+                'Jack Kovac! You killed my brother! Your family will pay the price!': 'Jack Kovac! You killed my brother! Your family will pay the price!',
                 'No... this can\'t be... my revenge...': 'No... this can\'t be... my revenge...',
                 'It\'s over. The Raiders are finished. Time to go home.': 'It\'s over. The Raiders are finished. Time to go home.',
                 'DADDY! You\'re coming home! The medicine worked! I love you so much!': 'DADDY! You\'re coming home! The medicine worked! I love you so much!',
+                'You did it, Jack. You saved us all. Come home, hero.': 'You did it, Jack. You saved us all. Come home, hero.',
                 'Gold! This\'ll buy Sarah\'s medicine!': 'Gold! This\'ll buy Sarah\'s medicine!',
                 'Can\'t... give up... Family needs me...': 'Can\'t... give up... Family needs me...',
+                'Warning: Multiple pirate signatures detected!': 'Warning: Multiple pirate signatures detected!',
 
                 'Sarah (Transmission)': 'Sarah (Transmission)',
                 'Daddy! I drew you a picture of your ship! It\'s on the fridge! Love you!': 'Daddy! I drew you a picture of your ship! It\'s on the fridge! Love you!',
@@ -634,14 +691,12 @@ class LanguageSystem {
                 'Complete the game without dying': 'Complete the game without dying',
 
                 // UI Strings from ScreenManager and other files
+                'Level': 'Level',
                 'Score:': 'Score:',
                 'MAX': 'MAX',
                 'UPGRADE': 'UPGRADE',
-                'COMPLETE': 'COMPLETE',
-                '▶ Press SPACE or click to continue': '▶ Press SPACE or click to continue',
-                'ALL WEAPONS UNLOCKED!': 'ALL WEAPONS UNLOCKED!',
-                'FULLY REPLENISHED!': 'FULLY REPLENISHED!',
                 'Cost:': 'Cost:',
+                'credits': 'credits',
                 'Level': 'Level',
                 '⚠️ ELITE HUNTERS INCOMING!': '⚠️ ELITE HUNTERS INCOMING!',
                 'credits': 'credits'
@@ -688,21 +743,28 @@ class LanguageSystem {
 
                 // Game HUD
                 'Health': 'Здоровье',
+                'Shield': 'Щит',
                 'Score': 'Счёт',
+                'Credits': 'Кредиты',
+                'Level': 'Уровень',
                 'Weapon': 'Оружие',
                 'Ammo': 'Патроны',
                 'FPS': 'FPS',
+                'Family': 'Семья',
                 'Debt': 'Долг',
 
                 // Pause Menu
                 'PAUSED': 'ПАУЗА',
                 'Game Progress': 'Прогресс игры',
                 'Current Level:': 'Текущий уровень:',
+                'Score:': 'Счёт:',
+                'Credits:': 'Кредиты:',
                 'Enemies Killed:': 'Врагов уничтожено:',
                 'Player Stats': 'Статистика игрока',
                 'Max Health:': 'Макс. здоровье:',
                 'Max Shield:': 'Макс. щит:',
                 'Damage Multi:': 'Множитель урона:',
+                'Fire Rate:': 'Скорострельность:',
                 'Move Speed:': 'Скорость движения:',
                 'Ammo Capacity:': 'Ёмкость патронов:',
                 'Upgrades': 'Улучшения',
@@ -712,11 +774,16 @@ class LanguageSystem {
                 'QUIT TO MENU': 'ВЫЙТИ В МЕНЮ',
 
                 // Space Hub
+                'SPACE HUB - UPGRADES': 'КОСМИЧЕСКАЯ БАЗА - УЛУЧШЕНИЯ',
+                'FAMILY STATUS REPORT': 'ОТЧЁТ О СОСТОЯНИИ СЕМЬИ',
+                'Morale:': 'Моральный дух:',
+                'Food Status:': 'Статус питания:',
                 'Medical Debt:': 'Медицинский долг:',
                 'Total Sent Home:': 'Всего отправлено домой:',
                 'SEND MONEY HOME': 'ОТПРАВИТЬ ДЕНЬГИ ДОМОЙ',
                 'SAVE PROGRESS': 'СОХРАНИТЬ ПРОГРЕСС',
                 'CONTINUE TO LEVEL': 'ПРОДОЛЖИТЬ НА УРОВЕНЬ',
+                'credits': 'кредитов',
 
                 // Family Morale States
                 'Desperate': 'В отчаянии',
@@ -730,8 +797,11 @@ class LanguageSystem {
                 'Starving': 'Голодают',
 
                 // Upgrade Names
+                'Max Health': 'Макс. здоровье',
+                'Damage': 'Урон',
                 'Fire Rate': 'Скорострельность',
                 'Speed': 'Скорость',
+                'Shield': 'Щит',
                 'Ammo Crate': 'Ящик патронов',
                 'Investment Portfolio': 'Инвестиционный портфель',
                 'Multi-Shot': 'Мульти-выстрел',
@@ -741,14 +811,6 @@ class LanguageSystem {
                 'Piercing Rounds': 'Пробивающие снаряды',
 
                 // Upgrade Descriptions
-                '+40 HP': '+40 ОЗ',
-                '+5 damage per shot': '+5 урона за выстрел',
-                '+0.5 shots/sec': '+0.5 выстрелов/сек',
-                '+0.5 movement speed': '+0.5 скорости движения',
-                '+15 shield capacity': '+15 ёмкости щита',
-                '+20% max ammo capacity': '+20% макс. боезапаса',
-                '+20% credit earnings': '+20% заработка кредитов',
-                '+10% passive income': '+10% пассивного дохода',
                 'Increases maximum health': 'Увеличивает максимальное здоровье',
                 'Increases weapon damage': 'Увеличивает урон от оружия',
                 'Increases fire rate': 'Увеличивает скорострельность',
@@ -765,6 +827,7 @@ class LanguageSystem {
                 // Weapon Names
                 'Pulse Laser': 'Импульсный лазер',
                 'Shotgun Blaster': 'Дробовик-бластер',
+                'Rapid Fire': 'Скорострел',
                 'Plasma Cannon': 'Плазменная пушка',
                 'Wave Beam': 'Волновой луч',
                 'Missile Launcher': 'Ракетница',
@@ -787,8 +850,14 @@ class LanguageSystem {
                 'MAIN MENU': 'ГЛАВНОЕ МЕНЮ',
 
                 // Notifications
+                'Progress Saved!': 'Прогресс сохранён!',
                 'All weapons refilled!': 'Все оружие перезаряжено!',
                 'NEW WEAPON UNLOCKED!': 'НОВОЕ ОРУЖИЕ РАЗБЛОКИРОВАНО!',
+                'HUNTERS APPROACHING!': 'ПРИБЛИЖАЮТСЯ ОХОТНИКИ!',
+                'BOSS APPROACHING!': 'ПРИБЛИЖАЕТСЯ БОСС!',
+                'WAVE COMPLETE!': 'ВОЛНА ЗАВЕРШЕНА!',
+                'COLLISION!': 'СТОЛКНОВЕНИЕ!',
+                'CRITICAL!': 'КРИТИЧЕСКИЙ!',
 
                 // Achievement Categories
                 'Combat': 'Бой',
@@ -802,15 +871,15 @@ class LanguageSystem {
                 'Special': 'Особое',
 
                 // Common UI
-                'COMPLETE': 'ЗАВЕРШЕНО',
-                '▶ Press SPACE or click to continue': '▶ Нажмите ПРОБЕЛ или кликните для продолжения',
-                'ALL WEAPONS UNLOCKED!': 'ВСЁ ОРУЖИЕ РАЗБЛОКИРОВАНО!',
-                'FULLY REPLENISHED!': 'ПОЛНОСТЬЮ ВОССТАНОВЛЕНО!',
                 'Cost:': 'Стоимость:',
                 'Level': 'Уровень',
                 'MAX': 'МАКС',
                 'UPGRADE': 'УЛУЧШИТЬ',
                 'No high scores yet!': 'Пока нет рекордов!',
+                'Send Money to Family': 'Отправить деньги семье',
+                'You have': 'У вас',
+                'Cancel': 'Отмена',
+                'CLOSE': 'ЗАКРЫТЬ',
 
                 // Dialog/Story
                 'Your family is starving! Send money home soon!': 'Ваша семья голодает! Срочно отправьте деньги домой!',
@@ -866,10 +935,15 @@ class LanguageSystem {
                 'Destroy asteroids': 'Уничтожайте астероиды',
                 'Complete waves without taking damage': 'Проходите волны без урона',
                 'Collect credits from asteroids': 'Собирайте кредиты с астероидов',
+                'Total credits earned': 'Всего заработано кредитов',
                 'Find rare asteroids (Gold, Crystal, Platinum)': 'Находите редкие астероиды (Золото, Кристалл, Платина)',
+                'Reach higher levels': 'Достигайте высоких уровней',
                 'Unlock weapons': 'Открывайте оружие',
+                'Purchase upgrades': 'Покупайте улучшения',
                 'Survive for extended time': 'Выживайте продолжительное время',
                 'Complete level using only collision damage': 'Пройдите уровень только тараном',
+                'Keep family well-fed': 'Держите семью сытой',
+                'Complete the game without dying': 'Пройдите игру без смертей',
 
                 // Achievement stat names
                 'Enemies killed': 'Врагов уничтожено',
@@ -916,22 +990,26 @@ class LanguageSystem {
                 // Tier suffixes
                 'Rookie': 'Новичок',
                 'Veteran': 'Ветеран',
+                'Elite': 'Элита',
                 'Master': 'Мастер',
                 'Champion': 'Чемпион',
                 'Hero': 'Герой',
                 'Legend': 'Легенда',
 
                 // Additional UI
+                'All': 'Все',
                 'Locked': 'Заблокировано',
                 'Unlocked': 'Разблокировано',
                 'Available': 'Доступно',
                 'Equipped': 'Экипировано',
+                'Selected': 'Выбрано',
                 'Infinite': 'Бесконечно',
 
                 // Damage Numbers and Combat
                 'PLATINUM!': 'ПЛАТИНА!',
                 'CRYSTAL!': 'КРИСТАЛЛ!',
                 'GOLD!': 'ЗОЛОТО!',
+                'COLLISION!': 'СТОЛКНОВЕНИЕ!',
                 'CRITICAL!': 'КРИТИЧЕСКИЙ!',
                 'HUNTERS APPROACHING!': 'ПРИБЛИЖАЮТСЯ ОХОТНИКИ!',
                 'BOSS APPROACHING!': 'ПРИБЛИЖАЕТСЯ БОСС!',
@@ -939,11 +1017,16 @@ class LanguageSystem {
                 'LEVEL COMPLETE!': 'УРОВЕНЬ ПРОЙДЕН!',
 
                 // HUD Labels
+                'Health:': 'Здоровье:',
+                'Shield:': 'Щит:',
+                'Score:': 'Счёт:',
                 'Credits:': 'Кредиты:',
                 'Level:': 'Уровень:',
                 'Weapon:': 'Оружие:',
                 'Ammo:': 'Патроны:',
                 'FPS:': 'FPS:',
+                'Family:': 'Семья:',
+                'Debt:': 'Долг:',
 
                 // Family Messages
                 'Thank you for the money!': 'Спасибо за деньги!',
@@ -962,12 +1045,6 @@ class LanguageSystem {
                 "The medicine is working! Thank you!": "Лекарство работает! Спасибо!",
                 "We're so proud of you!": "Мы так гордимся тобой!",
                 "Sarah is getting better every day!": "Саре становится лучше с каждым днём!",
-                "Sarah says she loves you.": "Сара говорит, что любит тебя.",
-                "Stay safe out there.": "Береги себя там.",
-                "Sarah drew you a picture.": "Сара нарисовала тебе картинку.",
-                "Sarah needs her medicine soon.": "Саре скоро понадобится лекарство.",
-                "Sarah is getting worse without medicine.": "Саре становится хуже без лекарства.",
-                "The landlord is threatening eviction.": "Арендодатель угрожает выселением.",
                 "Thank you for the credits, we bought food.": "Спасибо за кредиты, мы купили еду.",
                 "Sarah says she loves you.": "Сара говорит, что любит тебя.",
                 "We're managing thanks to you.": "Мы справляемся благодаря тебе.",
@@ -1025,6 +1102,8 @@ class LanguageSystem {
                 'TIER COMPLETE!': 'УРОВЕНЬ ЗАВЕРШЁН!',
                 'NEW RECORD!': 'НОВЫЙ РЕКОРД!',
                 'REQUIREMENTS MET!': 'ТРЕБОВАНИЯ ВЫПОЛНЕНЫ!',
+                'REWARDS:': 'НАГРАДЫ:',
+                'Title:': 'Титул:',
 
                 // Dialog/Commands
                 'Skip': 'Пропустить',
@@ -1035,8 +1114,14 @@ class LanguageSystem {
                 'OK': 'ОК',
 
                 // Hunter/Boss Messages
+                'HUNTER': 'ОХОТНИК',
+                'HUNTERS': 'ОХОТНИКИ',
+                'ACTIVE': 'АКТИВЕН',
+                'DEFEATED': 'ПОБЕЖДЁН',
+                'NOT SPAWNED': 'НЕ ПОЯВИЛСЯ',
                 'ELITE HUNTERS INCOMING!': 'ПРИБЛИЖАЮТСЯ ЭЛИТНЫЕ ОХОТНИКИ!',
                 'Hunters eliminated! Boss approaching...': 'Охотники уничтожены! Приближается босс...',
+                'All hunters defeated! Boss can now spawn.': 'Все охотники побеждены! Теперь может появиться босс.',
                 'Hunter bonus': 'Бонус за охотников',
                 'Hunters were defeated, awarding bonus!': 'Охотники побеждены, начисляется бонус!',
                 'Hunters escaped! No bonus.': 'Охотники сбежали! Без бонуса.',
@@ -1046,6 +1131,8 @@ class LanguageSystem {
                 'LOCKED': 'ЗАБЛОКИРОВАНО',
                 'Current': 'Текущее',
                 'Selected': 'Выбрано',
+                'Damage:': 'Урон:',
+                'Fire Rate:': 'Скорострельность:',
                 'per second': 'в секунду',
 
                 // Console messages (for debugging)
@@ -1055,6 +1142,7 @@ class LanguageSystem {
                 'Enemies killed:': 'Врагов убито:',
                 'Created hunter': 'Создан охотник',
                 'Total hunters array:': 'Всего охотников в массиве:',
+                'ERROR: Reached boss threshold but hunters never spawned!': 'ОШИБКА: Достигнут порог босса, но охотники не появились!',
                 'Error loading options:': 'Ошибка загрузки настроек:',
                 'Failed to load save:': 'Не удалось загрузить сохранение:',
 
@@ -1164,6 +1252,16 @@ class LanguageSystem {
                 'Devastating antimatter blast': 'Разрушительный антиматериальный взрыв',
 
                 // Character/Speaker names
+                'Sarah (Transmission)': 'Сара (Передача)',
+                'Wife (Transmission)': 'Жена (Передача)',
+                'Captain Vega (Broadcast)': 'Капитан Вега (Трансляция)',
+                'Wife (Emergency)': 'Жена (Экстренная связь)',
+                'Admiral Vega (All Channels)': 'Адмирал Вега (Все каналы)',
+                'Admiral Vega': 'Адмирал Вега',
+                'Sarah (Video Call)': 'Сара (Видеозвонок)',
+                'Wife': 'Жена',
+                'Doctor': 'Доктор',
+                'Sarah': 'Сара',
 
                 // Story Events - Intro
                 'Narrator': 'Рассказчик',
@@ -1222,15 +1320,19 @@ class LanguageSystem {
                 'Ship Computer': 'Бортовой Компьютер',
                 'Entering Sector 1. Minimal pirate activity detected. Good hunting, Jack.': 'Входим в Сектор 1. Обнаружена минимальная пиратская активность. Удачной охоты, Джек.',
                 'Daddy! I drew you a picture of your ship! It\'s on the fridge! Love you!': 'Папочка! Я нарисовала твой корабль! Рисунок на холодильнике! Люблю тебя!',
+                'Jack... the medical bills came. 5000 credits. We believe in you. Stay safe.': 'Джек... пришли счета за лечение. 5000 кредитов. Мы верим в тебя. Береги себя.',
                 'Half way there... Hold on Sarah, daddy\'s coming home with your medicine.': 'Половина пути пройдена... Держись, Сара, папа идёт домой с твоим лекарством.',
                 'Attention \'Hope\'s Fortune\'! You\'ve killed too many of my men. Prepare to die!': 'Внимание, \'Удача Надежды\'! Ты убил слишком много моих людей. Готовься к смерти!',
                 'Vega\'s down... but something doesn\'t feel right. Better hurry home.': 'Вега повержен... но что-то не так. Лучше поспешить домой.',
                 'Jack! Pirates are asking about you at the station! We\'re scared!': 'Джек! Пираты расспрашивают о тебе на станции! Мы напуганы!',
+                'Jack Kovac! You killed my brother! Your family will pay the price!': 'Джек Ковак! Ты убил моего брата! Твоя семья заплатит цену!',
                 'No... this can\'t be... my revenge...': 'Нет... этого не может быть... моя месть...',
                 'It\'s over. The Raiders are finished. Time to go home.': 'Всё кончено. Рейдеры разгромлены. Пора домой.',
                 'DADDY! You\'re coming home! The medicine worked! I love you so much!': 'ПАПОЧКА! Ты возвращаешься домой! Лекарство подействовало! Я так тебя люблю!',
+                'You did it, Jack. You saved us all. Come home, hero.': 'Ты сделал это, Джек. Ты спас нас всех. Возвращайся домой, герой.',
                 'Gold! This\'ll buy Sarah\'s medicine!': 'Золото! На это можно купить лекарство для Сары!',
                 'Can\'t... give up... Family needs me...': 'Не могу... сдаться... Семья нуждается во мне...',
+                'Warning: Multiple pirate signatures detected!': 'Предупреждение: Обнаружены множественные пиратские сигнатуры!',
 
                 'Sarah (Transmission)': 'Сара (Передача)',
                 'Daddy! I drew you a picture of your ship! It\'s on the fridge! Love you!': 'Папочка! Я нарисовала твой корабль! Рисунок на холодильнике! Люблю тебя!',

@@ -86,7 +86,7 @@ class DialogSystem {
             color: #00ffff;
             animation: pulse 1s infinite;
         `;
-        this.continuePrompt.textContent = '▶ Press SPACE or click to continue';
+        this.continuePrompt.textContent = languageSystem.t('▶ Press SPACE or click to continue');
 
         // Assemble dialog
         this.dialogContainer.appendChild(this.portrait);
