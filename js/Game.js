@@ -117,6 +117,10 @@ class SpaceShooterGame {
             this.level = 1;
             this.score = 0;
             this.credits = 500;
+
+            // Save initial state for retry purposes
+            this.levelStartScore = this.score;
+            this.levelStartCredits = this.credits;
         }
 
         this.enemiesKilled = 0;
@@ -1083,6 +1087,10 @@ class SpaceShooterGame {
     }
 
     continueToNextLevel() {
+        // Save the state at the start of the new level for retry purposes
+        this.levelStartScore = this.score;
+        this.levelStartCredits = this.credits;
+
         // Level was already incremented in levelComplete(), don't increment again
         if (this.level > 10) {
             this.victory();
@@ -1096,6 +1104,11 @@ class SpaceShooterGame {
         this.screenManager.hideHUD();
 
         this.saveHighScore(this.score);
+
+        // Store the failed level state for retry
+        this.failedLevel = this.level;
+        this.failedLevelScore = this.levelStartScore || 0;
+        this.failedLevelCredits = this.levelStartCredits || 500;
 
         this.screenManager.showGameOver({
             score: this.score,
@@ -1133,12 +1146,18 @@ class SpaceShooterGame {
 
     retryLevel() {
         this.screenManager.hideScreen('gameOver');
-        // Reset score and credits to beginning of game values
-        this.level = 1;
-        this.score = 0;
-        this.credits = 500;
-        this.upgradeSystem.reset();
-        this.startGame(true);
+
+        // Restore to the failed level, not level 1
+        this.level = this.failedLevel || 1;
+
+        // Restore score and credits from the start of the failed level
+        this.score = this.failedLevelScore || 0;
+        this.credits = this.failedLevelCredits || 500;
+
+        // Don't reset upgrades - player keeps them for retry
+        // this.upgradeSystem.reset(); // Removed to keep upgrades
+
+        this.startGame(true); // true = from menu (resets entities), but level/score/credits are preserved above
     }
 
     updateHUD() {

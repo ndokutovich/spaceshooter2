@@ -20,7 +20,7 @@ class LanguageSystem {
 
                 // Options
                 'Control Mode:': 'Control Mode:',
-                'Touch & Drag': 'Touch & Drag',
+                'Mouse / Touch & Drag': 'Mouse / Touch & Drag',
                 'Virtual Joystick': 'Virtual Joystick',
                 'Relative Touch': 'Relative Touch',
                 'Auto Fire:': 'Auto Fire:',
@@ -665,7 +665,7 @@ class LanguageSystem {
 
                 // Options
                 'Control Mode:': 'Режим управления:',
-                'Touch & Drag': 'Касание и перетаскивание',
+                'Mouse / Touch & Drag': 'Мышь / Касание и перетаскивание',
                 'Virtual Joystick': 'Виртуальный джойстик',
                 'Relative Touch': 'Относительное касание',
                 'Auto Fire:': 'Автоматический огонь:',

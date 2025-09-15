@@ -59,17 +59,19 @@ class InputController {
     }
 
     handleMouseDown(e) {
-        this.touchStartX = e.clientX;
-        this.touchStartY = e.clientY;
-        this.touchX = e.clientX;
-        this.touchY = e.clientY;
+        const rect = this.canvas.getBoundingClientRect();
+        this.touchStartX = e.clientX - rect.left;
+        this.touchStartY = e.clientY - rect.top;
+        this.touchX = e.clientX - rect.left;
+        this.touchY = e.clientY - rect.top;
         this.isTouching = true;
     }
 
     handleMouseMove(e) {
         if (!this.isTouching) return;
-        this.touchX = e.clientX;
-        this.touchY = e.clientY;
+        const rect = this.canvas.getBoundingClientRect();
+        this.touchX = e.clientX - rect.left;
+        this.touchY = e.clientY - rect.top;
     }
 
     handleMouseUp(e) {
