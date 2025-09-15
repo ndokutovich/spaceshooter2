@@ -4,7 +4,7 @@
 class FamilyWelfare {
     constructor() {
         // Family statistics
-        this.familySize = 7;
+        this.familySize = 6; // Wife + 5 children (Sarah + 4 others) - Jack is away mining
         this.hunger = 100; // 100 = well fed, 0 = starving
         this.morale = 'hopeful'; // starving, worried, hopeful, grateful, proud
         this.medicalDebt = 5000;
@@ -67,14 +67,22 @@ class FamilyWelfare {
      * @returns {boolean} True if family is starving
      */
     updateHunger(levelsCompleted = 1) {
-        this.hunger = Math.max(0, this.hunger - (10 * levelsCompleted));
+        // Increased hunger depletion: 25 per level (was 10)
+        // This means family needs food every 2-3 levels max
+        this.hunger = Math.max(0, this.hunger - (25 * levelsCompleted));
 
-        if (this.hunger < 30 && this.morale !== 'starving') {
-            this.morale = 'starving';
-            return true; // Trigger starving event
+        // Update morale based on hunger level
+        if (this.hunger < 30) {
+            if (this.morale !== 'starving') {
+                this.morale = 'starving';
+                return true; // Trigger starving event
+            }
+        } else if (this.hunger < 50 && this.morale === 'hopeful') {
+            // Automatically drop to worried if hunger is low
+            this.morale = 'worried';
         }
 
-        return false;
+        return this.hunger < 30;
     }
 
     /**
@@ -88,7 +96,9 @@ class FamilyWelfare {
         this.creditsSentHome += credits;
 
         // Restore hunger based on credits sent
-        const hungerRestored = Math.min(credits / 5, 100 - this.hunger);
+        // Reduced restoration rate: 1 hunger per 10 credits (was 1 per 5)
+        // 500 credits = 50 hunger restored (2 levels worth)
+        const hungerRestored = Math.min(credits / 10, 100 - this.hunger);
         this.hunger = Math.min(100, this.hunger + hungerRestored);
 
         // Update morale based on amount sent

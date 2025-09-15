@@ -186,6 +186,17 @@ class LanguageSystem {
                 'Investment Portfolio earned you': 'Investment Portfolio earned you',
                 'interest': 'interest',
                 'credits applied to medical debt': 'credits applied to medical debt',
+                'Your family needs your support!': 'Your family needs your support!',
+                'KOVAC FAMILY - MARS COLONY STATION-3': 'KOVAC FAMILY - MARS COLONY STATION-3',
+                'Wife - Maria': 'Wife - Maria',
+                'Keeping the family together': 'Keeping the family together',
+                'Daughter - Sarah (7)': 'Daughter - Sarah (7)',
+                'Needs medical treatment': 'Needs medical treatment',
+                '4 Other Children': '4 Other Children',
+                '5 Other Children': '5 Other Children',
+                'Ages 2-11': 'Ages 2-11',
+                'Ages 2-12': 'Ages 2-12',
+                'Total Sent:': 'Total Sent:',
 
                 // Story Events
                 'Commander': 'Commander',
@@ -536,6 +547,7 @@ class LanguageSystem {
                 'Narrator': 'Narrator',
                 'The year is 2387. The outer rim is a lawless frontier where honest miners risk everything for their families.': 'The year is 2387. The outer rim is a lawless frontier where honest miners risk everything for their families.',
                 "Jack 'Stardust' Kovac": "Jack 'Stardust' Kovac",
+                'Six mouths to feed back on Mars Colony Station-3... and Sarah needs her medicine. Every credit counts.': 'Six mouths to feed back on Mars Colony Station-3... and Sarah needs her medicine. Every credit counts.',
                 'Seven mouths to feed back on Mars Colony Station-3... and Sarah needs her medicine. Every credit counts.': 'Seven mouths to feed back on Mars Colony Station-3... and Sarah needs her medicine. Every credit counts.',
                 "The Hope's Fortune may be old, but she'll get us through. She has to.": "The Hope's Fortune may be old, but she'll get us through. She has to.",
 
@@ -861,6 +873,17 @@ class LanguageSystem {
                 'Investment Portfolio earned you': 'Инвестиционный портфель принёс вам',
                 'interest': 'процентов',
                 'credits applied to medical debt': 'кредитов применено к медицинскому долгу',
+                'Your family needs your support!': 'Вашей семье нужна ваша поддержка!',
+                'KOVAC FAMILY - MARS COLONY STATION-3': 'СЕМЬЯ КОВАЧ - МАРСИАНСКАЯ КОЛОНИЯ СТАНЦИЯ-3',
+                'Wife - Maria': 'Жена - Мария',
+                'Keeping the family together': 'Держит семью вместе',
+                'Daughter - Sarah (7)': 'Дочь - Сара (7 лет)',
+                'Needs medical treatment': 'Нуждается в лечении',
+                '4 Other Children': '4 других детей',
+                '5 Other Children': '5 других детей',
+                'Ages 2-11': 'Возраст 2-11',
+                'Ages 2-12': 'Возраст 2-12',
+                'Total Sent:': 'Всего отправлено:',
 
                 // Story Events
                 'Commander': 'Командир',
@@ -1213,6 +1236,7 @@ class LanguageSystem {
                 'Narrator': 'Рассказчик',
                 'The year is 2387. The outer rim is a lawless frontier where honest miners risk everything for their families.': '2387 год. Внешние рубежи - беззаконная граница, где честные шахтёры рискуют всем ради своих семей.',
                 "Jack 'Stardust' Kovac": "Джек 'Звёздная Пыль' Ковак",
+                'Six mouths to feed back on Mars Colony Station-3... and Sarah needs her medicine. Every credit counts.': 'Шесть ртов, которых нужно кормить на Марсианской колонии-3... а Саре нужно лекарство. Каждый кредит на счету.',
                 'Seven mouths to feed back on Mars Colony Station-3... and Sarah needs her medicine. Every credit counts.': 'Семь ртов, которых нужно кормить на Марсианской колонии-3... а Саре нужно лекарство. Каждый кредит на счету.',
                 "The Hope's Fortune may be old, but she'll get us through. She has to.": "'Удача Надежды' может быть старой, но она нас выручит. Должна.",
 

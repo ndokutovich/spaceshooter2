@@ -163,6 +163,13 @@ body {
     box-shadow: 0 10px 30px rgba(100, 100, 255, 0.3);
 }
 
+/* Disable hover effects for family panel */
+#familyPanel.upgrade-card:hover {
+    transform: none;
+    box-shadow: none;
+    animation: none;
+}
+
 .upgrade-title {
     font-size: 18px;
     font-weight: bold;

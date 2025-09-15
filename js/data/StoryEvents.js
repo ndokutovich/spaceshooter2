@@ -15,7 +15,7 @@ function getTranslatedStoryEvents() {
             },
             {
                 speaker: languageSystem.t("Jack 'Stardust' Kovac"),
-                message: languageSystem.t("Seven mouths to feed back on Mars Colony Station-3... and Sarah needs her medicine. Every credit counts."),
+                message: languageSystem.t("Six mouths to feed back on Mars Colony Station-3... and Sarah needs her medicine. Every credit counts."),
                 portrait: "👨‍🚀"
             },
             {

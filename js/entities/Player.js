@@ -16,13 +16,22 @@ class Player {
             ammoCrate: upgrades.ammoCrate?.level || 0
         };
         const stats = formulaService.calculateAllPlayerStats(upgradeLevels);
-        this.speed = stats.speed;
+
+        // Store base stats before morale modifiers
+        this.baseSpeed = stats.speed;
+        this.baseDamage = stats.damage;
+        this.baseFireRate = stats.fireRate;
+        this.baseShieldRegenRate = 1.0;
+
+        // These will be updated with morale modifiers
+        this.speed = this.baseSpeed;
+        this.fireRateModifier = 1.0;
+        this.shieldRegenModifier = 1.0;
+
         this.health = stats.maxHealth;
         this.maxHealth = stats.maxHealth;
         this.shield = stats.maxShield;
         this.maxShield = stats.maxShield;
-        this.baseDamage = stats.damage;
-        this.baseFireRate = stats.fireRate;
         this.lastShot = 0;
         this.shieldRegenTimer = 0;
         this.invulnerable = false;
@@ -32,7 +41,7 @@ class Player {
         this.weaponSystem = weaponSystem || new WeaponSystem();
 
         // Morale modifiers (will be set by Game)
-        this.moraleModifiers = { damage: 1.0, speed: 1.0, description: "" };
+        this.moraleModifiers = { damage: 1.0, speed: 1.0, fireRate: 1.0, shieldRegen: 1.0, creditBonus: 1.0, description: "" };
 
         // Achievement modifiers (will be set by Game)
         this.achievementDamageMultiplier = 1.0;
@@ -62,18 +71,23 @@ class Player {
         if (autoFire) {
             const now = Date.now();
             const weapon = this.weaponSystem.getCurrentWeapon();
-            const fireRate = weapon.fireRate * (this.baseFireRate / 2); // Apply upgrade modifier
+            // Apply both upgrade and morale modifiers to fire rate
+            const fireRate = weapon.fireRate * (this.baseFireRate / 2) * this.moraleModifiers.fireRate;
             if (now - this.lastShot > 1000 / fireRate && this.weaponSystem.hasAmmo()) {
                 this.shoot(projectiles);
                 this.lastShot = now;
             }
         }
 
-        // Shield regeneration
+        // Shield regeneration (affected by morale)
         if (this.shield < this.maxShield) {
             this.shieldRegenTimer++;
-            if (this.shieldRegenTimer > formulaService.getShieldRegenDelay()) {
-                this.shield = Math.min(this.maxShield, this.shield + formulaService.getShieldRegenRate());
+            // Apply morale modifier to shield regen delay (inverse - lower is better)
+            const regenDelay = formulaService.getShieldRegenDelay() / this.moraleModifiers.shieldRegen;
+            if (this.shieldRegenTimer > regenDelay) {
+                // Apply morale modifier to regen rate
+                const regenRate = formulaService.getShieldRegenRate() * this.moraleModifiers.shieldRegen;
+                this.shield = Math.min(this.maxShield, this.shield + regenRate);
             }
         } else {
             this.shieldRegenTimer = 0;

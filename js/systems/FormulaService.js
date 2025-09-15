@@ -201,6 +201,80 @@ class FormulaService {
         };
     }
 
+    // ========== MORALE SYSTEM FORMULAS ==========
+
+    /**
+     * Get morale modifiers based on family morale state
+     * Enhanced to be more impactful on gameplay
+     * @param {string} moraleState - Current morale state (starving/worried/hopeful/grateful/proud)
+     * @returns {Object} Stat modifiers
+     */
+    getMoraleModifiers(moraleState) {
+        const modifiers = {
+            starving: {
+                damage: 0.7,      // -30% damage (was -10%)
+                speed: 0.8,       // -20% speed (was -10%)
+                fireRate: 0.8,    // -20% fire rate (NEW)
+                shieldRegen: 0.5, // -50% shield regen (NEW)
+                creditBonus: 0.8, // -20% credit earnings (NEW)
+                description: "morale_starving_desc"
+            },
+            worried: {
+                damage: 0.85,     // -15% damage (was -5%)
+                speed: 0.9,       // -10% speed (was -5%)
+                fireRate: 0.9,    // -10% fire rate (NEW)
+                shieldRegen: 0.75,// -25% shield regen (NEW)
+                creditBonus: 0.9, // -10% credit earnings (NEW)
+                description: "Concerned (-15% damage, -10% speed/fire rate, -25% shield regen, -10% credits)"
+            },
+            hopeful: {
+                damage: 1.0,
+                speed: 1.0,
+                fireRate: 1.0,
+                shieldRegen: 1.0,
+                creditBonus: 1.0,
+                description: "Determined (no bonuses or penalties)"
+            },
+            grateful: {
+                damage: 1.15,     // +15% damage (was +5%)
+                speed: 1.1,       // +10% speed (was +5%)
+                fireRate: 1.1,    // +10% fire rate (NEW)
+                shieldRegen: 1.25,// +25% shield regen (NEW)
+                creditBonus: 1.1, // +10% credit earnings (NEW)
+                description: "Motivated (+15% damage, +10% speed/fire rate, +25% shield regen, +10% credits)"
+            },
+            proud: {
+                damage: 1.3,      // +30% damage (was +10%)
+                speed: 1.2,       // +20% speed (was +10%)
+                fireRate: 1.2,    // +20% fire rate (NEW)
+                shieldRegen: 1.5, // +50% shield regen (NEW)
+                creditBonus: 1.25,// +25% credit earnings (NEW)
+                description: "Inspired (+30% damage, +20% speed/fire rate, +50% shield regen, +25% credits)"
+            }
+        };
+        return modifiers[moraleState] || modifiers.hopeful;
+    }
+
+    /**
+     * Apply morale modifiers to player stats
+     * @param {Object} baseStats - Base calculated stats
+     * @param {string} moraleState - Current morale state
+     * @returns {Object} Modified stats
+     */
+    applyMoraleToStats(baseStats, moraleState) {
+        const modifiers = this.getMoraleModifiers(moraleState);
+        return {
+            ...baseStats,
+            damage: Math.floor(baseStats.damage * modifiers.damage),
+            damageMultiplier: baseStats.damageMultiplier * modifiers.damage,
+            speed: baseStats.speed * modifiers.speed,
+            fireRate: baseStats.fireRate * modifiers.fireRate,
+            shieldRegenRate: (baseStats.shieldRegenRate || 1) * modifiers.shieldRegen,
+            creditMultiplier: (baseStats.creditMultiplier || 1) * modifiers.creditBonus,
+            moraleModifiers: modifiers
+        };
+    }
+
     // ========== UPGRADE COST FORMULAS ==========
 
     /**

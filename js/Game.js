@@ -359,11 +359,7 @@ class SpaceShooterGame {
     }
 
     startGame(fromMenu = true) {
-        this.screenManager.hideScreen('mainMenu');
-        this.screenManager.hideScreen('upgradeScreen');
-        this.screenManager.showHUD();
-
-        // Reset game state (preserve level, score, credits when continuing)
+        // If starting from menu, show upgrade screen first
         if (fromMenu) {
             this.level = 1;
             this.score = 0;
@@ -372,73 +368,15 @@ class SpaceShooterGame {
             // Save initial state for retry purposes
             this.levelStartScore = this.score;
             this.levelStartCredits = this.credits;
+
+            // Show upgrade screen instead of starting directly
+            this.screenManager.hideScreen('mainMenu');
+            this.showUpgradeScreen();
+            return; // Don't start the actual game yet
         }
 
-        this.enemiesKilled = 0;
-        this.currentWave = 1;
-        this.waveTimer = 0;
-        this.enemySpawnDelay = 180; // 3 seconds delay before enemies appear (60fps)
-
-        if (fromMenu) {
-            this.gameStartTime = Date.now();
-        }
-
-        // Clear entities
-        this.enemies = [];
-        this.hunters = [];
-        this.projectiles = [];
-        this.powerUps = [];
-        this.asteroids = [];
-        this.boss = null;
-        this.bossActive = false;
-        this.bossDefeated = false;
-        this.huntersDefeated = false;
-        this.huntersSpawned = false;  // Track if hunters were actually spawned
-        this.particleSystem.clear();
-        this.damageNumberSystem.clear();
-
-        // Spawn initial asteroids for resource collection
-        const initialAsteroids = 3 + Math.floor(this.level / 2); // 3-8 asteroids
-        for (let i = 0; i < initialAsteroids; i++) {
-            setTimeout(() => {
-                if (this.isPlaying) {
-                    this.spawnAsteroid();
-                }
-            }, i * 200); // Stagger spawning
-        }
-
-        // Create player
-        this.createPlayer();
-
-        // Reset achievement session stats for this level
-        this.sessionStats = {
-            levelStartTime: Date.now(),
-            gameStartTime: this.sessionStats?.gameStartTime || Date.now(),
-            lastSurvivalUpdate: Date.now()
-        };
-
-        // Set up game state but pause immediately
-        this.isPlaying = true;
-        this.isPaused = true;  // Start paused for dialog
-
-        // Start the game loop (will be paused)
-        this.gameLoop();
-
-        // Show intro dialog for level 1
-        if (this.level === 1 && fromMenu) {
-            setTimeout(() => {
-                // Get fresh translated intro
-                const introEvents = getTranslatedStoryEvents().intro;
-                this.dialogSystem.showSequence(introEvents, () => {
-                    this.showLevelStartDialog();
-                });
-            }, 100);
-        } else {
-            // Show level start dialog
-            setTimeout(() => {
-                this.showLevelStartDialog();
-            }, 100);
-        }
+        // This path is no longer used - all starts go through upgrade screen first
+        // The actual level start is in actuallyStartLevel()
     }
 
     showLevelStartDialog() {
@@ -464,16 +402,23 @@ class SpaceShooterGame {
 
         this.player = new Player(this.canvas, this.upgradeSystem.upgrades, this.weaponSystem);
 
-        // Apply family morale modifiers
-        const modifiers = this.familyWelfare.getStatModifiers();
+        // Apply family morale modifiers from FormulaService
+        const morale = this.familyWelfare.morale;
+        const modifiers = formulaService.getMoraleModifiers(morale);
         this.player.moraleModifiers = modifiers;
+        // Apply speed modifier
+        this.player.speed = this.player.baseSpeed * modifiers.speed;
 
         // Update family status in HUD immediately when game starts
         this.updateFamilyHUD();
     }
 
     gameLoop() {
-        if (!this.isPlaying) return;
+        if (!this.isPlaying) {
+            this.gameLoopRunning = false;
+            return;
+        }
+        this.gameLoopRunning = true;
         if (this.isPaused) {
             requestAnimationFrame(() => this.gameLoop());
             return;
@@ -578,9 +523,12 @@ class SpaceShooterGame {
     updatePlayer() {
         if (!this.player) return;
 
-        // Update morale modifiers in real-time
-        const modifiers = this.familyWelfare.getStatModifiers();
+        // Update morale modifiers in real-time from FormulaService
+        const morale = this.familyWelfare.morale;
+        const modifiers = formulaService.getMoraleModifiers(morale);
         this.player.moraleModifiers = modifiers;
+        // Apply speed modifier dynamically
+        this.player.speed = this.player.baseSpeed * modifiers.speed;
 
         // Process keyboard input
         this.inputController.processPlayerInput(
@@ -862,7 +810,9 @@ class SpaceShooterGame {
         // Rewards with level multipliers and gold rush
         const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         this.score += Math.floor(enemy.value * levelConfig.scoreMultiplier);
-        const creditsEarned = Math.floor(enemy.value / 2 * levelConfig.creditMultiplier * goldRushMultiplier);
+        // Apply morale bonus to credits
+        const moraleBonus = this.player?.moraleModifiers?.creditBonus || 1.0;
+        const creditsEarned = Math.floor(enemy.value / 2 * levelConfig.creditMultiplier * goldRushMultiplier * moraleBonus);
         this.credits += creditsEarned;
         this.enemiesKilled++;
 
@@ -894,7 +844,9 @@ class SpaceShooterGame {
         // Better rewards for hunters
         const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         this.score += hunter.value * 2; // Double score for hunters
-        const creditsEarned = Math.floor(hunter.value * goldRushMultiplier);
+        // Apply morale bonus to credits
+        const moraleBonus = this.player?.moraleModifiers?.creditBonus || 1.0;
+        const creditsEarned = Math.floor(hunter.value * goldRushMultiplier * moraleBonus);
         this.credits += creditsEarned;
 
         // Show reward notification
@@ -937,7 +889,9 @@ class SpaceShooterGame {
         // Rewards with gold rush - asteroid value already includes type multiplier
         const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         this.score += asteroid.value;
-        const creditsEarned = Math.floor(asteroid.value * goldRushMultiplier);
+        // Apply morale bonus to credits
+        const moraleBonus = this.player?.moraleModifiers?.creditBonus || 1.0;
+        const creditsEarned = Math.floor(asteroid.value * goldRushMultiplier * moraleBonus);
         this.credits += creditsEarned;
 
         // Show special notification for valuable asteroids
@@ -1001,7 +955,9 @@ class SpaceShooterGame {
         // Get rewards with gold rush
         const goldRushMultiplier = this.upgradeSystem.getPlayerStats().creditMultiplier || 1.0;
         const rewards = this.boss.getDefeatRewards();
-        const creditsEarned = Math.floor(rewards.credits * goldRushMultiplier);
+        // Apply morale bonus to credits
+        const moraleBonus = this.player?.moraleModifiers?.creditBonus || 1.0;
+        const creditsEarned = Math.floor(rewards.credits * goldRushMultiplier * moraleBonus);
         this.credits += creditsEarned;
         this.score += rewards.score;
 
@@ -1173,8 +1129,6 @@ class SpaceShooterGame {
             // Refill all weapon ammo when entering Space Hub
             this.weaponSystem.refillAllAmmo();
 
-            // Show ammo refill notification
-            this.showAmmoRefillNotification();
         }
 
         // Always update family UI
@@ -1191,6 +1145,17 @@ class SpaceShooterGame {
 
     updateFamilyUI() {
         const status = this.familyWelfare.getStatus();
+
+        // Calculate morale percentage (0-100% based on 5 levels)
+        const moralePercentages = {
+            'starving': 0,
+            'worried': 25,
+            'hopeful': 50,
+            'grateful': 75,
+            'proud': 100
+        };
+        const moralePercent = moralePercentages[status.morale] || 50;
+
         const moraleLevels = {
             'starving': { text: languageSystem.t('Desperate') + ' 😰', color: '#ff3333' },
             'worried': { text: languageSystem.t('Worried') + ' 😟', color: '#ff9933' },
@@ -1203,14 +1168,28 @@ class SpaceShooterGame {
 
         const moraleEl = document.getElementById('familyMorale');
         if (moraleEl) {
-            moraleEl.textContent = moraleInfo.text;
+            moraleEl.innerHTML = `${moraleInfo.text}<br><span style="font-size: 12px; color: #aaa;">(${moralePercent}%)</span>`;
             moraleEl.style.color = moraleInfo.color;
         }
 
         const hungerEl = document.getElementById('familyHunger');
         if (hungerEl) {
-            hungerEl.textContent = status.hungerStatus;
+            const hungerPercent = Math.round(status.hunger);
+            let hungerText = status.hungerStatus;
+            // Add warning indicators for low hunger
+            if (status.hunger < 30) {
+                hungerText = '⚠️ ' + status.hungerStatus + ' ⚠️';
+            } else if (status.hunger < 50) {
+                hungerText = '⚠ ' + status.hungerStatus;
+            }
+            hungerEl.innerHTML = `${hungerText}<br><span style="font-size: 12px; color: #aaa;">(${hungerPercent}%)</span>`;
             hungerEl.style.color = status.hunger < 30 ? '#ff3333' : status.hunger < 50 ? '#ff9933' : '#66ff66';
+            // Add pulsing animation for critical hunger
+            if (status.hunger < 30) {
+                hungerEl.style.animation = 'pulse 1s infinite';
+            } else {
+                hungerEl.style.animation = 'none';
+            }
         }
 
         const debtEl = document.getElementById('familyDebt');
@@ -1230,6 +1209,11 @@ class SpaceShooterGame {
     }
 
     sendMoneyHome() {
+        // Check if dialog already exists
+        if (document.getElementById('sendMoneyDialog')) {
+            return; // Dialog already open
+        }
+
         // Create dialog for sending money
         const amounts = [100, 200, 500, 1000, 'All'];
         const buttonsHTML = amounts.map(amount => {
@@ -1250,18 +1234,47 @@ class SpaceShooterGame {
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,20,0.95);
+            background: linear-gradient(135deg, rgba(0,50,100,0.98), rgba(0,20,50,0.98));
             border: 2px solid #00ffff;
             border-radius: 10px;
             padding: 30px;
+            padding-top: 40px;
             z-index: 10001;
             text-align: center;
+            box-shadow: 0 0 30px rgba(0,255,255,0.5);
+            min-width: 400px;
         `;
+
+        // Close button (X)
+        const closeButton = `
+            <button onclick="game.cancelSendMoney()" style="
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: rgba(255,100,100,0.3);
+                border: 1px solid #ff6666;
+                color: #ff6666;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 18px;
+                font-weight: bold;
+                transition: all 0.3s;
+            " onmouseover="this.style.background='#ff6666'; this.style.color='#000';"
+               onmouseout="this.style.background='rgba(255,100,100,0.3)'; this.style.color='#ff6666';">
+                ✕
+            </button>
+        `;
+
         dialog.innerHTML = `
-            <h3 style="color: #00ffff; margin-bottom: 20px;">${languageSystem.t('Send Money to Family')}</h3>
-            <p style="color: #fff; margin-bottom: 20px;">${languageSystem.t('You have')} ${this.credits} ${languageSystem.t('credits')}</p>
-            <div>${buttonsHTML}</div>
-            <button class="menu-button" style="margin-top: 20px; background: #ff6666;" onclick="game.cancelSendMoney()">${languageSystem.t('Cancel')}</button>
+            ${closeButton}
+            <h3 style="color: #00ffff; margin-bottom: 20px; text-shadow: 0 0 10px #00ffff;">💰 ${languageSystem.t('Send Money to Family')}</h3>
+            <p style="color: #fff; margin-bottom: 20px;">${languageSystem.t('You have')} <span style="color: #FFD700; font-weight: bold;">${this.credits}</span> ${languageSystem.t('credits')}</p>
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                ${buttonsHTML}
+            </div>
+            <p style="color: #aaa; font-size: 12px; margin-top: 15px;">${languageSystem.t('Your family needs your support!')}</p>
         `;
         dialog.id = 'sendMoneyDialog';
         document.body.appendChild(dialog);
@@ -1282,13 +1295,40 @@ class SpaceShooterGame {
         if (result) {
             let message = result.message;
             if (result.debtPayment > 0) {
-                message += ` (${result.debtPayment} credits applied to medical debt)`;
+                message += ` (${result.debtPayment} ${languageSystem.t('credits applied to medical debt')})`;
             }
             this.dialogSystem.showQuickMessage(message);
         }
 
-        // Close dialog
-        this.cancelSendMoney();
+        // Update dialog with new credit amount instead of closing
+        const dialog = document.getElementById('sendMoneyDialog');
+        if (dialog) {
+            // Update the credit display in the dialog
+            const creditSpan = dialog.querySelector('span[style*="color: #FFD700"]');
+            if (creditSpan) {
+                creditSpan.textContent = this.credits;
+            }
+
+            // Update button states
+            const buttons = dialog.querySelectorAll('button[onclick*="confirmSendMoney"]');
+            buttons.forEach(button => {
+                const match = button.onclick.toString().match(/confirmSendMoney\((\d+)\)/);
+                if (match) {
+                    const buttonAmount = parseInt(match[1]);
+                    const disabled = this.credits < buttonAmount;
+                    button.disabled = disabled;
+                    button.style.opacity = disabled ? '0.5' : '1';
+                    button.style.cursor = disabled ? 'not-allowed' : 'pointer';
+                }
+            });
+
+            // Update the "All" button
+            const allButton = Array.from(buttons).find(b => b.textContent.includes(languageSystem.t('All')));
+            if (allButton) {
+                allButton.textContent = `${languageSystem.t('All')} (${this.credits} ${languageSystem.t('credits')})`;
+                allButton.onclick = () => game.confirmSendMoney(this.credits);
+            }
+        }
 
         // Refresh upgrade screen to update button states
         this.isRefreshingUpgradeScreen = true;
@@ -1303,27 +1343,6 @@ class SpaceShooterGame {
         }
     }
 
-    showAmmoRefillNotification() {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 100, 200, 0.9);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 20px;
-            z-index: 1000;
-            text-align: center;
-            border: 2px solid #00aaff;
-            box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
-        `;
-        notification.innerHTML = '🔫 ' + languageSystem.t('All weapons refilled!') + ' 🔫';
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 2000);
-    }
 
     purchaseUpgrade(type) {
         const cost = this.upgradeSystem.purchase(type, this.credits);
@@ -1355,7 +1374,84 @@ class SpaceShooterGame {
         if (this.level > 10) {
             this.victory();
         } else {
-            this.startGame(false); // false = not from menu, preserve state
+            this.actuallyStartLevel(); // Start the level after upgrades
+        }
+    }
+
+    actuallyStartLevel() {
+        // This is the actual level start after upgrades
+        this.screenManager.hideScreen('upgradeScreen');
+        this.screenManager.showHUD();
+
+        // Initialize timing for level 1
+        if (this.level === 1 && !this.gameStartTime) {
+            this.gameStartTime = Date.now();
+        }
+
+        // Initialize level state
+        this.enemiesKilled = 0;
+        this.currentWave = 1;
+        this.waveTimer = 0;
+        this.enemySpawnDelay = 180; // 3 seconds delay before enemies appear (60fps)
+
+        // Clear entities
+        this.enemies = [];
+        this.hunters = [];
+        this.projectiles = [];
+        this.powerUps = [];
+        this.asteroids = [];
+        this.boss = null;
+        this.bossActive = false;
+        this.bossDefeated = false;
+        this.huntersDefeated = false;
+        this.huntersSpawned = false;  // Track if hunters were actually spawned
+        this.particleSystem.clear();
+        this.damageNumberSystem.clear();
+
+        // Spawn initial asteroids for resource collection
+        const initialAsteroids = 3 + Math.floor(this.level / 2); // 3-8 asteroids
+        for (let i = 0; i < initialAsteroids; i++) {
+            setTimeout(() => {
+                if (this.isPlaying) {
+                    this.spawnAsteroid();
+                }
+            }, i * 200); // Stagger spawning
+        }
+
+        // Create player
+        this.createPlayer();
+
+        // Reset achievement session stats for this level
+        this.sessionStats = {
+            levelStartTime: Date.now(),
+            gameStartTime: this.sessionStats?.gameStartTime || Date.now(),
+            lastSurvivalUpdate: Date.now()
+        };
+
+        // Set up game state but pause immediately
+        this.isPlaying = true;
+        this.isPaused = true;  // Start paused for dialog
+
+        // Start the game loop (will be paused)
+        if (!this.gameLoopRunning) {
+            this.gameLoop();
+        }
+
+        // Show intro dialog for level 1
+        if (this.level === 1 && !this.hasShownIntro) {
+            this.hasShownIntro = true;
+            setTimeout(() => {
+                // Get fresh translated intro
+                const introEvents = getTranslatedStoryEvents().intro;
+                this.dialogSystem.showSequence(introEvents, () => {
+                    this.showLevelStartDialog();
+                });
+            }, 100);
+        } else {
+            // Show level start dialog
+            setTimeout(() => {
+                this.showLevelStartDialog();
+            }, 100);
         }
     }
 
@@ -1436,7 +1532,8 @@ class SpaceShooterGame {
         // Don't reset upgrades - player keeps them for retry
         // this.upgradeSystem.reset(); // Removed to keep upgrades
 
-        this.startGame(true); // true = from menu (resets entities), but level/score/credits are preserved above
+        // Show upgrade screen first, like a new level
+        this.showUpgradeScreen();
     }
 
     updateHUD() {
@@ -1802,7 +1899,8 @@ class SpaceShooterGame {
     continueGame() {
         if (this.loadProgress()) {
             this.screenManager.hideScreen('mainMenu');
-            this.startGame(false); // Start game preserving loaded state
+            // Show upgrade screen first when loading a saved game
+            this.showUpgradeScreen();
         }
     }
 }
