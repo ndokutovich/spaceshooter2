@@ -112,59 +112,8 @@ class PiercingProjectile extends Projectile {
     }
 }
 
-/**
- * Flame Projectile - Used by Flamethrower bosses
- */
-class FlameProjectile extends Projectile {
-    constructor(x, y, vx, vy, damage, isPlayer, color, width, height) {
-        super(x, y, vx, vy, damage, isPlayer, color, width, height);
-        this.lifetime = 30;
-        this.age = 0;
-        this.burnDamage = 2;
-        this.burnDuration = 60;
-    }
-
-    update(canvas) {
-        this.age++;
-        // Flames spread out as they travel
-        this.vx *= 0.98;
-        this.vy *= 0.98;
-        this.vx += (Math.random() - 0.5) * 0.5;
-        this.vy += (Math.random() - 0.5) * 0.5;
-
-        // Flames dissipate after lifetime
-        if (this.age > this.lifetime) {
-            return true;
-        }
-
-        return super.update(canvas);
-    }
-
-    draw(ctx) {
-        const alpha = 1 - (this.age / this.lifetime);
-
-        // Draw flame particle
-        ctx.save();
-        ctx.globalAlpha = alpha;
-
-        // Outer glow
-        const gradient = ctx.createRadialGradient(
-            this.x, this.y, 0,
-            this.x, this.y, this.width
-        );
-        gradient.addColorStop(0, 'rgba(255, 255, 100, 0.8)');
-        gradient.addColorStop(0.3, 'rgba(255, 150, 0, 0.6)');
-        gradient.addColorStop(0.6, 'rgba(255, 50, 0, 0.4)');
-        gradient.addColorStop(1, 'rgba(255, 0, 0, 0)');
-
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.width * (1 + this.age * 0.05), 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
-    }
-}
+// FlameProjectile removed - using default projectile for Flamethrower
+// The special flame animation was removed as requested
 
 /**
  * BFG Projectile - Used by BFG 9000 bosses

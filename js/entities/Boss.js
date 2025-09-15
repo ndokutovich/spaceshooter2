@@ -236,7 +236,7 @@ class Boss {
         const angle = Math.atan2(player.y - this.y, player.x - this.x);
         // Stream of fire projectiles
         for (let i = -1; i <= 1; i++) {
-            projectiles.push(new FlameProjectile(
+            projectiles.push(new Projectile(
                 this.x,
                 this.y + this.height / 2,
                 Math.cos(angle + i * 0.2) * 7,

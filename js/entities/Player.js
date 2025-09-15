@@ -96,17 +96,99 @@ class Player {
         // Apply damage upgrade modifier, morale modifier, AND achievement modifier
         weaponProjectiles.forEach(proj => {
             proj.damage = Math.floor(proj.damage * formulaService.calculateWeaponDamageMultiplier(this.baseDamage) * this.moraleModifiers.damage * this.achievementDamageMultiplier);
-            projectiles.push(new Projectile(
-                proj.x,
-                proj.y,
-                proj.vx,
-                proj.vy,
-                proj.damage,
-                proj.isPlayer,
-                proj.color,
-                proj.width,
-                proj.height
-            ));
+
+            // Create special projectile types for special weapons
+            let projectile;
+            if (proj.weaponType === 'BFG 9000') {
+                projectile = new BFGProjectile(
+                    proj.x,
+                    proj.y,
+                    proj.vx,
+                    proj.vy,
+                    proj.damage,
+                    proj.isPlayer,
+                    proj.color,
+                    proj.width,
+                    proj.height
+                );
+            } else if (proj.weaponType === 'Quantum Disruptor') {
+                projectile = new QuantumProjectile(
+                    proj.x,
+                    proj.y,
+                    proj.vx,
+                    proj.vy,
+                    proj.damage,
+                    proj.isPlayer,
+                    proj.color,
+                    proj.width,
+                    proj.height
+                );
+            } else if (proj.weaponType === 'Lightning Gun' && proj.chain) {
+                projectile = new ChainLightningProjectile(
+                    proj.x,
+                    proj.y,
+                    proj.vx,
+                    proj.vy,
+                    proj.damage,
+                    proj.isPlayer,
+                    proj.color,
+                    proj.width,
+                    proj.height
+                );
+            } else if (proj.weaponType === 'Missile Launcher' && proj.explosive) {
+                projectile = new ExplosiveProjectile(
+                    proj.x,
+                    proj.y,
+                    proj.vx,
+                    proj.vy,
+                    proj.damage,
+                    proj.isPlayer,
+                    proj.color,
+                    proj.width,
+                    proj.height
+                );
+            } else if ((proj.weaponType === 'Quantum Rifle' || proj.weaponType === 'Lightning Gun') && proj.piercing) {
+                projectile = new PiercingProjectile(
+                    proj.x,
+                    proj.y,
+                    proj.vx,
+                    proj.vy,
+                    proj.damage,
+                    proj.isPlayer,
+                    proj.color,
+                    proj.width,
+                    proj.height
+                );
+            } else {
+                // Default projectile for other weapons
+                projectile = new Projectile(
+                    proj.x,
+                    proj.y,
+                    proj.vx,
+                    proj.vy,
+                    proj.damage,
+                    proj.isPlayer,
+                    proj.color,
+                    proj.width,
+                    proj.height
+                );
+            }
+
+            // Copy over special properties if they exist
+            if (proj.explosive) projectile.explosive = proj.explosive;
+            if (proj.explosionRadius) projectile.explosionRadius = proj.explosionRadius;
+            if (proj.piercing) projectile.piercing = proj.piercing;
+            if (proj.chain) projectile.chain = proj.chain;
+            if (proj.chainRange) projectile.chainRange = proj.chainRange;
+            if (proj.burn) projectile.burn = proj.burn;
+            if (proj.burnDamage) projectile.burnDamage = proj.burnDamage;
+            if (proj.burnDuration) projectile.burnDuration = proj.burnDuration;
+            if (proj.quantum) projectile.quantum = proj.quantum;
+            if (proj.timeSlowRadius) projectile.timeSlowRadius = proj.timeSlowRadius;
+            if (proj.timeSlowDuration) projectile.timeSlowDuration = proj.timeSlowDuration;
+            if (proj.tracers) projectile.tracers = proj.tracers;
+
+            projectiles.push(projectile);
         });
     }
 
