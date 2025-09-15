@@ -12,13 +12,14 @@ class FormulaService {
             PLAYER_BASE_DAMAGE: 10,
             PLAYER_BASE_FIRE_RATE: 2,
             PLAYER_BASE_SPEED: 5,
+            PLAYER_BASE_CRIT_CHANCE: 0.05, // 5% base crit chance
 
             // Upgrade increments per level
             HEALTH_PER_LEVEL: 40,
             SHIELD_PER_LEVEL: 15,
             DAMAGE_PER_LEVEL: 5,
             FIRE_RATE_PER_LEVEL: 0.5,
-            SPEED_PER_LEVEL: 0.5,
+            CRIT_CHANCE_PER_LEVEL: 0.05, // 5% per level
             AMMO_MULTIPLIER_PER_LEVEL: 0.2, // 20% per level
 
             // Upgrade costs
@@ -26,7 +27,7 @@ class FormulaService {
                 maxHealth: 100,
                 damage: 150,
                 fireRate: 120,
-                speed: 80,
+                critChance: 80,
                 shield: 200,
                 ammoCrate: 100,
                 goldRush: 300,
@@ -36,7 +37,7 @@ class FormulaService {
                 maxHealth: 1.5,
                 damage: 1.5,
                 fireRate: 1.4,
-                speed: 1.3,
+                critChance: 1.3,
                 shield: 1.6,
                 ammoCrate: 1.4,
                 goldRush: 2.0,
@@ -146,13 +147,42 @@ class FormulaService {
     }
 
     /**
-     * Calculate player's movement speed
-     * @param {number} upgradeLevel - Speed upgrade level (0-10)
-     * @returns {number} Movement speed units
+     * Calculate player's critical hit chance
+     * @param {number} upgradeLevel - Crit chance upgrade level (0-10)
+     * @param {number} achievementBonus - Bonus from achievements (0-1)
+     * @returns {number} Critical hit chance (0-1)
      */
-    calculatePlayerSpeed(upgradeLevel) {
-        return this.BASE_VALUES.PLAYER_BASE_SPEED +
-               (upgradeLevel * this.BASE_VALUES.SPEED_PER_LEVEL);
+    calculateCritChance(upgradeLevel, achievementBonus = 0) {
+        const baseCrit = this.BASE_VALUES.PLAYER_BASE_CRIT_CHANCE +
+                        (upgradeLevel * this.BASE_VALUES.CRIT_CHANCE_PER_LEVEL);
+        return Math.min(1, baseCrit + achievementBonus); // Cap at 100%
+    }
+
+    /**
+     * Calculate player's movement speed (fixed, not upgradeable)
+     * @returns {number} Movement speed
+     */
+    calculatePlayerSpeed() {
+        return this.BASE_VALUES.PLAYER_BASE_SPEED;
+    }
+
+    /**
+     * Check if a hit is critical and calculate damage
+     * @param {number} baseDamage - Base projectile damage
+     * @param {number} critChance - Critical hit chance (0-1)
+     * @param {boolean} isBoss - Whether hitting a boss (reduces crit chance)
+     * @returns {Object} { isCritical: boolean, damage: number }
+     */
+    calculateCriticalHit(baseDamage, critChance, isBoss = false) {
+        // Bosses have reduced crit chance
+        const effectiveCritChance = isBoss ? critChance * 0.5 : critChance;
+        const isCritical = Math.random() < effectiveCritChance;
+        const damage = isCritical ? baseDamage * 2 : baseDamage;
+
+        return {
+            isCritical,
+            damage
+        };
     }
 
     /**
@@ -187,14 +217,15 @@ class FormulaService {
      * @param {Object} upgradeLevels - Object with all upgrade levels
      * @returns {Object} All calculated player stats
      */
-    calculateAllPlayerStats(upgradeLevels) {
+    calculateAllPlayerStats(upgradeLevels, achievementBonuses = {}) {
         return {
             maxHealth: this.calculatePlayerMaxHealth(upgradeLevels.maxHealth || 0),
             maxShield: this.calculatePlayerMaxShield(upgradeLevels.shield || 0),
             damage: this.calculatePlayerDamage(upgradeLevels.damage || 0),
             damageMultiplier: this.calculatePlayerDamageMultiplier(upgradeLevels.damage || 0),
             fireRate: this.calculatePlayerFireRate(upgradeLevels.fireRate || 0),
-            speed: this.calculatePlayerSpeed(upgradeLevels.speed || 0),
+            speed: this.calculatePlayerSpeed(),
+            critChance: this.calculateCritChance(upgradeLevels.critChance || 0, achievementBonuses.critChance || 0),
             ammoMultiplier: this.calculateAmmoMultiplier(upgradeLevels.ammoCrate || 0),
             creditMultiplier: this.calculateCreditMultiplier(upgradeLevels.goldRush || 0),
             passiveIncomeRate: this.calculatePassiveIncomeRate(upgradeLevels.investment || 0)

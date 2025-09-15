@@ -541,6 +541,10 @@ class AchievementSystem {
     }
 
     // Get cumulative bonuses from achievements
+    getTotalBonuses() {
+        return this.getCumulativeBonuses();
+    }
+
     getCumulativeBonuses() {
         const bonuses = {
             damageBonus: 0,

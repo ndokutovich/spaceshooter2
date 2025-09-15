@@ -394,7 +394,8 @@ class SpaceShooterGame {
 
     createPlayer() {
         // Update weapon system with ammo multiplier
-        const stats = this.upgradeSystem.getPlayerStats();
+        const achievementBonuses = this.achievementSystem.getTotalBonuses();
+        const stats = this.upgradeSystem.getPlayerStats(achievementBonuses);
         this.weaponSystem.updateAmmoMultiplier(stats.ammoMultiplier);
 
         // Reset to default weapon (Pulse Laser) for each new level
@@ -419,7 +420,18 @@ class SpaceShooterGame {
             return;
         }
         this.gameLoopRunning = true;
+
+        // Render background even when paused (for dialog scenes)
         if (this.isPaused) {
+            // Clear canvas
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+            // Still update and draw starfield for visual continuity
+            this.starfield.update();
+            this.starfield.draw(this.ctx);
+
+            // Continue loop
             requestAnimationFrame(() => this.gameLoop());
             return;
         }
@@ -1034,6 +1046,10 @@ class SpaceShooterGame {
     }
 
     showWeaponUnlock(weapon) {
+        // Track weapon unlock for achievements
+        const unlockedCount = this.weaponSystem.unlockedWeapons.filter(unlocked => unlocked).length;
+        this.achievementSystem.updateStat('weaponsUnlocked', unlockedCount, false);
+
         const notification = document.createElement('div');
         notification.style.cssText = `
             position: fixed;
@@ -1072,7 +1088,8 @@ class SpaceShooterGame {
 
         // Track level completion for achievements
         const levelTime = (Date.now() - this.sessionStats.levelStartTime) / 1000;
-        const familyHappy = this.familyWelfare.getStatus().morale >= 50;
+        const familyMorale = this.familyWelfare.getStatus().morale;
+        const familyHappy = familyMorale === 'hopeful' || familyMorale === 'grateful' || familyMorale === 'proud';
         this.achievementSystem.trackLevelComplete(this.level, levelTime, familyHappy);
         this.achievementSystem.updateStat('highestLevel', this.level + 1, false);
 
@@ -1656,7 +1673,8 @@ class SpaceShooterGame {
             };
 
             // Get player stats
-            const playerStats = this.upgradeSystem.getPlayerStats();
+            const achievementBonuses = this.achievementSystem.getTotalBonuses();
+            const playerStats = this.upgradeSystem.getPlayerStats(achievementBonuses);
 
             // Get upgrade levels
             const upgrades = this.upgradeSystem.upgrades;
@@ -1666,7 +1684,11 @@ class SpaceShooterGame {
             const unlockedWeapons = this.weaponSystem ? this.weaponSystem.unlockedWeapons : [];
             const currentWeaponIndex = this.weaponSystem ? this.weaponSystem.currentWeaponIndex : 0;
 
-            this.screenManager.showPauseMenu(gameStats, playerStats, upgrades, weapons, unlockedWeapons, currentWeaponIndex);
+            // Get family stats
+            const familyStatus = this.familyWelfare.getStatus();
+            const moraleModifiers = formulaService.getMoraleModifiers(familyStatus.morale);
+
+            this.screenManager.showPauseMenu(gameStats, playerStats, upgrades, weapons, unlockedWeapons, currentWeaponIndex, familyStatus, moraleModifiers);
         } else {
             // Resume the game
             this.resumeGame();
@@ -1789,7 +1811,10 @@ class SpaceShooterGame {
         const pauseMenu = document.getElementById('pauseMenu');
         if (pauseMenu && pauseMenu.classList.contains('active')) {
             // Refresh pause menu with current translations
-            const stats = this.upgradeSystem.getPlayerStats();
+            const achievementBonuses = this.achievementSystem.getTotalBonuses();
+            const stats = this.upgradeSystem.getPlayerStats(achievementBonuses);
+            const familyStatus = this.familyWelfare.getStatus();
+            const moraleModifiers = formulaService.getMoraleModifiers(familyStatus.morale);
             this.screenManager.showPauseMenu(
                 {
                     level: this.level,
@@ -1801,7 +1826,9 @@ class SpaceShooterGame {
                 this.upgradeSystem.upgrades,
                 this.weaponSystem.weapons,
                 this.weaponSystem.unlockedWeapons,
-                this.weaponSystem.currentWeaponIndex
+                this.weaponSystem.currentWeaponIndex,
+                familyStatus,
+                moraleModifiers
             );
         }
     }
@@ -1864,13 +1891,9 @@ class SpaceShooterGame {
             this.score = saveData.score || 0;
             this.credits = saveData.credits || 500;
 
-            // Restore upgrades
+            // Restore upgrades (handles migration from speed to critChance)
             if (saveData.upgrades) {
-                Object.keys(saveData.upgrades).forEach(key => {
-                    if (this.upgradeSystem.upgrades[key]) {
-                        this.upgradeSystem.upgrades[key].level = saveData.upgrades[key].level || 0;
-                    }
-                });
+                this.upgradeSystem.loadState(saveData.upgrades);
             }
 
             // Restore weapon state

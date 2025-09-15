@@ -256,7 +256,7 @@ class ScreenManager {
         if (pauseBtn) pauseBtn.style.display = 'none';
     }
 
-    showPauseMenu(gameStats, playerStats, upgrades, weapons = [], unlockedWeapons = [], currentWeaponIndex = 0) {
+    showPauseMenu(gameStats, playerStats, upgrades, weapons = [], unlockedWeapons = [], currentWeaponIndex = 0, familyStatus = null, moraleModifiers = null) {
         this.showScreen('pauseMenu');
 
         // Game progress stats
@@ -285,11 +285,86 @@ class ScreenManager {
         const fireRateEl = document.getElementById('pauseFireRate');
         if (fireRateEl) fireRateEl.textContent = playerStats.fireRate.toFixed(1) + '/' + languageSystem.t('s');
 
-        const speedEl = document.getElementById('pauseSpeed');
-        if (speedEl) speedEl.textContent = playerStats.speed.toFixed(1);
+        const critEl = document.getElementById('pauseCritChance');
+        if (critEl) critEl.textContent = Math.round((playerStats.critChance || 0.05) * 100) + '%';
 
         const ammoCapEl = document.getElementById('pauseAmmoCapacity');
         if (ammoCapEl) ammoCapEl.textContent = Math.round(playerStats.ammoMultiplier * 100) + languageSystem.t('%');
+
+        // Family stats (NEW)
+        if (familyStatus && moraleModifiers) {
+            // Morale progress
+            const moraleEl = document.getElementById('pauseFamilyMorale');
+            if (moraleEl) {
+                const moralePercentages = {
+                    'starving': 0,
+                    'worried': 25,
+                    'hopeful': 50,
+                    'grateful': 75,
+                    'proud': 100
+                };
+                const moralePercent = moralePercentages[familyStatus.morale] || 50;
+                const moraleText = `${familyStatus.moraleEmoji} ${moralePercent}%`;
+                moraleEl.textContent = moraleText;
+                moraleEl.style.color = familyStatus.morale === 'starving' ? '#ff3333' :
+                                       familyStatus.morale === 'worried' ? '#ff9933' :
+                                       familyStatus.morale === 'hopeful' ? '#ffff66' :
+                                       familyStatus.morale === 'grateful' ? '#66ff66' : '#66ffff';
+            }
+
+            // Hunger status
+            const hungerEl = document.getElementById('pauseFamilyHunger');
+            if (hungerEl) {
+                const hungerPercent = Math.round(familyStatus.hunger);
+                hungerEl.textContent = `${familyStatus.hungerStatus} (${hungerPercent}%)`;
+                hungerEl.style.color = familyStatus.hunger < 30 ? '#ff3333' :
+                                       familyStatus.hunger < 50 ? '#ff9933' : '#66ff66';
+            }
+
+            // Morale effects on stats
+            const effectsEl = document.getElementById('pauseMoraleEffects');
+            if (effectsEl) {
+                const effects = [];
+
+                // Damage modifier
+                const damageMod = Math.round((moraleModifiers.damage - 1) * 100);
+                if (damageMod !== 0) {
+                    effects.push(`${languageSystem.t('Damage')}: ${damageMod > 0 ? '+' : ''}${damageMod}%`);
+                }
+
+                // Speed modifier
+                const speedMod = Math.round((moraleModifiers.speed - 1) * 100);
+                if (speedMod !== 0) {
+                    effects.push(`${languageSystem.t('Speed')}: ${speedMod > 0 ? '+' : ''}${speedMod}%`);
+                }
+
+                // Fire rate modifier
+                const fireRateMod = Math.round((moraleModifiers.fireRate - 1) * 100);
+                if (fireRateMod !== 0) {
+                    effects.push(`${languageSystem.t('Fire Rate')}: ${fireRateMod > 0 ? '+' : ''}${fireRateMod}%`);
+                }
+
+                // Shield regen modifier
+                const shieldMod = Math.round((moraleModifiers.shieldRegen - 1) * 100);
+                if (shieldMod !== 0) {
+                    effects.push(`${languageSystem.t('Shield Regen')}: ${shieldMod > 0 ? '+' : ''}${shieldMod}%`);
+                }
+
+                // Credit bonus
+                const creditMod = Math.round((moraleModifiers.creditBonus - 1) * 100);
+                if (creditMod !== 0) {
+                    effects.push(`${languageSystem.t('Credits')}: ${creditMod > 0 ? '+' : ''}${creditMod}%`);
+                }
+
+                if (effects.length > 0) {
+                    effectsEl.innerHTML = effects.join('<br>');
+                    effectsEl.style.color = familyStatus.morale === 'starving' || familyStatus.morale === 'worried' ? '#ff9999' : '#99ff99';
+                } else {
+                    effectsEl.textContent = languageSystem.t('No effects');
+                    effectsEl.style.color = '#999999';
+                }
+            }
+        }
 
         // Upgrade levels
         const healthLevelEl = document.getElementById('pauseHealthLevel');
@@ -301,8 +376,12 @@ class ScreenManager {
         const fireRateLevelEl = document.getElementById('pauseFireRateLevel');
         if (fireRateLevelEl) fireRateLevelEl.textContent = `${upgrades.fireRate.level}/${upgrades.fireRate.maxLevel}`;
 
-        const speedLevelEl = document.getElementById('pauseSpeedLevel');
-        if (speedLevelEl) speedLevelEl.textContent = `${upgrades.speed.level}/${upgrades.speed.maxLevel}`;
+        const critLevelEl = document.getElementById('pauseCritLevel');
+        if (critLevelEl) {
+            // Handle old saves that might have 'speed' instead of 'critChance'
+            const critUpgrade = upgrades.critChance || upgrades.speed || { level: 0, maxLevel: 10 };
+            critLevelEl.textContent = `${critUpgrade.level}/${critUpgrade.maxLevel}`;
+        }
 
         const shieldLevelEl = document.getElementById('pauseShieldLevel');
         if (shieldLevelEl) shieldLevelEl.textContent = `${upgrades.shield.level}/${upgrades.shield.maxLevel}`;

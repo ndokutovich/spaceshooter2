@@ -97,16 +97,29 @@ class CollisionSystem {
                             game.achievementSystem.updateStat('maxHitStreak', this.consecutiveHits);
                         }
 
-                        enemy.health -= projectile.damage;
+                        // Calculate critical hit using FormulaService
+                        const playerStats = game.upgradeSystem.getPlayerStats(game.achievementSystem.getTotalBonuses());
+                        const critResult = formulaService.calculateCriticalHit(
+                            projectile.damage,
+                            playerStats.critChance || 0.1,
+                            false // not a boss
+                        );
+
+                        enemy.health -= critResult.damage;
                         projectilesToRemove.push(pIndex);
+
+                        // Track critical hits for achievements
+                        if (critResult.isCritical && game.achievementSystem) {
+                            game.achievementSystem.updateStat('criticalHits', 1, true);
+                        }
 
                         // Create damage number
                         if (game.damageNumberSystem) {
                             game.damageNumberSystem.createDamageNumber(
                                 enemy.x,
                                 enemy.y - enemy.height/2,
-                                projectile.damage,
-                                false, // not critical
+                                critResult.damage,
+                                critResult.isCritical,
                                 true   // is player damage
                             );
                         }
@@ -143,27 +156,33 @@ class CollisionSystem {
                             }
                             this.lastHitTime = now;
 
+                            // Calculate critical hit for hunter using FormulaService
+                            const playerStats = game.upgradeSystem.getPlayerStats(game.achievementSystem.getTotalBonuses());
+                            const critResult = formulaService.calculateCriticalHit(
+                                projectile.damage,
+                                playerStats.critChance || 0.1,
+                                false // not a boss
+                            );
+
+                            hunter.health -= critResult.damage;
+
+                            // Track critical hits for achievements
+                            if (critResult.isCritical && game.achievementSystem) {
+                                game.achievementSystem.updateStat('criticalHits', 1, true);
+                            }
+
+                            // Track hit streak achievements
+                            if (game.achievementSystem) {
+                                game.achievementSystem.updateStat('maxHitStreak', this.consecutiveHits);
+                            }
+
                             // Create damage number for hunter
                             if (game.damageNumberSystem) {
-                                const isCritical = Math.random() < 0.1; // 10% crit chance
-                                const damage = isCritical ? projectile.damage * 2 : projectile.damage;
-                                hunter.health -= (isCritical ? projectile.damage : 0); // Apply extra crit damage
-
-                                // Track critical hits for achievements
-                                if (isCritical && game.achievementSystem) {
-                                    game.achievementSystem.updateStat('criticalHitsLanded', 1);
-                                }
-
-                                // Track hit streak achievements
-                                if (game.achievementSystem) {
-                                    game.achievementSystem.updateStat('maxHitStreak', this.consecutiveHits);
-                                }
-
                                 game.damageNumberSystem.createDamageNumber(
                                     hunter.x,
                                     hunter.y - hunter.height/2,
-                                    damage,
-                                    isCritical,
+                                    critResult.damage,
+                                    critResult.isCritical,
                                     true
                                 );
                             }
@@ -187,7 +206,15 @@ class CollisionSystem {
                         game.boss.width,
                         game.boss.height
                     )) {
-                        game.boss.health -= projectile.damage;
+                        // Calculate critical hit for boss using FormulaService
+                        const playerStats = game.upgradeSystem.getPlayerStats(game.achievementSystem.getTotalBonuses());
+                        const critResult = formulaService.calculateCriticalHit(
+                            projectile.damage,
+                            playerStats.critChance || 0.1,
+                            true // is a boss
+                        );
+
+                        game.boss.health -= critResult.damage;
                         projectilesToRemove.push(pIndex);
                         game.particleSystem.createParticle(projectile.x, projectile.y, '#ffff00');
 
@@ -200,27 +227,23 @@ class CollisionSystem {
                         }
                         this.lastHitTime = now;
 
+                        // Track critical hits for achievements
+                        if (critResult.isCritical && game.achievementSystem) {
+                            game.achievementSystem.updateStat('criticalHits', 1, true);
+                        }
+
+                        // Track hit streak achievements
+                        if (game.achievementSystem) {
+                            game.achievementSystem.updateStat('maxHitStreak', this.consecutiveHits);
+                        }
+
                         // Create damage number for boss
                         if (game.damageNumberSystem) {
-                            const isCritical = Math.random() < 0.05; // 5% crit chance on boss
-                            const damage = isCritical ? projectile.damage * 2 : projectile.damage;
-                            game.boss.health -= (isCritical ? projectile.damage : 0);
-
-                            // Track critical hits for achievements
-                            if (isCritical && game.achievementSystem) {
-                                game.achievementSystem.updateStat('criticalHitsLanded', 1);
-                            }
-
-                            // Track hit streak achievements
-                            if (game.achievementSystem) {
-                                game.achievementSystem.updateStat('maxHitStreak', this.consecutiveHits);
-                            }
-
                             game.damageNumberSystem.createDamageNumber(
                                 projectile.x,
                                 projectile.y,
-                                damage,
-                                isCritical,
+                                critResult.damage,
+                                critResult.isCritical,
                                 true
                             );
                         }

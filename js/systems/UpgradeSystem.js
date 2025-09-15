@@ -4,7 +4,7 @@ class UpgradeSystem {
             maxHealth: { level: 0, maxLevel: 10 },
             damage: { level: 0, maxLevel: 10 },
             fireRate: { level: 0, maxLevel: 8 },
-            speed: { level: 0, maxLevel: 10 },
+            critChance: { level: 0, maxLevel: 10 },
             shield: { level: 0, maxLevel: 10 },
             ammoCrate: { level: 0, maxLevel: 10 },
             goldRush: { level: 0, maxLevel: 5 },
@@ -15,7 +15,7 @@ class UpgradeSystem {
             maxHealth: { name: 'Max Health', description: '+40 HP', icon: '❤️' },
             damage: { name: 'Damage', description: '+5 damage per shot', icon: '⚔️' },
             fireRate: { name: 'Fire Rate', description: '+0.5 shots/sec', icon: '🔫' },
-            speed: { name: 'Speed', description: '+0.5 movement speed', icon: '🚀' },
+            critChance: { name: 'Critical Hit', description: '+5% crit chance', icon: '💥' },
             shield: { name: 'Shield', description: '+15 shield capacity', icon: '🛡️' },
             ammoCrate: { name: 'Ammo Crate', description: '+20% max ammo capacity', icon: '📦' },
             goldRush: { name: 'Gold Rush', description: '+20% credit earnings', icon: '💰' },
@@ -51,20 +51,20 @@ class UpgradeSystem {
         return 0;
     }
 
-    getPlayerStats() {
+    getPlayerStats(achievementBonuses = {}) {
         // Use FormulaService for all calculations
         const upgradeLevels = {
             maxHealth: this.upgrades.maxHealth.level,
             damage: this.upgrades.damage.level,
             fireRate: this.upgrades.fireRate.level,
-            speed: this.upgrades.speed.level,
+            critChance: this.upgrades.critChance.level,
             shield: this.upgrades.shield.level,
             ammoCrate: this.upgrades.ammoCrate.level,
             goldRush: this.upgrades.goldRush.level,
             investment: this.upgrades.investment.level
         };
 
-        return formulaService.calculateAllPlayerStats(upgradeLevels);
+        return formulaService.calculateAllPlayerStats(upgradeLevels, achievementBonuses);
     }
 
     getAllUpgrades() {
@@ -80,5 +80,23 @@ class UpgradeSystem {
         Object.keys(this.upgrades).forEach(key => {
             this.upgrades[key].level = 0;
         });
+    }
+
+    // Load saved state and migrate old data
+    loadState(savedUpgrades) {
+        if (savedUpgrades) {
+            // Migrate speed to critChance if needed
+            if (savedUpgrades.speed && !savedUpgrades.critChance) {
+                savedUpgrades.critChance = savedUpgrades.speed;
+                delete savedUpgrades.speed;
+            }
+
+            // Load all upgrades
+            Object.keys(this.upgrades).forEach(key => {
+                if (savedUpgrades[key]) {
+                    this.upgrades[key].level = savedUpgrades[key].level || 0;
+                }
+            });
+        }
     }
 }
