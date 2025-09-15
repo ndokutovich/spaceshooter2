@@ -427,7 +427,9 @@ class SpaceShooterGame {
         // Show intro dialog for level 1
         if (this.level === 1 && fromMenu) {
             setTimeout(() => {
-                this.dialogSystem.showSequence(StoryEvents.intro, () => {
+                // Get fresh translated intro
+                const introEvents = getTranslatedStoryEvents().intro;
+                this.dialogSystem.showSequence(introEvents, () => {
                     this.showLevelStartDialog();
                 });
             }, 100);
@@ -1649,6 +1651,15 @@ class SpaceShooterGame {
     changeLanguage(lang) {
         this.language = lang;
         languageSystem.setLanguage(lang);
+
+        // Save language preference to profile
+        profileManager.saveOptions({
+            controlMode: this.controlMode,
+            autoFire: this.autoFire,
+            sfxVolume: document.getElementById('sfxVolume')?.value || 50,
+            musicVolume: document.getElementById('musicVolume')?.value || 50,
+            language: lang
+        });
     }
 
     updateDynamicTexts() {
@@ -1659,6 +1670,42 @@ class SpaceShooterGame {
                 const currentWeapon = this.weaponSystem.getCurrentWeapon();
                 weaponName.textContent = languageSystem.t(currentWeapon.name);
             }
+        }
+
+        // Update family UI if visible
+        const familyMoraleEl = document.getElementById('familyMorale');
+        if (familyMoraleEl) {
+            this.updateFamilyUI();
+        }
+
+        // Update HUD if visible
+        if (this.isPlaying) {
+            this.updateFamilyHUD();
+        }
+
+        // Update achievement notifications if any are showing
+        if (this.achievementUI) {
+            // Achievements will re-fetch translations when displayed
+        }
+
+        // Update pause menu if visible
+        const pauseMenu = document.getElementById('pauseMenu');
+        if (pauseMenu && pauseMenu.classList.contains('active')) {
+            // Refresh pause menu with current translations
+            const stats = this.upgradeSystem.getPlayerStats();
+            this.screenManager.showPauseMenu(
+                {
+                    level: this.level,
+                    score: this.score,
+                    credits: this.credits,
+                    enemiesKilled: this.enemiesKilled
+                },
+                stats,
+                this.upgradeSystem.upgrades,
+                this.weaponSystem.weapons,
+                this.weaponSystem.unlockedWeapons,
+                this.weaponSystem.currentWeaponIndex
+            );
         }
     }
 
