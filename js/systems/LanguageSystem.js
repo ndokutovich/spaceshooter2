@@ -60,7 +60,8 @@ class LanguageSystem {
 
                 // Credits Screen
                 'Game Design & Development': 'Game Design & Development',
-                'Space Shooter Team': 'Space Shooter Team',
+                'Stardust Team': 'Stardust Team',
+                'Space Shooter Team': 'Stardust Team',
                 'Programming': 'Programming',
                 'Lead Developer': 'Lead Developer',
                 'Art & Design': 'Art & Design',
@@ -803,7 +804,8 @@ class LanguageSystem {
 
                 // Credits Screen
                 'Game Design & Development': 'Дизайн и разработка игры',
-                'Space Shooter Team': 'Команда Space Shooter',
+                'Stardust Team': 'Команда Stardust',
+                'Space Shooter Team': 'Команда Stardust',
                 'Programming': 'Программирование',
                 'Lead Developer': 'Ведущий разработчик',
                 'Art & Design': 'Арт и дизайн',
