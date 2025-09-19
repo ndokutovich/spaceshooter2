@@ -4,9 +4,74 @@ class ScreenManager {
         this.screens = [
             'platformLogo', 'vendorLogo', 'gameLogo', 'mainMenu',
             'optionsScreen', 'recordsScreen', 'creditsScreen', 'profileScreen',
-            'upgradeScreen', 'gameOver', 'victoryScreen', 'pauseMenu'
+            'upgradeScreen', 'gameOver', 'victoryScreen', 'pauseMenu', 'freePlayScreen'
         ];
         // Note: createProfileDialog is NOT a screen - it's an overlay dialog
+
+        this.screenStarfields = {};
+        this.activeStarfieldAnimation = null;
+        this.initializeStarfields();
+    }
+
+    initializeStarfields() {
+        // Initialize starfields for screens that need them
+        const screensWithStarfields = ['platformLogo', 'vendorLogo', 'gameLogo', 'mainMenu'];
+
+        screensWithStarfields.forEach(screenId => {
+            const screen = document.getElementById(screenId);
+            if (screen) {
+                const canvas = screen.querySelector('.screen-canvas');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+
+                    // Create starfield for this screen
+                    this.screenStarfields[screenId] = {
+                        canvas: canvas,
+                        ctx: ctx,
+                        starfield: new Starfield(canvas)
+                    };
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            Object.keys(this.screenStarfields).forEach(screenId => {
+                const sf = this.screenStarfields[screenId];
+                if (sf) {
+                    sf.canvas.width = window.innerWidth;
+                    sf.canvas.height = window.innerHeight;
+                    sf.starfield.resize(sf.canvas);
+                }
+            });
+        });
+    }
+
+    startStarfieldAnimation(screenId) {
+        // Stop any existing animation
+        this.stopStarfieldAnimation();
+
+        const sf = this.screenStarfields[screenId];
+        if (sf) {
+            const animate = () => {
+                if (this.currentScreen === screenId) {
+                    sf.ctx.clearRect(0, 0, sf.canvas.width, sf.canvas.height);
+                    sf.starfield.update();
+                    sf.starfield.draw(sf.ctx);
+                    this.activeStarfieldAnimation = requestAnimationFrame(animate);
+                }
+            };
+            animate();
+        }
+    }
+
+    stopStarfieldAnimation() {
+        if (this.activeStarfieldAnimation) {
+            cancelAnimationFrame(this.activeStarfieldAnimation);
+            this.activeStarfieldAnimation = null;
+        }
     }
 
     showScreen(screenId) {
@@ -21,6 +86,13 @@ class ScreenManager {
         if (screen) {
             screen.classList.add('active');
             this.currentScreen = screenId;
+
+            // Start starfield animation if this screen has one
+            if (this.screenStarfields[screenId]) {
+                this.startStarfieldAnimation(screenId);
+            } else {
+                this.stopStarfieldAnimation();
+            }
 
             // Show/hide continue button if showing main menu
             if (screenId === 'mainMenu') {

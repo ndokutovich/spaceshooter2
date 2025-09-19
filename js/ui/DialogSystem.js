@@ -195,11 +195,14 @@ class DialogSystem {
             this.typewriterInterval = null;
         }
 
-        // Call callback if provided
+        // Call callback if provided and is a function
         if (this.callback) {
             const cb = this.callback;
             this.callback = null;
-            cb();
+            // Double check cb is a function before calling
+            if (typeof cb === 'function') {
+                cb();
+            }
         }
     }
 

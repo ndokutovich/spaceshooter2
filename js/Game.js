@@ -13,6 +13,13 @@ class SpaceShooterGame {
         this.credits = 500; // Start with some credits for testing
         this.gameStartTime = 0;
 
+        // Game modes
+        this.gameMode = 'campaign'; // 'campaign', 'replay', 'survival'
+        this.survivalWave = 0;
+        this.survivalStartTime = 0;
+        this.masterModeEnabled = false;
+        this.completedLevels = []; // Track completed levels for replay
+
         // Entities
         this.player = null;
         this.enemies = [];
@@ -27,6 +34,12 @@ class SpaceShooterGame {
         this.bossDefeated = false;
         this.huntersDefeated = false;  // Track if hunters are defeated
 
+        // Hunter spawn tracking for survival mode
+        this.huntersSpawned25 = false;
+        this.huntersSpawned50 = false;
+        this.huntersSpawned75 = false;
+        this.huntersSpawned95 = false;
+
         // Wave system
         this.waveTimer = 0;
         this.currentWave = 1;
@@ -37,6 +50,11 @@ class SpaceShooterGame {
         this.controlMode = 'touch';
         this.autoFire = true;
         this.weaponHUDPosition = 'bottom';
+
+        // Audio system
+        this.music = null;
+        this.musicVolume = 0.5; // Default volume
+        this.sfxVolume = 0.7; // Default SFX volume
 
         // Systems
         this.particleSystem = new ParticleSystem();
@@ -82,6 +100,9 @@ class SpaceShooterGame {
     }
 
     init() {
+        // Setup start screen button handler
+        this.setupStartScreen();
+
         // Check if this is first launch (no profiles)
         if (!profileManager.hasProfiles()) {
             // Show profile creation dialog after logo sequence
@@ -100,9 +121,6 @@ class SpaceShooterGame {
             this.achievementSystem.reloadProgress();
         }
 
-        // Start with logo sequence
-        this.showLogoSequence();
-
         // Initialize language
         setTimeout(() => {
             languageSystem.updateAllTexts();
@@ -112,6 +130,139 @@ class SpaceShooterGame {
         window.addEventListener('languageChanged', () => {
             this.updateDynamicTexts();
         });
+    }
+
+    setupStartScreen() {
+        const startButton = document.getElementById('startButton');
+        const startScreen = document.getElementById('startScreen');
+        const startCanvas = document.getElementById('startCanvas');
+
+        // Setup starfield on start screen
+        if (startCanvas) {
+            const ctx = startCanvas.getContext('2d');
+            startCanvas.width = window.innerWidth;
+            startCanvas.height = window.innerHeight;
+
+            // Create a starfield for the start screen
+            const startStarfield = new Starfield(startCanvas);
+
+            // Animate the starfield
+            const animateStartScreen = () => {
+                if (startScreen && startScreen.style.display !== 'none') {
+                    ctx.clearRect(0, 0, startCanvas.width, startCanvas.height);
+                    startStarfield.update();
+                    startStarfield.draw(ctx);
+                    requestAnimationFrame(animateStartScreen);
+                }
+            };
+            animateStartScreen();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (startCanvas && startScreen.style.display !== 'none') {
+                    startCanvas.width = window.innerWidth;
+                    startCanvas.height = window.innerHeight;
+                    startStarfield.resize(startCanvas);
+                }
+            });
+        }
+
+        if (startButton && startScreen) {
+            startButton.addEventListener('click', () => {
+                // Initialize and start music
+                this.initMusic();
+
+                // Hide start screen with fade animation
+                startScreen.classList.add('hidden');
+
+                // Remove start screen after animation
+                setTimeout(() => {
+                    startScreen.style.display = 'none';
+                }, 800);
+
+                // Start with logo sequence after a short delay
+                setTimeout(() => {
+                    this.showLogoSequence();
+                }, 500);
+            });
+        }
+    }
+
+    initMusic() {
+        try {
+            // Create audio element for background music
+            this.music = new Audio();
+
+            // Set properties before setting source
+            this.music.loop = true;
+
+            // Ensure volume is within valid range (0.0 to 1.0)
+            const validVolume = Math.max(0, Math.min(1, this.musicVolume));
+            this.music.volume = validVolume;
+
+            // Add error handler to fallback to wav
+            this.music.addEventListener('error', (e) => {
+                console.log('MP3 failed, trying WAV...', e);
+                // Reset and try WAV
+                this.music = new Audio();
+                this.music.loop = true;
+                this.music.volume = validVolume;
+                this.music.src = 'game-intro.wav';
+
+                this.music.play().catch(err => {
+                    console.log('WAV playback also failed:', err);
+                    this.musicPending = true;
+                });
+            }, { once: true });
+
+            // Set source after properties
+            this.music.src = 'game-intro.mp3';
+
+            // Play music immediately since user clicked the start button
+            this.music.play().catch(err => {
+                console.log('Music playback failed:', err);
+                // If it still fails, try once more on next interaction
+                const retryMusic = () => {
+                    if (this.music) {
+                        this.music.play().catch(err => console.log('Music retry failed:', err));
+                    }
+                };
+                document.addEventListener('click', retryMusic, { once: true });
+            });
+        } catch (error) {
+            console.error('Failed to initialize music:', error);
+            this.music = null;
+        }
+    }
+
+    setMusicVolume(volume) {
+        // Ensure volume is within valid range (0.0 to 1.0)
+        this.musicVolume = Math.max(0, Math.min(1, volume));
+        if (this.music) {
+            try {
+                this.music.volume = this.musicVolume;
+            } catch (e) {
+                console.error('Failed to set music volume:', e);
+            }
+        }
+    }
+
+    setSFXVolume(volume) {
+        // Ensure volume is within valid range (0.0 to 1.0)
+        this.sfxVolume = Math.max(0, Math.min(1, volume));
+        // Update any active sound effects
+    }
+
+    pauseMusic() {
+        if (this.music && !this.music.paused) {
+            this.music.pause();
+        }
+    }
+
+    resumeMusic() {
+        if (this.music && this.music.paused) {
+            this.music.play().catch(err => console.log('Music resume failed:', err));
+        }
     }
 
     async showLogoSequence() {
@@ -653,6 +804,12 @@ class SpaceShooterGame {
     spawnWaves() {
         this.waveTimer++;
 
+        // Special spawning logic for survival mode
+        if (this.gameMode === 'survival') {
+            this.spawnSurvivalWaves();
+            return;
+        }
+
         // Decrease enemy spawn delay
         if (this.enemySpawnDelay > 0) {
             this.enemySpawnDelay--;
@@ -728,8 +885,83 @@ class SpaceShooterGame {
     }
 
     spawnEnemy() {
-        const enemy = new Enemy(this.canvas, this.level);
+        // In survival mode, use scaled level based on wave
+        const effectiveLevel = this.gameMode === 'survival' ?
+            Math.min(Math.floor(1 + this.survivalWave * 0.5), 20) : // Cap at level 20 equivalent
+            this.level;
+
+        const enemy = new Enemy(this.canvas, effectiveLevel);
         this.enemies.push(enemy);
+    }
+
+    spawnSurvivalWaves() {
+        // Initial delay before spawning starts
+        if (this.enemySpawnDelay > 0) {
+            this.enemySpawnDelay--;
+            return;
+        }
+
+        this.survivalSpawnTimer++;
+
+        // Check if we've spawned all enemies for this wave
+        if (this.enemiesSpawned >= this.enemiesPerWave && this.enemies.length === 0 && !this.bossActive) {
+            // Wave complete! Move to next wave
+            this.levelComplete();
+            return;
+        }
+
+        // Spawn massive groups at fixed intervals
+        if (this.survivalSpawnTimer >= this.spawnInterval && this.enemiesSpawned < this.enemiesPerWave) {
+            this.survivalSpawnTimer = 0;
+
+            // Calculate how many enemies to spawn in this group
+            const enemiesToSpawn = Math.min(
+                this.enemiesPerSpawnGroup,
+                this.enemiesPerWave - this.enemiesSpawned
+            );
+
+            // Spawn the group with slight position variations
+            for (let i = 0; i < enemiesToSpawn; i++) {
+                setTimeout(() => {
+                    if (this.isPlaying && this.gameMode === 'survival') {
+                        this.spawnEnemy();
+                        this.enemiesSpawned++;
+                    }
+                }, i * 50); // Stagger spawns by 50ms to avoid overlap
+            }
+        }
+
+        // Spawn hunters at 25%, 50%, 75%, and 95% of wave if scheduled
+        if (this.survivalWave > 5 && this.survivalWave % 3 === 0 && !this.huntersDefeated) {
+            const spawnPercentage = this.enemiesSpawned / this.enemiesPerWave;
+
+            // Check for each spawn threshold
+            if (!this.huntersSpawned25 && spawnPercentage >= 0.25 && this.hunters.length === 0) {
+                this.spawnHunters();
+                this.huntersSpawned25 = true;
+            } else if (!this.huntersSpawned50 && spawnPercentage >= 0.50 && this.hunters.length === 0) {
+                this.spawnHunters();
+                this.huntersSpawned50 = true;
+            } else if (!this.huntersSpawned75 && spawnPercentage >= 0.75 && this.hunters.length === 0) {
+                this.spawnHunters();
+                this.huntersSpawned75 = true;
+            } else if (!this.huntersSpawned95 && spawnPercentage >= 0.95 && this.hunters.length === 0) {
+                this.spawnHunters();
+                this.huntersSpawned95 = true;
+            }
+        }
+
+        // Spawn boss if scheduled
+        if (this.survivalWave % 10 === 0 && !this.bossDefeated && !this.bossActive &&
+            this.enemiesSpawned >= this.enemiesPerWave * 0.8) {
+            this.spawnBoss();
+            this.bossActive = true;
+        }
+
+        // Always spawn some asteroids for credits
+        if (this.waveTimer % 60 === 0 && this.asteroids.length < 5) {
+            this.spawnAsteroid();
+        }
     }
 
     spawnAsteroid() {
@@ -741,8 +973,15 @@ class SpaceShooterGame {
         // Mark that hunters have been spawned
         this.huntersSpawned = true;
 
-        // Spawn 2-3 hunters based on level
-        const hunterCount = Math.min(1 + Math.floor(this.level / 4), 3);
+        // Spawn more hunters in survival mode - scale with wave
+        let hunterCount;
+        if (this.gameMode === 'survival') {
+            // In survival: spawn 2-6 hunters based on wave number
+            hunterCount = Math.min(2 + Math.floor(this.survivalWave / 5), 6);
+        } else {
+            // In campaign: spawn 2-3 hunters based on level
+            hunterCount = Math.min(1 + Math.floor(this.level / 4), 3);
+        }
 
         console.log(`=============== HUNTER SPAWN ===============`);
         console.log(`Spawning ${hunterCount} hunters at level ${this.level}`);
@@ -1086,6 +1325,14 @@ class SpaceShooterGame {
     }
 
     levelComplete() {
+        // Handle survival mode wave completion
+        if (this.gameMode === 'survival') {
+            // Don't stop the game loop for survival mode
+            // Just transition to next wave immediately
+            this.startSurvivalWave();
+            return;
+        }
+
         this.isPlaying = false;
 
         // Check if level was completed without taking damage (perfect wave)
@@ -1102,6 +1349,22 @@ class SpaceShooterGame {
         this.achievementSystem.trackLevelComplete(this.level, levelTime, familyHappy);
         this.achievementSystem.updateStat('highestLevel', this.level + 1, false);
 
+        // Track completed levels for free play mode
+        if (!this.completedLevels.includes(this.level)) {
+            this.completedLevels.push(this.level);
+        }
+
+        // Handle replay mode
+        if (this.gameMode === 'replay') {
+            // Show completion screen for replay mode
+            setTimeout(() => {
+                this.screenManager.hideHUD();
+                this.showReplayComplete();
+            }, 500);
+            return;
+        }
+
+        // Normal campaign mode
         // Increment level AFTER checking for victory
         if (this.level >= 10) {
             // Add delay before showing victory
@@ -1122,6 +1385,9 @@ class SpaceShooterGame {
     showUpgradeScreen() {
         // Initialize family UI with proper values
         this.updateFamilyUI();
+
+        // Default to family tab when entering Space Hub
+        this.switchTab('family');
 
         // Only do these actions when first entering the screen (not on refresh)
         if (!this.isRefreshingUpgradeScreen) {
@@ -1384,10 +1650,12 @@ class SpaceShooterGame {
                 this.weaponSystem.updateAmmoMultiplier(stats.ammoMultiplier);
             }
 
-            // Refresh display with flag to prevent re-triggering initial actions
-            this.isRefreshingUpgradeScreen = true;
-            this.showUpgradeScreen(); // Refresh display
-            this.isRefreshingUpgradeScreen = false;
+            // Just update the upgrades tab without switching tabs
+            this.updateUpgradesTab();
+
+            // Update credits display
+            const creditsEl = document.getElementById('creditsDisplay');
+            if (creditsEl) creditsEl.textContent = this.credits;
         }
     }
 
@@ -1485,6 +1753,12 @@ class SpaceShooterGame {
         this.isPlaying = false;
         this.screenManager.hideHUD();
 
+        // Handle survival mode game over
+        if (this.gameMode === 'survival') {
+            this.endSurvivalMode();
+            return;
+        }
+
         // Update profile stats
         profileManager.updateStats({
             totalGamesPlayed: 1,
@@ -1507,6 +1781,43 @@ class SpaceShooterGame {
             enemiesKilled: this.enemiesKilled,
             credits: this.credits
         });
+    }
+
+    showReplayComplete() {
+        // Show completion screen for replay mode
+        const replayHTML = `
+            <div class="screen active" id="replayComplete" style="text-align: center; padding: 50px;">
+                <h2 style="font-size: 48px; margin-bottom: 30px; color: #66ffff;">${languageSystem.t('MISSION COMPLETE')}</h2>
+                <div class="game-over-stats">
+                    <div class="stat-row">
+                        <span>${languageSystem.t('Level Replayed:')}</span>
+                        <span>${this.level}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>${languageSystem.t('Score:')}</span>
+                        <span>${this.score.toLocaleString()}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>${languageSystem.t('Enemies Destroyed:')}</span>
+                        <span>${this.enemiesKilled}</span>
+                    </div>
+                </div>
+                <button class="menu-button" onclick="game.showFreePlayModes()">${languageSystem.t('PLAY ANOTHER')}</button>
+                <button class="menu-button" onclick="game.backToMenu()">${languageSystem.t('MAIN MENU')}</button>
+            </div>
+        `;
+
+        // Insert the replay complete screen
+        const container = document.getElementById('gameContainer');
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = replayHTML;
+        container.appendChild(tempDiv.firstElementChild);
+
+        // Remove after navigation
+        setTimeout(() => {
+            const screen = document.getElementById('replayComplete');
+            if (screen) screen.remove();
+        }, 30000);
     }
 
     victory() {
@@ -1537,6 +1848,14 @@ class SpaceShooterGame {
         profileManager.setStatIfHigher('highestLevel', 10);
 
         this.saveHighScore(this.score);
+
+        // Mark game as completed for free play
+        this.completedLevels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        if (profileManager.getCurrentProfile()) {
+            profileManager.saveGameProgress({
+                completedLevels: this.completedLevels
+            });
+        }
 
         const minutes = Math.floor(time / 60);
         const seconds = time % 60;
@@ -1680,6 +1999,9 @@ class SpaceShooterGame {
             // Pause the game and show pause menu
             this.isPaused = true;
 
+            // Pause music when game is paused
+            this.pauseMusic();
+
             // Gather game stats
             const gameStats = {
                 level: this.level,
@@ -1718,6 +2040,9 @@ class SpaceShooterGame {
         if (pauseBtn) {
             pauseBtn.textContent = '⏸';
         }
+
+        // Resume music when game is unpaused
+        this.resumeMusic();
     }
 
     saveAndQuit() {
@@ -1749,6 +2074,14 @@ class SpaceShooterGame {
         document.getElementById('controlMode').value = this.controlMode;
         document.getElementById('autoFire').checked = this.autoFire;
         document.getElementById('weaponHUDPosition').value = this.weaponHUDPosition;
+
+        // Set volume sliders
+        document.getElementById('musicVolume').value = Math.round(this.musicVolume * 100);
+        document.getElementById('sfxVolume').value = Math.round(this.sfxVolume * 100);
+
+        // Update volume display labels
+        document.getElementById('musicVolumeValue').textContent = Math.round(this.musicVolume * 100) + '%';
+        document.getElementById('sfxVolumeValue').textContent = Math.round(this.sfxVolume * 100) + '%';
     }
 
     saveOptions() {
@@ -1759,12 +2092,19 @@ class SpaceShooterGame {
         // Apply weapon HUD position immediately
         this.screenManager.setWeaponHUDPosition(this.weaponHUDPosition);
 
+        // Get and apply volume settings
+        const musicVolumeValue = document.getElementById('musicVolume').value / 100;
+        const sfxVolumeValue = document.getElementById('sfxVolume').value / 100;
+
+        this.setMusicVolume(musicVolumeValue);
+        this.setSFXVolume(sfxVolumeValue);
+
         profileManager.saveOptions({
             controlMode: this.controlMode,
             autoFire: this.autoFire,
             weaponHUDPosition: this.weaponHUDPosition,
-            sfxVolume: document.getElementById('sfxVolume').value,
-            musicVolume: document.getElementById('musicVolume').value,
+            sfxVolume: sfxVolumeValue,
+            musicVolume: musicVolumeValue,
             language: languageSystem.currentLanguage
         });
 
@@ -1867,6 +2207,14 @@ class SpaceShooterGame {
             this.autoFire = options.autoFire !== undefined ? options.autoFire : true;
             this.weaponHUDPosition = options.weaponHUDPosition || 'bottom';
 
+            // Load audio settings
+            this.musicVolume = options.musicVolume !== undefined ? options.musicVolume : 0.5;
+            this.sfxVolume = options.sfxVolume !== undefined ? options.sfxVolume : 0.7;
+
+            // Apply music volume
+            this.setMusicVolume(this.musicVolume);
+            this.setSFXVolume(this.sfxVolume);
+
             // Apply weapon HUD position
             this.screenManager.setWeaponHUDPosition(this.weaponHUDPosition);
 
@@ -1879,6 +2227,12 @@ class SpaceShooterGame {
 
     // Save game progress (only available in Space Hub)
     saveProgress() {
+        // Check if there's a current profile first
+        if (!profileManager.getCurrentProfile()) {
+            console.warn('No profile available to save progress');
+            return;
+        }
+
         const saveData = {
             level: this.level,  // Save the current level (already incremented in levelComplete)
             score: this.score,
@@ -1886,6 +2240,7 @@ class SpaceShooterGame {
             upgrades: this.upgradeSystem.upgrades,
             weapons: this.weaponSystem.saveState(),
             familyWelfare: this.familyWelfare.saveState(),
+            completedLevels: this.completedLevels,
             timestamp: Date.now(),
             version: '1.0'
         };
@@ -1932,6 +2287,17 @@ class SpaceShooterGame {
                 this.familyWelfare.loadState(saveData.familyWelfare);
             }
 
+            // Restore completed levels
+            if (saveData.completedLevels) {
+                this.completedLevels = saveData.completedLevels;
+            }
+
+            // Restore master mode preference
+            const options = profileManager.loadOptions();
+            if (options && options.masterModeEnabled !== undefined) {
+                this.masterModeEnabled = options.masterModeEnabled;
+            }
+
             return true;
         } catch (e) {
             console.error('Failed to load save:', e);
@@ -1952,6 +2318,513 @@ class SpaceShooterGame {
             this.showUpgradeScreen();
         }
     }
+
+    updateUpgradesTab() {
+        // Re-render just the upgrades grid without switching tabs
+        const upgradeGrid = document.getElementById('upgradeGrid');
+        if (!upgradeGrid) return;
+
+        upgradeGrid.innerHTML = '';
+        const upgrades = this.upgradeSystem.getAllUpgrades();
+
+        upgrades.forEach(upgrade => {
+            const card = document.createElement('div');
+            card.className = 'upgrade-card';
+
+            card.innerHTML = `
+                <div class="upgrade-title">${upgrade.icon} ${languageSystem.t(upgrade.name)}</div>
+                <div class="upgrade-info">
+                    <span>${languageSystem.t('Level')} ${upgrade.level}/${upgrade.maxLevel}</span>
+                </div>
+                <div style="color: #aaa; font-size: 14px; margin: 10px 0;">${languageSystem.t(upgrade.description)}</div>
+                <div class="upgrade-info">
+                    <span>${languageSystem.t('Cost:')} ${upgrade.cost} ${languageSystem.t('credits')}</span>
+                </div>
+                <button class="upgrade-button" ${upgrade.level >= upgrade.maxLevel || this.credits < upgrade.cost ? 'disabled' : ''}
+                        data-upgrade-type="${upgrade.type}">
+                    ${upgrade.level >= upgrade.maxLevel ? languageSystem.t('MAX') : languageSystem.t('UPGRADE')}
+                </button>
+            `;
+
+            const button = card.querySelector('.upgrade-button');
+            if (button && !button.disabled) {
+                button.addEventListener('click', () => this.purchaseUpgrade(upgrade.type));
+            }
+
+            upgradeGrid.appendChild(card);
+        });
+    }
+
+    // Tab switching in Space Hub
+    switchTab(tabName) {
+        // Hide all tab contents
+        document.getElementById('familyTabContent').style.display = 'none';
+        document.getElementById('missionsTabContent').style.display = 'none';
+        document.getElementById('upgradesTabContent').style.display = 'none';
+
+        // Reset all tab buttons
+        document.getElementById('familyTab').style.background = 'rgba(255,255,255,0.1)';
+        document.getElementById('familyTab').style.color = '#fff';
+        document.getElementById('missionsTab').style.background = 'rgba(255,255,255,0.1)';
+        document.getElementById('missionsTab').style.color = '#fff';
+        document.getElementById('upgradesTab').style.background = 'rgba(255,255,255,0.1)';
+        document.getElementById('upgradesTab').style.color = '#fff';
+
+        // Show selected tab and highlight button
+        switch(tabName) {
+            case 'family':
+                document.getElementById('familyTabContent').style.display = 'block';
+                document.getElementById('familyTab').style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
+                document.getElementById('familyTab').style.color = '#000';
+                break;
+            case 'missions':
+                document.getElementById('missionsTabContent').style.display = 'block';
+                document.getElementById('missionsTab').style.background = 'linear-gradient(135deg, #66ffff, #4488ff)';
+                document.getElementById('missionsTab').style.color = '#000';
+                this.updateMissionsTab();
+                break;
+            case 'upgrades':
+                document.getElementById('upgradesTabContent').style.display = 'block';
+                document.getElementById('upgradesTab').style.background = 'linear-gradient(135deg, #66ff66, #44ff44)';
+                document.getElementById('upgradesTab').style.color = '#000';
+                // Update credits display
+                const creditsEl = document.getElementById('creditsDisplay');
+                if (creditsEl) creditsEl.textContent = this.credits;
+                // Update the upgrades grid
+                this.updateUpgradesTab();
+                break;
+        }
+    }
+
+    goToSpaceHubMissions() {
+        // Hide victory screen
+        this.screenManager.hideScreen('victoryScreen');
+
+        // Show upgrade screen (Space Hub)
+        this.screenManager.showScreen('upgradeScreen');
+
+        // Switch to missions tab
+        this.switchTab('missions');
+    }
+
+    startSurvivalModeFromHub() {
+        // Hide Space Hub
+        this.screenManager.hideScreen('upgradeScreen');
+
+        // Start survival mode
+        this.startSurvivalMode();
+    }
+
+    updateMissionsTab() {
+        // Load completed levels
+        const saveData = profileManager.loadGameProgress();
+        if (saveData && saveData.completedLevels) {
+            this.completedLevels = saveData.completedLevels;
+        }
+
+        // Populate mission replay buttons
+        const missionList = document.getElementById('missionReplayListHub');
+        if (missionList) {
+            missionList.innerHTML = '';
+
+            for (let i = 1; i <= 10; i++) {
+                const button = document.createElement('button');
+                button.className = 'menu-button';
+                button.style.padding = '10px';
+                button.style.fontSize = '14px';
+
+                if (this.completedLevels.includes(i) || this.completedLevels.length >= 10) {
+                    button.innerHTML = `${languageSystem.t('Level')} ${i}`;
+                    button.onclick = () => this.startReplayMissionFromHub(i);
+                    button.style.background = 'linear-gradient(135deg, #4488ff, #66aaff)';
+                } else {
+                    button.innerHTML = '🔒';
+                    button.disabled = true;
+                    button.style.background = 'rgba(100,100,100,0.3)';
+                    button.style.cursor = 'not-allowed';
+                }
+
+                missionList.appendChild(button);
+            }
+        }
+
+        // Update survival high score
+        const profile = profileManager.getCurrentProfile();
+        const survivalHighScore = (profile && profile.stats && profile.stats.survivalHighScore) || 0;
+        const scoreEl = document.getElementById('survivalHighScoreHub');
+        if (scoreEl) scoreEl.textContent = survivalHighScore.toLocaleString();
+
+        // Check if Master Mode should be available
+        const allAchievementsUnlocked = this.checkAllAchievementsComplete();
+        const specialSection = document.getElementById('specialModeSectionHub');
+        if (specialSection) {
+            if (allAchievementsUnlocked) {
+                specialSection.style.display = 'block';
+                const toggleBtn = document.getElementById('masterModeToggleHub');
+                if (toggleBtn) {
+                    if (this.masterModeEnabled) {
+                        toggleBtn.innerHTML = '<span>✨ </span><span>' + languageSystem.t('MASTER MODE ACTIVE') + '</span>';
+                        toggleBtn.style.background = 'linear-gradient(135deg, #ffff66, #ff66ff)';
+                    } else {
+                        toggleBtn.innerHTML = '<span>⭐ </span><span>' + languageSystem.t('ACTIVATE MASTER MODE') + '</span>';
+                        toggleBtn.style.background = 'linear-gradient(135deg, #ff66ff, #ffff66)';
+                    }
+                }
+            } else {
+                specialSection.style.display = 'none';
+            }
+        }
+    }
+
+    startReplayMissionFromHub(level) {
+        // Hide Space Hub
+        this.screenManager.hideScreen('upgradeScreen');
+
+        // Start replay mission
+        this.startReplayMission(level);
+    }
+
+    // Free Play Mode Functions (deprecated, redirects to Space Hub)
+    showFreePlayModes() {
+        this.goToSpaceHubMissions();
+    }
+
+    closeFreePlay() {
+        // Deprecated - no longer needed
+    }
+
+    startReplayMission(level) {
+        this.gameMode = 'replay';
+        this.level = level;
+        this.score = 0;
+        this.credits = 1000; // Start with some credits
+
+        // Reset level-specific things
+        this.enemiesKilled = 0;
+        this.currentWave = 1;
+        this.waveTimer = 0;
+        this.enemySpawnDelay = 120; // 2 seconds delay
+        this.enemiesPerWave = 10 + level * 2;
+
+        // Clear entities
+        this.enemies = [];
+        this.hunters = [];
+        this.projectiles = [];
+        this.powerUps = [];
+        this.asteroids = [];
+        this.boss = null;
+        this.bossActive = false;
+        this.bossDefeated = false;
+        this.huntersDefeated = false;
+        this.gameLoopRunning = false;
+
+        // Initialize session stats for replay mode
+        this.sessionStats = {
+            levelStartTime: Date.now(),
+            gameStartTime: Date.now(),
+            lastSurvivalUpdate: Date.now()
+        };
+
+        // Hide free play screen and start the level
+        this.screenManager.hideScreen('freePlayScreen');
+        this.screenManager.hideScreen('victoryScreen');
+
+        // Initialize player with current upgrades
+        this.player = new Player(this.canvas, this.upgradeSystem.upgrades, this.weaponSystem);
+
+        // Initialize weapon HUD
+        this.screenManager.initWeaponHUD(this.weaponSystem.weapons);
+        this.screenManager.updateWeaponHUD(
+            this.weaponSystem.weapons,
+            this.weaponSystem.unlockedWeapons,
+            this.weaponSystem.currentWeaponIndex
+        );
+
+        // Directly start playing without dialog
+        this.isPlaying = true;
+        this.isPaused = false;
+
+        // Show HUD
+        this.screenManager.showHUD();
+
+        // Show level announcement
+        this.dialogSystem.showQuickMessage(`${languageSystem.t('Level')} ${this.level}`, 2000);
+
+        // Start game loop
+        if (!this.gameLoopRunning) {
+            this.gameLoop();
+        }
+    }
+
+    startSurvivalMode() {
+        this.gameMode = 'survival';
+        this.level = 1; // Used for difficulty scaling
+        this.survivalWave = 14; // Start at wave 15 (will increment to 15 in startSurvivalWave)
+        this.score = 0;
+        this.credits = 0; // Start with 0 credits in survival
+        this.survivalStartTime = Date.now();
+
+        // Initialize session stats for survival mode
+        this.sessionStats = {
+            levelStartTime: Date.now(),
+            gameStartTime: Date.now(),
+            lastSurvivalUpdate: Date.now()
+        };
+
+        // Hide screens
+        this.screenManager.hideScreen('freePlayScreen');
+        this.screenManager.hideScreen('victoryScreen');
+
+        // Initialize player with current upgrades
+        this.player = new Player(this.canvas, this.upgradeSystem.upgrades, this.weaponSystem);
+
+        // Initialize weapon HUD
+        this.screenManager.initWeaponHUD(this.weaponSystem.weapons);
+        this.screenManager.updateWeaponHUD(
+            this.weaponSystem.weapons,
+            this.weaponSystem.unlockedWeapons,
+            this.weaponSystem.currentWeaponIndex
+        );
+
+        // Start survival mode
+        this.startSurvivalWave();
+    }
+
+    startSurvivalWave() {
+        this.survivalWave++;
+        this.enemiesKilled = 0;
+        this.waveTimer = 0;
+        this.currentWave = 1;
+        this.enemySpawnDelay = 60; // Small delay before enemies appear
+        this.survivalSpawnTimer = 0;
+        this.enemiesSpawned = 0;
+
+        // Clear existing entities
+        this.enemies = [];
+        this.hunters = [];
+        this.projectiles = [];
+        this.powerUps = [];
+        this.asteroids = [];
+        this.boss = null;
+        this.bossActive = false;
+        this.huntersDefeated = true; // Start as true
+        this.bossDefeated = true; // Start as true
+
+        // Calculate difficulty scaling - MUCH FASTER SCALING
+        const difficultyMultiplier = 1 + (this.survivalWave * 0.25); // 25% harder each wave (was 10%)
+
+        // Determine enemies for this wave - exponential growth
+        const baseEnemies = 10 + Math.floor(this.survivalWave * 3); // More base enemies
+        this.enemiesPerWave = Math.floor(baseEnemies * difficultyMultiplier);
+
+        // Calculate spawn groups - enemies spawn in massive groups every 3 seconds
+        this.enemiesPerSpawnGroup = Math.min(5 + Math.floor(this.survivalWave * 1.5), 25); // 5-25 enemies at once
+        this.spawnInterval = 180; // 3 seconds between spawn groups (at 60 FPS)
+
+        // Add hunters after wave 5
+        if (this.survivalWave > 5 && this.survivalWave % 3 === 0) {
+            this.huntersDefeated = false;
+            // Reset all hunter spawn flags for multiple spawns
+            this.huntersSpawned25 = false;
+            this.huntersSpawned50 = false;
+            this.huntersSpawned75 = false;
+            this.huntersSpawned95 = false;
+        }
+
+        // Add boss every 10 waves
+        if (this.survivalWave % 10 === 0) {
+            this.bossDefeated = false;
+        }
+
+        this.isPlaying = true;
+        this.isPaused = false;
+
+        // Show HUD
+        this.screenManager.showHUD();
+
+        // Show wave announcement as a non-blocking notification
+        const waveNotification = document.createElement('div');
+        waveNotification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #004488, #0088ff);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-size: 32px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: fadeInOut 2s ease-in-out;
+            pointer-events: none;
+        `;
+        waveNotification.textContent = `${languageSystem.t('Wave')} ${this.survivalWave}!`;
+        document.body.appendChild(waveNotification);
+        setTimeout(() => waveNotification.remove(), 2000);
+
+        // Start game loop if not already running
+        if (!this.gameLoopRunning) {
+            this.gameLoop();
+        }
+    }
+
+    toggleMasterMode() {
+        this.masterModeEnabled = !this.masterModeEnabled;
+
+        const toggleBtn = document.getElementById('masterModeToggle');
+        if (this.masterModeEnabled) {
+            toggleBtn.innerHTML = '<span>✨ </span><span>' + languageSystem.t('MASTER MODE ACTIVE') + '</span>';
+            toggleBtn.style.background = 'linear-gradient(135deg, #ffff66, #ff66ff)';
+            this.dialogSystem.showQuickMessage(languageSystem.t('Master Mode Activated! Unlimited special weapons!'), 3000);
+        } else {
+            toggleBtn.innerHTML = '<span>⭐ </span><span>' + languageSystem.t('ACTIVATE MASTER MODE') + '</span>';
+            toggleBtn.style.background = 'linear-gradient(135deg, #ff66ff, #ffff66)';
+            this.dialogSystem.showQuickMessage(languageSystem.t('Master Mode Deactivated'), 2000);
+        }
+
+        // Save master mode preference
+        profileManager.saveOptions({
+            masterModeEnabled: this.masterModeEnabled
+        });
+    }
+
+    checkAllAchievementsComplete() {
+        // Get all achievements and check if all are unlocked
+        const achievements = this.achievementSystem.getAllAchievements();
+        let totalRequired = 0;
+        let totalUnlocked = 0;
+
+        for (const achievement of achievements) {
+            totalRequired += achievement.tiers.length;
+            const progress = this.achievementSystem.getProgress(achievement.id);
+            if (progress) {
+                totalUnlocked += progress.unlockedTiers.length;
+            }
+        }
+
+        // If all achievements are complete, unlock the special Master achievement
+        if (totalUnlocked >= totalRequired && totalRequired > 0) {
+            // Check if Master achievement exists, if not create it
+            if (!this.achievementSystem.getProgress('masterOfSpace')) {
+                this.achievementSystem.unlockMasterAchievement();
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    endSurvivalMode() {
+        this.isPlaying = false;
+
+        // Calculate survival time
+        const survivalTime = Math.floor((Date.now() - this.survivalStartTime) / 1000);
+        const minutes = Math.floor(survivalTime / 60);
+        const seconds = survivalTime % 60;
+
+        // Update high score
+        const profile = profileManager.getCurrentProfile();
+        const currentHighScore = (profile && profile.stats && profile.stats.survivalHighScore) || 0;
+        if (this.score > currentHighScore) {
+            profileManager.updateStats({
+                survivalHighScore: this.score
+            });
+        }
+
+        // Calculate rewards based on waves survived
+        const creditReward = this.survivalWave * 100;
+        this.credits += creditReward;
+
+        // Show game over with survival stats
+        this.screenManager.hideHUD();
+        const survivalStats = {
+            mode: 'Survival',
+            wavesCompleted: this.survivalWave - 1,
+            survivalTime: `${minutes}:${seconds.toString().padStart(2, '0')}`,
+            score: this.score,
+            credits: creditReward,
+            isHighScore: this.score > currentHighScore
+        };
+
+        this.showSurvivalResults(survivalStats);
+    }
+
+    showSurvivalResults(stats) {
+        // Hide all screens first
+        this.screenManager.hideAllScreens();
+
+        // Create a custom survival results screen
+        const resultsHTML = `
+            <div class="screen active" id="survivalResults" style="text-align: center; padding: 50px;">
+                <h2 style="font-size: 48px; margin-bottom: 30px; color: #ff9966;">${languageSystem.t('SURVIVAL MODE COMPLETE')}</h2>
+                ${stats.isHighScore ? '<p style="color: #ffff66; font-size: 24px;">🏆 ' + languageSystem.t('NEW HIGH SCORE!') + ' 🏆</p>' : ''}
+                <div class="game-over-stats">
+                    <div class="stat-row">
+                        <span>${languageSystem.t('Waves Survived:')}</span>
+                        <span>${stats.wavesCompleted}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>${languageSystem.t('Survival Time:')}</span>
+                        <span>${stats.survivalTime}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>${languageSystem.t('Score:')}</span>
+                        <span>${stats.score.toLocaleString()}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span>${languageSystem.t('Credits Earned:')}</span>
+                        <span>${stats.credits}</span>
+                    </div>
+                </div>
+                <button class="menu-button" onclick="game.returnToSpaceHubFromSurvival()">${languageSystem.t('SPACE HUB')}</button>
+                <button class="menu-button" onclick="game.startSurvivalModeAgain()">${languageSystem.t('PLAY AGAIN')}</button>
+                <button class="menu-button" onclick="game.backToMenuFromSurvival()">${languageSystem.t('MAIN MENU')}</button>
+            </div>
+        `;
+
+        // Insert the results screen
+        const container = document.getElementById('gameContainer');
+        // Remove any existing survival results first
+        const existingResults = document.getElementById('survivalResults');
+        if (existingResults) {
+            existingResults.remove();
+        }
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = resultsHTML;
+        container.appendChild(tempDiv.firstElementChild);
+    }
+
+    returnToSpaceHubFromSurvival() {
+        const resultsScreen = document.getElementById('survivalResults');
+        if (resultsScreen) {
+            resultsScreen.remove();
+        }
+        // Reset game mode
+        this.gameMode = 'campaign';
+        // Show Space Hub and go to missions tab
+        this.screenManager.showScreen('upgradeScreen');
+        this.switchTab('missions');
+    }
+
+    startSurvivalModeAgain() {
+        const resultsScreen = document.getElementById('survivalResults');
+        if (resultsScreen) {
+            resultsScreen.remove();
+        }
+        this.startSurvivalMode();
+    }
+
+    backToMenuFromSurvival() {
+        const resultsScreen = document.getElementById('survivalResults');
+        if (resultsScreen) {
+            resultsScreen.remove();
+        }
+        // Reset game mode
+        this.gameMode = 'campaign';
+        this.backToMenu();
+    }
 }
 
 // Make game globally accessible for HTML onclick handlers
@@ -1964,3 +2837,111 @@ window.resetProfiles = () => {
         location.reload();
     }
 };
+
+// Debug cheat system - Press '\' twice quickly to unlock everything and skip to victory
+let debugKeyPresses = [];
+let debugKeyTimeout = null;
+
+document.addEventListener('keydown', (e) => {
+    // Listen for backslash key anywhere in the game
+    if (e.key === '\\') {
+        debugKeyPresses.push(Date.now());
+
+        // Clear old keypresses
+        debugKeyPresses = debugKeyPresses.filter(time => Date.now() - time < 500);
+
+        // Check if pressed twice within 500ms
+        if (debugKeyPresses.length >= 2) {
+            debugKeyPresses = [];
+
+            // CHEAT ACTIVATED - Unlock everything!
+            console.log('🎮 DEBUG CHEAT ACTIVATED - Unlocking everything and starting test mode!');
+
+            // Mark all levels as completed
+            game.completedLevels = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+            // Unlock all achievements
+            const achievements = game.achievementSystem.getAllAchievements();
+            achievements.forEach(achievement => {
+                if (achievement.tiers) {
+                    achievement.tiers.forEach((tier, index) => {
+                        game.achievementSystem.progress[achievement.id] = {
+                            unlockedTiers: achievement.tiers.map((_, i) => i),
+                            currentValue: tier.required
+                        };
+                    });
+                }
+            });
+
+            // Unlock Master achievement
+            game.achievementSystem.unlockMasterAchievement();
+
+            // Don't max upgrades - let player earn them
+
+            // Unlock all weapons
+            game.weaponSystem.unlockedWeapons = [true, true, true, true, true, true, true, true, true, true, true];
+
+            // Give tons of credits and high scores
+            game.credits = 999999;
+            game.score = 999999;
+
+            // Set high survival score and stats
+            profileManager.updateStats({
+                survivalHighScore: 99999,
+                highestLevel: 10,
+                totalGamesPlayed: 100,
+                totalScore: 999999,
+                totalCreditsEarned: 999999,
+                totalEnemiesKilled: 9999
+            });
+
+            // Save everything
+            game.saveProgress();
+            profileManager.saveAchievementProgress(game.achievementSystem.progress);
+
+            // Show notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, #ff00ff, #00ffff);
+                color: white;
+                padding: 30px 50px;
+                border-radius: 20px;
+                font-size: 24px;
+                font-weight: bold;
+                z-index: 10000;
+                box-shadow: 0 0 50px rgba(255,0,255,0.8);
+                animation: pulse 0.5s ease-in-out 3;
+            `;
+            notification.innerHTML = '🎮 CHEAT MODE ACTIVATED! 🎮<br><span style="font-size: 16px;">Everything unlocked! Starting test mode...</span>';
+            document.body.appendChild(notification);
+
+            // Add pulse animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes pulse {
+                    0% { transform: translate(-50%, -50%) scale(1); }
+                    50% { transform: translate(-50%, -50%) scale(1.1); }
+                    100% { transform: translate(-50%, -50%) scale(1); }
+                }
+            `;
+            document.head.appendChild(style);
+
+            // After showing notification, just close it
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+
+                // Show success message in console
+                console.log('✅ All content unlocked! You can now:');
+                console.log('- Access FREE PLAY from victory screen');
+                console.log('- Play any mission with max upgrades');
+                console.log('- Use Master Mode with infinite ammo');
+                console.log('- All achievements completed');
+            }, 3000);
+        }
+    }
+});

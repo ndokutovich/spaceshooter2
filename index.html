@@ -7,27 +7,48 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Initial Start Screen -->
+    <div id="startScreen" class="initial-screen">
+        <canvas id="startCanvas" class="start-canvas"></canvas>
+        <div class="initial-content">
+            <div class="initial-logo">SPACE SHOOTER</div>
+            <div class="initial-subtitle">Jack's Last Hope</div>
+            <div class="initial-description">
+                Save your family. Fight the corporations. Become the hero of Mars.
+            </div>
+            <button id="startButton" class="start-button">
+                <span class="start-icon">🚀</span>
+                <span class="start-text">START GAME</span>
+            </button>
+            <div class="initial-hint">Click to begin your journey</div>
+        </div>
+    </div>
+
     <div id="gameContainer">
         <canvas id="gameCanvas"></canvas>
         
         <!-- Logo Screens -->
         <div id="platformLogo" class="screen active">
+            <canvas class="screen-canvas"></canvas>
             <div class="logo" data-i18n="PLATFORM STUDIOS">PLATFORM STUDIOS</div>
             <p style="position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 14px; opacity: 0.5;" data-i18n="Click to skip">Click to skip</p>
         </div>
 
         <div id="vendorLogo" class="screen">
+            <canvas class="screen-canvas"></canvas>
             <div class="logo" data-i18n="COSMIC GAMES">COSMIC GAMES</div>
             <p style="position: absolute; bottom: 30px; width: 100%; text-align: center; font-size: 14px; opacity: 0.5;" data-i18n="Click to skip">Click to skip</p>
         </div>
 
         <div id="gameLogo" class="screen">
+            <canvas class="screen-canvas"></canvas>
             <div class="logo" style="font-size: 64px;" data-i18n="SPACE SHOOTER">SPACE SHOOTER</div>
             <p style="margin-top: 20px; font-size: 20px; opacity: 0.7;" data-i18n="Click to Continue">Click to Continue</p>
         </div>
-        
+
         <!-- Main Menu -->
         <div id="mainMenu" class="screen">
+            <canvas class="screen-canvas"></canvas>
             <div class="logo" style="margin-bottom: 20px;" data-i18n="SPACE SHOOTER">SPACE SHOOTER</div>
 
             <!-- Profile Display -->
@@ -157,8 +178,23 @@
 
         <!-- Upgrade Screen (Space Hub) -->
         <div id="upgradeScreen" class="screen">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #00ffff;" data-i18n="SPACE HUB - UPGRADES">SPACE HUB - UPGRADES</h2>
+            <h2 style="text-align: center; margin-bottom: 20px; color: #00ffff;" data-i18n="SPACE HUB">SPACE HUB</h2>
 
+            <!-- Tab Navigation -->
+            <div class="tab-navigation" style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
+                <button class="tab-button active" onclick="game.switchTab('family')" id="familyTab" style="padding: 10px 30px; background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; border: 2px solid #FFD700; border-radius: 10px; font-weight: bold; cursor: pointer;">
+                    👨‍👩‍👧‍👦 <span data-i18n="FAMILY">FAMILY</span>
+                </button>
+                <button class="tab-button" onclick="game.switchTab('missions')" id="missionsTab" style="padding: 10px 30px; background: rgba(255,255,255,0.1); color: #fff; border: 2px solid rgba(255,255,255,0.3); border-radius: 10px; font-weight: bold; cursor: pointer;">
+                    🚀 <span data-i18n="MISSIONS">MISSIONS</span>
+                </button>
+                <button class="tab-button" onclick="game.switchTab('upgrades')" id="upgradesTab" style="padding: 10px 30px; background: rgba(255,255,255,0.1); color: #fff; border: 2px solid rgba(255,255,255,0.3); border-radius: 10px; font-weight: bold; cursor: pointer;">
+                    ⚡ <span data-i18n="UPGRADES">UPGRADES</span>
+                </button>
+            </div>
+
+            <!-- Family Tab Content -->
+            <div id="familyTabContent" class="tab-content" style="display: block;">
             <!-- Family Status Panel -->
             <div id="familyPanel" class="upgrade-card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(80,50,30,0.9), rgba(40,25,15,0.9)); border: 2px solid #FFD700; max-width: 100%; width: 100%;">
                 <div class="upgrade-header" style="background: linear-gradient(90deg, #FFD700, #FFA500); padding: 8px;">
@@ -220,16 +256,56 @@
                     </button>
                 </div>
             </div>
+            </div>
 
-            <div class="currency-display">
-                <span data-i18n="Credits:">Credits:</span> <span id="creditsDisplay">0</span>
+            <!-- Missions Tab Content -->
+            <div id="missionsTabContent" class="tab-content" style="display: none;">
+                <!-- Mission Replay Section -->
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                    <h3 style="color: #66ffff; margin-bottom: 15px;" data-i18n="CAMPAIGN MISSIONS">CAMPAIGN MISSIONS</h3>
+                    <p style="margin-bottom: 15px; font-size: 14px; color: #aaa;" data-i18n="Replay completed missions or continue campaign">Replay completed missions or continue campaign</p>
+                    <div id="missionReplayListHub" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;">
+                        <!-- Mission buttons will be dynamically added here -->
+                    </div>
+                </div>
+
+                <!-- Survival Mode Section -->
+                <div id="survivalModeSectionHub" style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px;">
+                    <h3 style="color: #ff9966; margin-bottom: 15px;" data-i18n="SURVIVAL MODE">SURVIVAL MODE</h3>
+                    <p style="margin-bottom: 15px; font-size: 14px; color: #aaa;" data-i18n="Endless waves with increasing difficulty. How long can you survive?">Endless waves with increasing difficulty. How long can you survive?</p>
+                    <div style="margin-bottom: 15px;">
+                        <span style="color: #ffff66;" data-i18n="High Score:">High Score:</span>
+                        <span id="survivalHighScoreHub">0</span>
+                    </div>
+                    <button class="menu-button" onclick="game.startSurvivalModeFromHub()" style="background: linear-gradient(135deg, #ff6633, #ff9933);">
+                        <span>⚔️ </span><span data-i18n="START SURVIVAL">START SURVIVAL</span>
+                    </button>
+                </div>
+
+                <!-- Special Mode Section (Unlocked after all achievements) -->
+                <div id="specialModeSectionHub" style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-top: 20px; display: none;">
+                    <h3 style="color: #ff66ff; margin-bottom: 15px;" data-i18n="MASTER MODE">MASTER MODE</h3>
+                    <p style="margin-bottom: 15px; font-size: 14px; color: #aaa;" data-i18n="Unlimited special weapons! Only for true masters!">Unlimited special weapons! Only for true masters!</p>
+                    <button class="menu-button" onclick="game.toggleMasterMode()" id="masterModeToggleHub" style="background: linear-gradient(135deg, #ff66ff, #ffff66);">
+                        <span>⭐ </span><span data-i18n="ACTIVATE MASTER MODE">ACTIVATE MASTER MODE</span>
+                    </button>
+                </div>
             </div>
-            <div class="upgrade-grid" id="upgradeGrid">
-                <!-- Upgrades will be populated here -->
+
+            <!-- Upgrades Tab Content -->
+            <div id="upgradesTabContent" class="tab-content" style="display: none;">
+                <div class="currency-display" style="margin-bottom: 20px;">
+                    <span data-i18n="Credits:">Credits:</span> <span id="creditsDisplay">0</span>
+                </div>
+                <div class="upgrade-grid" id="upgradeGrid">
+                    <!-- Upgrades will be populated here -->
+                </div>
             </div>
+
+            <!-- Bottom buttons (always visible) -->
             <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
                 <button class="menu-button" onclick="game.saveProgress()" style="background: #4CAF50;" data-i18n="SAVE PROGRESS">SAVE PROGRESS</button>
-                <button class="menu-button" onclick="game.continueToNextLevel()"><span data-i18n="CONTINUE TO LEVEL">CONTINUE TO LEVEL</span> <span id="nextLevelNum">2</span></button>
+                <button class="menu-button" onclick="game.continueToNextLevel()" id="continueButton"><span data-i18n="CONTINUE TO LEVEL">CONTINUE TO LEVEL</span> <span id="nextLevelNum">2</span></button>
             </div>
         </div>
         
@@ -276,8 +352,10 @@
                     <span id="completionTime">00:00</span>
                 </div>
             </div>
+            <button class="menu-button" onclick="game.goToSpaceHubMissions()" style="background: linear-gradient(135deg, #66ff66, #66ffff);"><span>🚀 </span><span data-i18n="FREE PLAY">FREE PLAY</span></button>
             <button class="menu-button" onclick="game.backToMenu()" data-i18n="MAIN MENU">MAIN MENU</button>
         </div>
+
 
         <!-- Pause Menu -->
         <div id="pauseMenu" class="screen">

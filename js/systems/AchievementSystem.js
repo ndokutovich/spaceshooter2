@@ -622,4 +622,59 @@ class AchievementSystem {
             this.sessionStats.currentHitStreak = 0;
         }
     }
+
+    getAllAchievements() {
+        return Object.values(this.achievements);
+    }
+
+    getProgress(achievementId) {
+        return this.progress[achievementId] || null;
+    }
+
+    unlockMasterAchievement() {
+        // Create and unlock the special Master of Space achievement
+        const masterAchievement = {
+            id: 'masterOfSpace',
+            name: 'Master of Space',
+            description: 'Complete all achievements',
+            category: this.categories.SPECIAL,
+            tiers: [
+                {
+                    required: 1,
+                    reward: {
+                        credits: 100000,
+                        specialUnlock: 'masterMode',
+                        allStatsBonus: 0.25
+                    },
+                    icon: '🌟'
+                }
+            ],
+            trackStat: 'masterUnlocked',
+            hidden: false
+        };
+
+        // Add to achievements
+        this.achievements.masterOfSpace = masterAchievement;
+
+        // Immediately unlock it
+        if (!this.progress.masterOfSpace) {
+            this.progress.masterOfSpace = {
+                unlockedTiers: [0],
+                currentValue: 1
+            };
+
+            // Apply rewards
+            this.applyRewards(masterAchievement.tiers[0].reward);
+
+            // Save progress
+            this.saveProgress();
+
+            // Queue notification
+            this.unlockQueue.push({
+                achievement: masterAchievement,
+                tier: 0,
+                reward: masterAchievement.tiers[0].reward
+            });
+        }
+    }
 }

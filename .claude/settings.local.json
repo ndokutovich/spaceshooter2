@@ -15,7 +15,9 @@
       "Bash(dir:*)",
       "Read(//w/**)",
       "Bash(awk:*)",
-      "Read(//w//**)"
+      "Read(//w//**)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

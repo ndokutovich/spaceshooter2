@@ -12,6 +12,124 @@ body {
     user-select: none;
 }
 
+/* Initial Start Screen */
+.initial-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    z-index: 10000;
+    transition: opacity 0.8s ease;
+}
+
+.initial-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.start-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #000428 0%, #004e92 100%);
+}
+
+.initial-content {
+    text-align: center;
+    z-index: 2;
+    animation: fadeInUp 1s ease;
+    position: relative;
+}
+
+.initial-logo {
+    font-size: 72px;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    margin-bottom: 10px;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+.initial-subtitle {
+    font-size: 24px;
+    color: #ffcc00;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.initial-description {
+    font-size: 18px;
+    color: #ffffff;
+    margin-bottom: 40px;
+    opacity: 0.8;
+    max-width: 400px;
+}
+
+.start-button {
+    padding: 20px 50px;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #ff6600, #ff9900);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(255, 102, 0, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.start-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(255, 102, 0, 0.5);
+}
+
+.start-icon {
+    margin-right: 10px;
+    font-size: 28px;
+}
+
+.initial-hint {
+    margin-top: 30px;
+    font-size: 14px;
+    color: #888;
+    animation: blink 2s ease-in-out infinite;
+}
+
+/* Removed old background effects - using canvas starfield instead */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    }
+    to {
+        text-shadow: 0 0 50px rgba(0, 255, 255, 0.8), 0 0 70px rgba(0, 255, 255, 0.6);
+    }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
 #gameContainer {
     position: relative;
     width: 100vw;
@@ -35,9 +153,19 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    background: linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    background: #000;
     color: white;
     z-index: 10;
+}
+
+.screen-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #000428 0%, #004e92 100%);
+    z-index: -1;
 }
 
 .screen.active {
@@ -261,6 +389,25 @@ body {
 @keyframes pulse {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.8);
+    }
+    20% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.1);
+    }
+    80% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.9);
+    }
 }
 
 /* Cheat notification animation */

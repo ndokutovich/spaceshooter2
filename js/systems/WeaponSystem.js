@@ -308,6 +308,11 @@ class WeaponSystem {
     }
 
     consumeAmmo(amount = 1) {
+        // Don't consume ammo in Master Mode for special weapons
+        if (window.game && window.game.masterModeEnabled && this.currentWeaponIndex > 0) {
+            return; // Special weapons have infinite ammo in master mode
+        }
+
         const weapon = this.getCurrentWeapon();
         if (weapon.ammo !== Infinity) {
             weapon.ammo = Math.max(0, weapon.ammo - amount);
