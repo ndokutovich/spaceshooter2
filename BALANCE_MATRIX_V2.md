@@ -1,4 +1,4 @@
-# Space Shooter - Comprehensive Balance Matrix
+# Stardust: A Miner's Tale - Comprehensive Balance Matrix
 ## Jack "Stardust" Kovac's Journey
 
 ---

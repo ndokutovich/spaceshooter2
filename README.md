@@ -1,6 +1,6 @@
-# Space Shooter: Jack's Mars Mission
+# Stardust: A Miner's Tale
 
-A narrative-driven arcade space shooter where Jack Kovac, a space miner, fights through waves of enemies to save his family on Mars from crushing medical debt. Built with vanilla JavaScript and HTML5 Canvas.
+A narrative-driven arcade space shooter where Jack "Stardust" Kovac, a space miner, fights through waves of enemies to save his family on Mars from crushing medical debt. Built with vanilla JavaScript and HTML5 Canvas.
 
 ## 🎮 Play Now
 

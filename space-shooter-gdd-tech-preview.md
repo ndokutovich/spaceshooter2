@@ -1,4 +1,4 @@
-# Space Shooter - Game Design Document
+# Stardust: A Miner's Tale - Game Design Document
 ## Mobile First Top-Down Space Shooter
 
 ---

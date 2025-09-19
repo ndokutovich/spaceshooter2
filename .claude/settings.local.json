@@ -17,7 +17,8 @@
       "Bash(awk:*)",
       "Read(//w//**)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(cmd /c \"move logo-*.png assets\"\")"
     ],
     "deny": [],
     "ask": []

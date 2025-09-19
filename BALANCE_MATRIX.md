@@ -1,4 +1,4 @@
-# Space Shooter Game Balance Matrix
+# Stardust: A Miner's Tale - Balance Matrix
 
 ## 1. LEVEL PROGRESSION MATRIX
 
