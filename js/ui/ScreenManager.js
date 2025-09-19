@@ -132,7 +132,7 @@ class ScreenManager {
                     }
 
                     if (hasPlayableData && displayData) {
-                        continueBtn.innerHTML = `<span>▶️ </span><span>${languageSystem.t('CONTINUE')}<br><span style="font-size: 14px; opacity: 0.7;">${languageSystem.t('Level')} ${displayData.level} • ${languageSystem.t('Score:').slice(0, -1)}: ${displayData.score}</span></span>`;
+                        continueBtn.innerHTML = `${languageSystem.t('CONTINUE')}<br><span style="font-size: 14px; opacity: 0.7;">${languageSystem.t('Level')} ${displayData.level} • ${languageSystem.t('Score:').slice(0, -1)}: ${displayData.score}</span>`;
                         continueBtn.style.display = 'block';
 
                         // Also show save game button if we have playable data

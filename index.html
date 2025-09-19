@@ -76,15 +76,15 @@
                 <span>▼</span>
             </div>
 
-            <button id="continueBtn" class="menu-button" onclick="game.continueGame()" style="display: none;"><span>▶️ </span><span data-i18n="CONTINUE">CONTINUE</span></button>
-            <button class="menu-button" onclick="game.startGame()"><span>🚀 </span><span data-i18n="NEW GAME">NEW GAME</span></button>
-            <button class="menu-button" onclick="game.showSaves()"><span>📂 </span><span data-i18n="LOAD GAME">LOAD GAME</span></button>
-            <button id="saveGameBtn" class="menu-button" onclick="game.createManualSave()" style="display: none;"><span>💾 </span><span data-i18n="SAVE GAME">SAVE GAME</span></button>
-            <button class="menu-button" onclick="game.showOptions()"><span>⚙️ </span><span data-i18n="OPTIONS">OPTIONS</span></button>
-            <button class="menu-button" onclick="game.showAchievements()"><span>🏆 </span><span data-i18n="ACHIEVEMENTS">ACHIEVEMENTS</span></button>
-            <button class="menu-button" onclick="game.showRecords()"><span>📊 </span><span data-i18n="RECORDS">RECORDS</span></button>
-            <button class="menu-button" onclick="game.showCredits()"><span>ℹ️ </span><span data-i18n="CREDITS">CREDITS</span></button>
-            <button class="menu-button" onclick="game.exitToStart()"><span>🚪 </span><span data-i18n="EXIT">EXIT</span></button>
+            <button id="continueBtn" class="menu-button" onclick="game.continueGame()" style="display: none;" data-i18n="CONTINUE">CONTINUE</button>
+            <button class="menu-button" onclick="game.startGame()" data-i18n="NEW GAME">NEW GAME</button>
+            <button class="menu-button" onclick="game.showSaves()" data-i18n="LOAD GAME">LOAD GAME</button>
+            <button id="saveGameBtn" class="menu-button" onclick="game.createManualSave()" style="display: none;" data-i18n="SAVE GAME">SAVE GAME</button>
+            <button class="menu-button" onclick="game.showOptions()" data-i18n="OPTIONS">OPTIONS</button>
+            <button class="menu-button" onclick="game.showAchievements()" data-i18n="ACHIEVEMENTS">ACHIEVEMENTS</button>
+            <button class="menu-button" onclick="game.showRecords()" data-i18n="RECORDS">RECORDS</button>
+            <button class="menu-button" onclick="game.showCredits()" data-i18n="CREDITS">CREDITS</button>
+            <button class="menu-button" onclick="game.exitToStart()" data-i18n="EXIT">EXIT</button>
         </div>
         
         <!-- Options Screen -->
@@ -127,8 +127,8 @@
                     <input type="range" id="musicVolume" min="0" max="100" value="50" style="margin-left: 10px;">
                 </div>
             </div>
-            <button class="menu-button" onclick="game.saveOptions()" style="margin-top: 30px;"><span>✅ </span><span data-i18n="SAVE">SAVE</span></button>
-            <button class="menu-button" onclick="game.backToMenu()"><span>🔙 </span><span data-i18n="BACK">BACK</span></button>
+            <button class="menu-button" onclick="game.saveOptions()" style="margin-top: 30px;" data-i18n="SAVE">SAVE</button>
+            <button class="menu-button" onclick="game.backToMenu()" data-i18n="BACK">BACK</button>
         </div>
         
         <!-- Records Screen -->
@@ -137,7 +137,7 @@
             <div id="highScoresList" style="background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; min-width: 400px;">
                 <!-- High scores will be populated here -->
             </div>
-            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;"><span>🔙 </span><span data-i18n="BACK">BACK</span></button>
+            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;" data-i18n="BACK">BACK</button>
         </div>
         
         <!-- Credits Screen -->
@@ -156,7 +156,7 @@
                 <p data-i18n="Sound & Music">Sound & Music</p>
                 <p style="color: #00ffff;" data-i18n="Audio Team">Audio Team</p>
             </div>
-            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;"><span>🔙 </span><span data-i18n="BACK">BACK</span></button>
+            <button class="menu-button" onclick="game.backToMenu()" style="margin-top: 30px;" data-i18n="BACK">BACK</button>
         </div>
 
         <!-- Profile Selection Screen -->
@@ -168,10 +168,8 @@
             </div>
 
             <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
-                <button class="menu-button" onclick="game.showCreateProfileDialog()">
-                    <span>➕ </span><span data-i18n="NEW PROFILE">NEW PROFILE</span>
-                </button>
-                <button class="menu-button" onclick="game.backToMenu()"><span>🔙 </span><span data-i18n="BACK">BACK</span></button>
+                <button class="menu-button" onclick="game.showCreateProfileDialog()" data-i18n="NEW PROFILE">NEW PROFILE</button>
+                <button class="menu-button" onclick="game.backToMenu()" data-i18n="BACK">BACK</button>
             </div>
         </div>
 
@@ -184,7 +182,7 @@
             </div>
 
             <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
-                <button class="menu-button" onclick="game.backToMenu()"><span>🔙 </span><span data-i18n="BACK">BACK</span></button>
+                <button class="menu-button" onclick="game.backToMenu()" data-i18n="BACK">BACK</button>
             </div>
         </div>
 
@@ -205,8 +203,8 @@
             </div>
 
             <div style="display: flex; gap: 10px; justify-content: center;">
-                <button class="menu-button" onclick="game.createProfile()" style="padding: 10px 20px;"><span>✅ </span><span data-i18n="CREATE">CREATE</span></button>
-                <button class="menu-button" onclick="game.cancelCreateProfile()" style="padding: 10px 20px;"><span>❌ </span><span data-i18n="Cancel">CANCEL</span></button>
+                <button class="menu-button" onclick="game.createProfile()" style="padding: 10px 20px;" data-i18n="CREATE">CREATE</button>
+                <button class="menu-button" onclick="game.cancelCreateProfile()" style="padding: 10px 20px;" data-i18n="Cancel">CANCEL</button>
             </div>
         </div>
 
@@ -311,18 +309,14 @@
                         <span style="color: #ffff66;" data-i18n="High Score:">High Score:</span>
                         <span id="survivalHighScoreHub">0</span>
                     </div>
-                    <button class="menu-button" onclick="game.startSurvivalModeFromHub()">
-                        <span>⚔️ </span><span data-i18n="START SURVIVAL">START SURVIVAL</span>
-                    </button>
+                    <button class="menu-button" onclick="game.startSurvivalModeFromHub()" data-i18n="START SURVIVAL">START SURVIVAL</button>
                 </div>
 
                 <!-- Special Mode Section (Unlocked after all achievements) -->
                 <div id="specialModeSectionHub" style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px; margin-top: 20px; display: none;">
                     <h3 style="color: #ff66ff; margin-bottom: 15px;" data-i18n="MASTER MODE">MASTER MODE</h3>
                     <p style="margin-bottom: 15px; font-size: 14px; color: #aaa;" data-i18n="Unlimited special weapons! Only for true masters!">Unlimited special weapons! Only for true masters!</p>
-                    <button class="menu-button" onclick="game.toggleMasterMode()" id="masterModeToggleHub">
-                        <span>⭐ </span><span data-i18n="ACTIVATE MASTER MODE">ACTIVATE MASTER MODE</span>
-                    </button>
+                    <button class="menu-button" onclick="game.toggleMasterMode()" id="masterModeToggleHub" data-i18n="ACTIVATE MASTER MODE">ACTIVATE MASTER MODE</button>
                 </div>
             </div>
 
@@ -338,9 +332,9 @@
 
             <!-- Bottom buttons (always visible) -->
             <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
-                <button class="menu-button" onclick="game.createManualSave()"><span>💾 </span><span data-i18n="SAVE GAME">SAVE GAME</span></button>
-                <button class="menu-button" onclick="game.showSaves()"><span>📂 </span><span data-i18n="LOAD GAME">LOAD GAME</span></button>
-                <button class="menu-button" onclick="game.continueToNextLevel()" id="continueButton"><span>▶️ </span><span data-i18n="CONTINUE TO LEVEL">CONTINUE TO LEVEL</span> <span id="nextLevelNum">2</span></button>
+                <button class="menu-button" onclick="game.createManualSave()" data-i18n="SAVE GAME">SAVE GAME</button>
+                <button class="menu-button" onclick="game.showSaves()" data-i18n="LOAD GAME">LOAD GAME</button>
+                <button class="menu-button" onclick="game.continueToNextLevel()" id="continueButton"><span data-i18n="CONTINUE TO LEVEL">CONTINUE TO LEVEL</span> <span id="nextLevelNum">2</span></button>
             </div>
         </div>
         
@@ -365,8 +359,8 @@
                     <span id="creditsEarned">0</span>
                 </div>
             </div>
-            <button class="menu-button" onclick="game.retryLevel()"><span>🔄 </span><span data-i18n="RETRY">RETRY</span></button>
-            <button class="menu-button" onclick="game.backToMenu()"><span>🏠 </span><span data-i18n="MAIN MENU">MAIN MENU</span></button>
+            <button class="menu-button" onclick="game.retryLevel()" data-i18n="RETRY">RETRY</button>
+            <button class="menu-button" onclick="game.backToMenu()" data-i18n="MAIN MENU">MAIN MENU</button>
         </div>
         
         <!-- Victory Screen -->
@@ -387,8 +381,8 @@
                     <span id="completionTime">00:00</span>
                 </div>
             </div>
-            <button class="menu-button" onclick="game.goToSpaceHubMissions()"><span>🚀 </span><span data-i18n="FREE PLAY">FREE PLAY</span></button>
-            <button class="menu-button" onclick="game.backToMenu()"><span>🏠 </span><span data-i18n="MAIN MENU">MAIN MENU</span></button>
+            <button class="menu-button" onclick="game.goToSpaceHubMissions()" data-i18n="FREE PLAY">FREE PLAY</button>
+            <button class="menu-button" onclick="game.backToMenu()" data-i18n="MAIN MENU">MAIN MENU</button>
         </div>
 
 
@@ -502,10 +496,10 @@
                     </div>
                 </div>
             </div>
-            <button class="menu-button" onclick="game.resumeGame()"><span>▶️ </span><span data-i18n="RESUME">RESUME</span></button>
-            <button class="menu-button" onclick="game.showAchievements()"><span>🏆 </span><span data-i18n="ACHIEVEMENTS">ACHIEVEMENTS</span></button>
-            <button class="menu-button" onclick="game.saveAndQuit()"><span>💾 </span><span data-i18n="SAVE & QUIT">SAVE & QUIT</span></button>
-            <button class="menu-button" onclick="game.quitToMenu()"><span>🚪 </span><span data-i18n="QUIT TO MENU">QUIT TO MENU</span></button>
+            <button class="menu-button" onclick="game.resumeGame()" data-i18n="RESUME">RESUME</button>
+            <button class="menu-button" onclick="game.showAchievements()" data-i18n="ACHIEVEMENTS">ACHIEVEMENTS</button>
+            <button class="menu-button" onclick="game.saveAndQuit()" data-i18n="SAVE & QUIT">SAVE & QUIT</button>
+            <button class="menu-button" onclick="game.quitToMenu()" data-i18n="QUIT TO MENU">QUIT TO MENU</button>
         </div>
         
         <!-- HUD -->
