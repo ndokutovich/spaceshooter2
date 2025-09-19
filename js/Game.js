@@ -139,6 +139,30 @@ class SpaceShooterGame {
     }
 
     setupStartScreen() {
+        // Detect browser language early for start screen
+        const browserLang = navigator.language || navigator.userLanguage;
+        if (browserLang && browserLang.toLowerCase().startsWith('ru')) {
+            languageSystem.setLanguage('ru');
+        }
+
+        // Translate start screen elements
+        const titleElement = document.querySelector('.initial-logo');
+        const subtitleElement = document.querySelector('.initial-subtitle');
+        const descElement = document.querySelector('.initial-description');
+        const buttonText = document.querySelector('.start-text');
+        const hintElement = document.querySelector('.initial-hint');
+
+        if (titleElement) titleElement.textContent = languageSystem.t('STARDUST');
+        if (subtitleElement) subtitleElement.textContent = languageSystem.t("A Miner's Tale");
+        if (descElement) descElement.textContent = languageSystem.t('Save your family. Fight the corporations. Become the hero of Mars.');
+        if (buttonText) buttonText.textContent = languageSystem.t('START GAME');
+        if (hintElement) hintElement.textContent = languageSystem.t('Click to begin your journey');
+
+        // Preload/cache the MP3 file
+        const audioPreload = new Audio();
+        audioPreload.src = 'game-intro.mp3';
+        audioPreload.load(); // Preload the audio file
+
         const startButton = document.getElementById('startButton');
         const startScreen = document.getElementById('startScreen');
         const startCanvas = document.getElementById('startCanvas');
@@ -206,22 +230,7 @@ class SpaceShooterGame {
             const validVolume = Math.max(0, Math.min(1, this.musicVolume));
             this.music.volume = validVolume;
 
-            // Add error handler to fallback to wav
-            this.music.addEventListener('error', (e) => {
-                console.log('MP3 failed, trying WAV...', e);
-                // Reset and try WAV
-                this.music = new Audio();
-                this.music.loop = true;
-                this.music.volume = validVolume;
-                this.music.src = 'game-intro.wav';
-
-                this.music.play().catch(err => {
-                    console.log('WAV playback also failed:', err);
-                    this.musicPending = true;
-                });
-            }, { once: true });
-
-            // Set source after properties
+            // Set source (MP3 only, no fallback needed)
             this.music.src = 'game-intro.mp3';
 
             // Play music immediately since user clicked the start button
@@ -2128,6 +2137,30 @@ class SpaceShooterGame {
         this.screenManager.showScreen('creditsScreen');
     }
 
+    exitToStart() {
+        // Stop music
+        if (this.music) {
+            this.music.pause();
+            this.music.currentTime = 0;
+        }
+
+        // Hide all screens
+        this.screenManager.hideAllScreens();
+
+        // Show start screen
+        const startScreen = document.getElementById('startScreen');
+        if (startScreen) {
+            startScreen.style.display = 'flex';
+            startScreen.classList.remove('hidden');
+        }
+
+        // Reset game state if in progress
+        if (this.gameState === 'playing') {
+            this.gameState = 'menu';
+            this.isPaused = false;
+        }
+    }
+
     showAchievements() {
         this.achievementUI.showAchievementScreen();
     }
@@ -2207,10 +2240,21 @@ class SpaceShooterGame {
         }
     }
 
+    createManualSave() {
+        // Alias for createNewSave to match HTML button onclick
+        this.createNewSave();
+    }
+
     createNewSave() {
         const profile = profileManager.getCurrentProfile();
         if (!profile) {
             this.dialogSystem.showQuickMessage(languageSystem.t('Please select a profile first'));
+            return;
+        }
+
+        // Check if we have any game progress to save
+        if (this.level <= 1 && this.score === 0 && this.credits <= 500) {
+            this.dialogSystem.showQuickMessage(languageSystem.t('No game progress to save'));
             return;
         }
 
@@ -2583,7 +2627,26 @@ class SpaceShooterGame {
 
     // Start from saved game
     continueGame() {
-        if (this.loadProgress()) {
+        const profile = profileManager.getCurrentProfile();
+        let loaded = false;
+
+        // First try to load autosave from new save system
+        if (profile) {
+            const saves = this.getAllSaves();
+            const autosave = saves.find(s => s.isAutosave);
+
+            if (autosave) {
+                this.loadSaveData(autosave);
+                loaded = true;
+            }
+        }
+
+        // Fall back to old save system if no autosave
+        if (!loaded) {
+            loaded = this.loadProgress();
+        }
+
+        if (loaded) {
             this.screenManager.hideScreen('mainMenu');
             // Show upgrade screen first when loading a saved game
             this.showUpgradeScreen();

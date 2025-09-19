@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a browser-based Space Shooter game built with vanilla JavaScript, HTML5 Canvas, and CSS. It's a narrative-driven arcade game where Jack Kovac, a space miner, fights to save his family on Mars from medical debt. The game features a deep upgrade system, family morale mechanics, achievements, and multi-language support.
+This is a browser-based space shooter game called "Stardust: A Miner's Tale" built with vanilla JavaScript, HTML5 Canvas, and CSS. It's a narrative-driven arcade game where Jack "Stardust" Kovac, a space miner, fights to save his family on Mars from medical debt. The game features a deep upgrade system, family morale mechanics, achievements, and multi-language support.
 
 ## Core Architecture Principles
 

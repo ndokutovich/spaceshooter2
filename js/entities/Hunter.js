@@ -14,7 +14,7 @@ class Hunter {
         // Hunter-specific properties
         this.hunterProps = {
             bounty: {
-                name: 'Bounty Hunter',
+                name: languageSystem.t('Bounty Hunter'),
                 color: '#FFD700',      // Gold
                 accentColor: '#FFA500', // Orange
                 health: 2.5,            // Health multiplier
@@ -26,7 +26,7 @@ class Hunter {
                 special: 'tracker'      // Homing shots
             },
             raider: {
-                name: 'Pirate Raider',
+                name: languageSystem.t('Pirate Raider'),
                 color: '#DC143C',      // Crimson
                 accentColor: '#8B0000', // Dark red
                 health: 3.0,
@@ -38,7 +38,7 @@ class Hunter {
                 special: 'burst'        // Burst fire
             },
             assassin: {
-                name: 'Shadow Assassin',
+                name: languageSystem.t('Shadow Assassin'),
                 color: '#4B0082',      // Indigo
                 accentColor: '#9400D3', // Violet
                 health: 2.0,

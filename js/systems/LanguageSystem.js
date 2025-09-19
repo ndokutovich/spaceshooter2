@@ -37,6 +37,7 @@ class LanguageSystem {
                 'ACHIEVEMENTS': 'ACHIEVEMENTS',
                 'RECORDS': 'RECORDS',
                 'CREDITS': 'CREDITS',
+                'EXIT': 'EXIT',
                 'HIGH SCORES': 'HIGH SCORES',
                 'BACK': 'BACK',
 
@@ -358,6 +359,11 @@ class LanguageSystem {
                 'BOSS APPROACHING!': 'BOSS APPROACHING!',
                 'WAVE COMPLETE!': 'WAVE COMPLETE!',
                 'LEVEL COMPLETE!': 'LEVEL COMPLETE!',
+
+                // Hunter Enemy Types
+                'Bounty Hunter': 'Bounty Hunter',
+                'Pirate Raider': 'Pirate Raider',
+                'Shadow Assassin': 'Shadow Assassin',
 
                 // HUD Labels
                 'Credits:': 'Credits:',
@@ -719,7 +725,25 @@ class LanguageSystem {
                 'Cost:': 'Cost:',
                 'Level': 'Level',
                 '⚠️ ELITE HUNTERS INCOMING!': '⚠️ ELITE HUNTERS INCOMING!',
-                'credits': 'credits'
+                'credits': 'credits',
+
+                // Save System
+                'SAVE GAME': 'SAVE GAME',
+                'LOAD GAME': 'LOAD GAME',
+                'No game progress to save': 'No game progress to save',
+                'Please select a profile first': 'Please select a profile first',
+                'Saved successfully': 'Saved successfully',
+                'Save deleted': 'Save deleted',
+                'Autosave': 'Autosave',
+
+                // Start Screen
+                'STARDUST': 'STARDUST',
+                'SPACE SHOOTER': 'STARDUST',
+                'A Miner\'s Tale': 'A Miner\'s Tale',
+                'START GAME': 'START GAME',
+                "Jack's Last Hope": "Jack's Last Hope",
+                'Save your family. Fight the corporations. Become the hero of Mars.': 'Save your family. Fight the corporations. Become the hero of Mars.',
+                'Click to begin your journey': 'Click to begin your journey'
             },
 
             ru: {
@@ -757,6 +781,7 @@ class LanguageSystem {
                 'ACHIEVEMENTS': 'ДОСТИЖЕНИЯ',
                 'RECORDS': 'РЕКОРДЫ',
                 'CREDITS': 'ТИТРЫ',
+                'EXIT': 'ВЫХОД',
                 'HIGH SCORES': 'ЛУЧШИЕ РЕЗУЛЬТАТЫ',
 
                 // Options
@@ -1085,6 +1110,11 @@ class LanguageSystem {
                 'BOSS APPROACHING!': 'ПРИБЛИЖАЕТСЯ БОСС!',
                 'WAVE COMPLETE!': 'ВОЛНА ЗАВЕРШЕНА!',
                 'LEVEL COMPLETE!': 'УРОВЕНЬ ПРОЙДЕН!',
+
+                // Hunter Enemy Types
+                'Bounty Hunter': 'Охотник за головами',
+                'Pirate Raider': 'Пиратский рейдер',
+                'Shadow Assassin': 'Теневой убийца',
 
                 // HUD Labels
                 'Credits:': 'Кредиты:',
@@ -1439,7 +1469,25 @@ class LanguageSystem {
                 'Complete the game without dying': 'Завершить игру не умирая',
 
                 // UI Strings from ScreenManager and other files
-                '⚠️ ELITE HUNTERS INCOMING!': '⚠️ ПРИБЛИЖАЮТСЯ ЭЛИТНЫЕ ОХОТНИКИ!'
+                '⚠️ ELITE HUNTERS INCOMING!': '⚠️ ПРИБЛИЖАЮТСЯ ЭЛИТНЫЕ ОХОТНИКИ!',
+
+                // Save System
+                'SAVE GAME': 'СОХРАНИТЬ ИГРУ',
+                'LOAD GAME': 'ЗАГРУЗИТЬ ИГРУ',
+                'No game progress to save': 'Нет прогресса для сохранения',
+                'Please select a profile first': 'Сначала выберите профиль',
+                'Saved successfully': 'Успешно сохранено',
+                'Save deleted': 'Сохранение удалено',
+                'Autosave': 'Автосохранение',
+
+                // Start Screen
+                'STARDUST': 'ЗВЕЗДНАЯ ПЫЛЬ',
+                'SPACE SHOOTER': 'ЗВЕЗДНАЯ ПЫЛЬ',
+                'A Miner\'s Tale': 'История шахтёра',
+                'START GAME': 'НАЧАТЬ ИГРУ',
+                "Jack's Last Hope": 'Последняя надежда Джека',
+                'Save your family. Fight the corporations. Become the hero of Mars.': 'Спаси свою семью. Сражайся с корпорациями. Стань героем Марса.',
+                'Click to begin your journey': 'Нажмите, чтобы начать путешествие'
             }
         };
     }

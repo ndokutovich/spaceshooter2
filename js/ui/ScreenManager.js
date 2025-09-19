@@ -95,16 +95,57 @@ class ScreenManager {
                 this.stopStarfieldAnimation();
             }
 
-            // Show/hide continue button if showing main menu
+            // Show/hide continue and save buttons if showing main menu
             if (screenId === 'mainMenu') {
                 const continueBtn = document.getElementById('continueBtn');
+                const saveGameBtn = document.getElementById('saveGameBtn');
+
                 if (continueBtn) {
+                    // Check for either old save data or new autosave
                     const saveData = profileManager.loadGameProgress();
-                    if (saveData) {
-                        continueBtn.innerHTML = `${languageSystem.t('CONTINUE')}<br><span style="font-size: 14px; opacity: 0.7;">${languageSystem.t('Level')} ${saveData.level} • ${languageSystem.t('Score:').slice(0, -1)}: ${saveData.score}</span>`;
+                    const profile = profileManager.getCurrentProfile();
+                    let hasPlayableData = false;
+                    let displayData = null;
+
+                    // First check for autosave (newest save system)
+                    if (profile) {
+                        const savesKey = `spaceShooter_saves_${profile.id}`;
+                        const savesData = localStorage.getItem(savesKey);
+                        if (savesData) {
+                            try {
+                                const saves = JSON.parse(savesData);
+                                const autosave = saves.find(s => s.isAutosave);
+                                if (autosave) {
+                                    hasPlayableData = true;
+                                    displayData = autosave;
+                                }
+                            } catch (e) {
+                                console.error('Failed to check autosave:', e);
+                            }
+                        }
+                    }
+
+                    // Fall back to old save data if no autosave
+                    if (!hasPlayableData && saveData) {
+                        hasPlayableData = true;
+                        displayData = saveData;
+                    }
+
+                    if (hasPlayableData && displayData) {
+                        continueBtn.innerHTML = `<span>▶️ </span><span>${languageSystem.t('CONTINUE')}<br><span style="font-size: 14px; opacity: 0.7;">${languageSystem.t('Level')} ${displayData.level} • ${languageSystem.t('Score:').slice(0, -1)}: ${displayData.score}</span></span>`;
                         continueBtn.style.display = 'block';
+
+                        // Also show save game button if we have playable data
+                        if (saveGameBtn) {
+                            saveGameBtn.style.display = 'block';
+                        }
                     } else {
                         continueBtn.style.display = 'none';
+
+                        // Hide save game button if no playable data
+                        if (saveGameBtn) {
+                            saveGameBtn.style.display = 'none';
+                        }
                     }
                 }
             }
