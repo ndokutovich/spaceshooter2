@@ -4,7 +4,8 @@ class ScreenManager {
         this.screens = [
             'platformLogo', 'vendorLogo', 'gameLogo', 'mainMenu',
             'optionsScreen', 'recordsScreen', 'creditsScreen', 'profileScreen',
-            'upgradeScreen', 'gameOver', 'victoryScreen', 'pauseMenu', 'freePlayScreen'
+            'upgradeScreen', 'gameOver', 'victoryScreen', 'pauseMenu', 'freePlayScreen',
+            'savesScreen'
         ];
         // Note: createProfileDialog is NOT a screen - it's an overlay dialog
 

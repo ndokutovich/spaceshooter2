@@ -648,6 +648,122 @@ body {
     background: rgba(0, 255, 255, 0.5);
 }
 
+/* Saves Grid Styling */
+.saves-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+.save-card {
+    background: linear-gradient(135deg, rgba(68, 68, 255, 0.2), rgba(102, 102, 255, 0.1));
+    border: 2px solid #6666ff;
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.save-card:hover {
+    background: linear-gradient(135deg, rgba(68, 68, 255, 0.3), rgba(102, 102, 255, 0.2));
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(68, 68, 255, 0.4);
+}
+
+.save-card.autosave {
+    border-color: #ffaa00;
+    background: linear-gradient(135deg, rgba(255, 170, 0, 0.2), rgba(255, 204, 0, 0.1));
+}
+
+.save-card.autosave:hover {
+    background: linear-gradient(135deg, rgba(255, 170, 0, 0.3), rgba(255, 204, 0, 0.2));
+    box-shadow: 0 10px 30px rgba(255, 170, 0, 0.4);
+}
+
+.save-info {
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.save-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #66ccff;
+    margin-bottom: 5px;
+}
+
+.save-date {
+    font-size: 12px;
+    color: #aaaaaa;
+}
+
+.save-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.save-stat {
+    font-size: 14px;
+    color: #cccccc;
+}
+
+.save-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.save-action-btn {
+    flex: 1;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.save-action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.save-action-btn.load {
+    background: linear-gradient(135deg, #44ff44, #66ff66);
+    color: #000;
+}
+
+.save-action-btn.delete {
+    background: linear-gradient(135deg, #ff4444, #ff6666);
+    color: #fff;
+}
+
+.saves-grid::-webkit-scrollbar {
+    width: 10px;
+}
+
+.saves-grid::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+}
+
+.saves-grid::-webkit-scrollbar-thumb {
+    background: rgba(102, 102, 255, 0.3);
+    border-radius: 5px;
+}
+
+.saves-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 102, 255, 0.5);
+}
+
 .avatar-option {
     width: 60px;
     height: 60px;

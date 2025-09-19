@@ -235,6 +235,11 @@ class FamilyWelfare {
         };
     }
 
+    getFullState() {
+        // Alias for saveState for consistency with new save system
+        return this.saveState();
+    }
+
     loadState(state) {
         if (state) {
             this.hunger = state.hunger || 100;

@@ -121,6 +121,12 @@ class SpaceShooterGame {
             this.achievementSystem.reloadProgress();
         }
 
+        // Detect browser language and set Russian if found
+        const browserLang = navigator.language || navigator.userLanguage;
+        if (browserLang && (browserLang.toLowerCase().startsWith('ru') || browserLang.toLowerCase().includes('ru'))) {
+            languageSystem.setLanguage('ru');
+        }
+
         // Initialize language
         setTimeout(() => {
             languageSystem.updateAllTexts();
@@ -1383,6 +1389,9 @@ class SpaceShooterGame {
     }
 
     showUpgradeScreen() {
+        // Create autosave when entering Space Hub (after level completion)
+        this.createAutosave();
+
         // Initialize family UI with proper values
         this.updateFamilyUI();
 
@@ -2121,6 +2130,268 @@ class SpaceShooterGame {
 
     showAchievements() {
         this.achievementUI.showAchievementScreen();
+    }
+
+    showSaves() {
+        this.screenManager.showScreen('savesScreen');
+        this.refreshSavesList();
+    }
+
+    refreshSavesList() {
+        const savesList = document.getElementById('savesList');
+        if (!savesList) return;
+
+        const profile = profileManager.getCurrentProfile();
+        if (!profile) {
+            savesList.innerHTML = '<p style="text-align: center; color: #999;">No profile selected</p>';
+            return;
+        }
+
+        // Get all saves for current profile
+        const saves = this.getAllSaves();
+
+        if (saves.length === 0) {
+            savesList.innerHTML = '<p style="text-align: center; color: #999;">' + languageSystem.t('No saves yet') + '</p>';
+            return;
+        }
+
+        savesList.innerHTML = '';
+
+        saves.forEach((save, index) => {
+            const card = document.createElement('div');
+            card.className = save.isAutosave ? 'save-card autosave' : 'save-card';
+
+            const saveDate = new Date(save.timestamp);
+            const formattedDate = saveDate.toLocaleString();
+
+            card.innerHTML = `
+                <div class="save-info">
+                    <div class="save-name">
+                        ${save.isAutosave ? '⚡ ' + languageSystem.t('AUTOSAVE') : '💾 ' + languageSystem.t('Save') + ' ' + (index + 1)}
+                    </div>
+                    <div class="save-date">${formattedDate}</div>
+                </div>
+                <div class="save-stats">
+                    <div class="save-stat">📍 ${languageSystem.t('Level')} ${save.level}</div>
+                    <div class="save-stat">⭐ ${languageSystem.t('Score')} ${save.score}</div>
+                    <div class="save-stat">💰 ${save.credits} ${languageSystem.t('credits')}</div>
+                    <div class="save-stat">⚔️ ${save.enemiesKilled || 0} ${languageSystem.t('kills')}</div>
+                </div>
+                <div class="save-actions">
+                    <button class="save-action-btn load" onclick="game.loadSaveSlot(${index})">${languageSystem.t('LOAD')}</button>
+                    <button class="save-action-btn delete" onclick="game.deleteSaveSlot(${index})">${languageSystem.t('DELETE')}</button>
+                </div>
+            `;
+
+            savesList.appendChild(card);
+        });
+    }
+
+    getAllSaves() {
+        const profile = profileManager.getCurrentProfile();
+        if (!profile) return [];
+
+        // Get saves from localStorage
+        const savesKey = `spaceShooter_saves_${profile.id}`;
+        const savesData = localStorage.getItem(savesKey);
+
+        if (!savesData) return [];
+
+        try {
+            const saves = JSON.parse(savesData);
+            // Sort by timestamp, newest first
+            return saves.sort((a, b) => b.timestamp - a.timestamp);
+        } catch (e) {
+            console.error('Failed to load saves:', e);
+            return [];
+        }
+    }
+
+    createNewSave() {
+        const profile = profileManager.getCurrentProfile();
+        if (!profile) {
+            this.dialogSystem.showQuickMessage(languageSystem.t('Please select a profile first'));
+            return;
+        }
+
+        // Create save data
+        const saveData = {
+            timestamp: Date.now(),
+            isAutosave: false,
+            level: this.level,
+            score: this.score,
+            credits: this.credits,
+            enemiesKilled: this.enemiesKilled,
+            // Store the entire game state
+            upgrades: this.upgradeSystem.upgrades,
+            weapons: {
+                unlockedWeapons: this.weaponSystem.unlockedWeapons,
+                currentWeaponIndex: this.weaponSystem.currentWeaponIndex,
+                ammo: this.weaponSystem.weapons.map(w => w.ammo)
+            },
+            familyWelfare: this.familyWelfare.getFullState(),
+            completedLevels: this.completedLevels,
+            masterModeEnabled: this.masterModeEnabled
+        };
+
+        // Get existing saves
+        const savesKey = `spaceShooter_saves_${profile.id}`;
+        let saves = [];
+
+        try {
+            const existingSaves = localStorage.getItem(savesKey);
+            if (existingSaves) {
+                saves = JSON.parse(existingSaves);
+            }
+        } catch (e) {
+            console.error('Failed to load existing saves:', e);
+        }
+
+        // Add new save (limit to 10 saves)
+        saves.unshift(saveData);
+        if (saves.length > 10) {
+            saves = saves.slice(0, 10);
+        }
+
+        // Save to localStorage
+        try {
+            localStorage.setItem(savesKey, JSON.stringify(saves));
+            this.dialogSystem.showQuickMessage(languageSystem.t('Game saved successfully!'));
+            this.refreshSavesList();
+        } catch (e) {
+            console.error('Failed to save game:', e);
+            this.dialogSystem.showQuickMessage(languageSystem.t('Failed to save game'));
+        }
+    }
+
+    loadSaveSlot(index) {
+        const saves = this.getAllSaves();
+        if (index >= 0 && index < saves.length) {
+            const save = saves[index];
+            this.loadSaveData(save);
+            this.screenManager.hideScreen('savesScreen');
+            this.screenManager.showScreen('upgradeScreen');
+            this.showUpgradeScreen();
+            this.dialogSystem.showQuickMessage(languageSystem.t('Game loaded successfully!'));
+        }
+    }
+
+    loadSaveData(saveData) {
+        // Restore game state
+        this.level = saveData.level || 1;
+        this.score = saveData.score || 0;
+        this.credits = saveData.credits || 500;
+        this.enemiesKilled = saveData.enemiesKilled || 0;
+
+        // Restore upgrades
+        if (saveData.upgrades) {
+            this.upgradeSystem.upgrades = saveData.upgrades;
+        }
+
+        // Restore weapons
+        if (saveData.weapons) {
+            this.weaponSystem.unlockedWeapons = saveData.weapons.unlockedWeapons;
+            this.weaponSystem.currentWeaponIndex = saveData.weapons.currentWeaponIndex;
+            // Restore ammo
+            if (saveData.weapons.ammo) {
+                saveData.weapons.ammo.forEach((ammo, i) => {
+                    if (this.weaponSystem.weapons[i]) {
+                        this.weaponSystem.weapons[i].ammo = ammo;
+                    }
+                });
+            }
+        }
+
+        // Restore family welfare
+        if (saveData.familyWelfare) {
+            this.familyWelfare.loadState(saveData.familyWelfare);
+        }
+
+        // Restore completed levels
+        if (saveData.completedLevels) {
+            this.completedLevels = saveData.completedLevels;
+        }
+
+        // Restore master mode
+        this.masterModeEnabled = saveData.masterModeEnabled || false;
+    }
+
+    deleteSaveSlot(index) {
+        if (!confirm(languageSystem.t('Are you sure you want to delete this save?'))) {
+            return;
+        }
+
+        const profile = profileManager.getCurrentProfile();
+        if (!profile) return;
+
+        const savesKey = `spaceShooter_saves_${profile.id}`;
+        let saves = this.getAllSaves();
+
+        if (index >= 0 && index < saves.length) {
+            saves.splice(index, 1);
+
+            try {
+                localStorage.setItem(savesKey, JSON.stringify(saves));
+                this.dialogSystem.showQuickMessage(languageSystem.t('Save deleted'));
+                this.refreshSavesList();
+            } catch (e) {
+                console.error('Failed to delete save:', e);
+            }
+        }
+    }
+
+    createAutosave() {
+        const profile = profileManager.getCurrentProfile();
+        if (!profile) return;
+
+        // Create autosave data
+        const saveData = {
+            timestamp: Date.now(),
+            isAutosave: true,
+            level: this.level,
+            score: this.score,
+            credits: this.credits,
+            enemiesKilled: this.enemiesKilled,
+            upgrades: this.upgradeSystem.upgrades,
+            weapons: {
+                unlockedWeapons: this.weaponSystem.unlockedWeapons,
+                currentWeaponIndex: this.weaponSystem.currentWeaponIndex,
+                ammo: this.weaponSystem.weapons.map(w => w.ammo)
+            },
+            familyWelfare: this.familyWelfare.getFullState(),
+            completedLevels: this.completedLevels,
+            masterModeEnabled: this.masterModeEnabled
+        };
+
+        const savesKey = `spaceShooter_saves_${profile.id}`;
+        let saves = [];
+
+        try {
+            const existingSaves = localStorage.getItem(savesKey);
+            if (existingSaves) {
+                saves = JSON.parse(existingSaves);
+            }
+        } catch (e) {
+            console.error('Failed to load existing saves:', e);
+        }
+
+        // Remove old autosave if exists
+        saves = saves.filter(s => !s.isAutosave);
+
+        // Add new autosave at the beginning
+        saves.unshift(saveData);
+
+        // Limit total saves to 10
+        if (saves.length > 10) {
+            saves = saves.slice(0, 10);
+        }
+
+        try {
+            localStorage.setItem(savesKey, JSON.stringify(saves));
+            console.log('Autosave created');
+        } catch (e) {
+            console.error('Failed to create autosave:', e);
+        }
     }
 
     backToMenu() {
